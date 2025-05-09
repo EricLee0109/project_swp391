@@ -8,20 +8,30 @@
     "start": "next start",
     "lint": "next lint"
   },
+  "packageManager": "npm@11.2.0",
+  "overrides": {
+    "react": "$react",
+    "react-dom": "$react-dom"
+  },
   "dependencies": {
+    "@tailwindcss/typography": "^0.5.16",
+    "next": "15.2.4",
+    "next-auth": "^5.0.0-beta.25",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "next": "15.2.4"
+    "tailwindcss-animate": "^1.0.7"
   },
   "devDependencies": {
-    "typescript": "^5",
+    "@eslint/eslintrc": "^3",
+    "@tailwindcss/postcss": "^4.1.2",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "@tailwindcss/postcss": "^4",
-    "tailwindcss": "^4",
+    "autoprefixer": "^10.4.21",
     "eslint": "^9",
     "eslint-config-next": "15.2.4",
-    "@eslint/eslintrc": "^3"
+    "postcss": "^8.5.3",
+    "tailwindcss": "^4.1.2",
+    "typescript": "^5"
   }
 }
