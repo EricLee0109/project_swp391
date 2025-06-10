@@ -1,6 +1,21 @@
 import SearchForm from "@/components/SearchForm";
 import StartupCard from "@/components/StartupCard";
 
+type StartupCardType = {
+  _id?: string;
+  _createdAt: Date;
+  views: number;
+  name: string;
+  author: {
+    _id: number;
+    name: string;
+  };
+  description: string;
+  image: string;
+  category: string;
+  title: string;
+};
+
 export default async function Home({
   searchParams,
 }: {
