@@ -1,9 +1,9 @@
 import type { Config } from "tailwindcss";
-import tailwindcssAnimate from "tailwindcss-animate";
-import tailwindcssTypography from "@tailwindcss/typography";
+import animate from "tailwindcss-animate";
+import typography from "@tailwindcss/typography";
 
 const config: Config = {
-  darkMode: ["class", "[data-theme='dark']"],
+  darkMode: ["class"],
   content: [
     "./pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./components/**/*.{js,ts,jsx,tsx,mdx}",
@@ -47,7 +47,7 @@ const config: Config = {
       },
     },
   },
-  plugins: [tailwindcssAnimate, tailwindcssTypography],
+  plugins: [animate, typography],
 };
 
 export default config;
