@@ -1,4 +1,5 @@
 import { auth, signIn, signOut } from "@/auth";
+import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -35,6 +36,9 @@ export default async function Navbar() {
           ) : (
             // Latest login method with Github (but if did not login yet, github login page will display)
             <div className="flex items-center gap-5 text-black">
+              <Button className="text-white ">
+                <Link href={"/login"}>Login</Link>
+              </Button>
               <button
                 onClick={async () => {
                   "use server";

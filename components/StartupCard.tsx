@@ -4,6 +4,20 @@ import { EyeIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
+type StartupCardType = {
+  _id?: number;
+  _createdAt: Date;
+  views: number;
+  author: {
+    _id: number;
+    name: string;
+  };
+  description: string;
+  image: string;
+  category: string;
+  title: string;
+};
+
 export default function StartupCard({ post }: { post: StartupCardType }) {
   const {
     _createdAt,
