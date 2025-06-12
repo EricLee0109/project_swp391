@@ -51,7 +51,7 @@ export default function StartupCard({ post }: { post: StartupCardType }) {
         </div>
         <Link href={`/user/${authorId}`}>
           <Image
-            src={"https://placehold.co/48x48"}
+            src="https://placehold.co/48x48"
             alt="avatar"
             width={48}
             height={48}
@@ -59,9 +59,16 @@ export default function StartupCard({ post }: { post: StartupCardType }) {
           />
         </Link>
       </div>
+
       <Link href={`/startup/${_id}`}>
         <p className="startup-card_desc">{description}</p>
-       <Image src={image} alt="placeholder" className="startup-card_img" />
+        <Image
+          src={image}
+          alt="startup image"
+          width={500}
+          height={300}
+          className="startup-card_img"
+        />
       </Link>
 
       <div className="flex-between gap-3 mt-5">
