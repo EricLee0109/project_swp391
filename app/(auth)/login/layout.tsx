@@ -1,6 +1,5 @@
 //Design Layout Login Page Here!
 
-
 export default function Layout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
