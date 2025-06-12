@@ -12,10 +12,12 @@ export async function POST(request: Request) {
       { message: "Login successful", data: beData },
       { status: 200 }
     );
-  } catch (error: any) {
-    console.error("Login Error:", error);
+  } catch (error) {
+    if (error instanceof Error) {
+      return NextResponse.json({ message: error.message }, { status: 500 });
+    }
     return NextResponse.json(
-      { message: error.message || "Internal Server Error" },
+      { message: "Internal Server Error" },
       { status: 500 }
     );
   }
