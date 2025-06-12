@@ -1,4 +1,4 @@
-import { auth, signIn, signOut } from "@/auth";
+import { auth, signOut } from "@/auth";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import Link from "next/link";
@@ -17,18 +17,19 @@ export default async function Navbar() {
           {session && session.user ? (
             <div className="flex items-center gap-5 text-black">
               <Link href={"/starup/create"}>
-                <button className="bg-blue-500 text-white px-4 py-2 rounded-md mr-2">
+                <Button className="bg-blue-500 text-white px-4 py-2 rounded-md mr-2">
                   Create Startup
-                </button>
+                </Button>
               </Link>
-              <button
+              <Button
+                className="text-white-100 hover:bg-red-200 hover:text-black-100 transition-colors duration-300"
                 onClick={async () => {
                   "use server";
                   await signOut({ redirectTo: "/" });
                 }}
               >
                 Logout
-              </button>
+              </Button>
               <Link href={`/user/${session?.user?.id}`}>
                 <button>{session?.user?.name}</button>
               </Link>
@@ -36,26 +37,9 @@ export default async function Navbar() {
           ) : (
             // Latest login method with Github (but if did not login yet, github login page will display)
             <div className="flex items-center gap-5 text-black">
-              <Button className="text-white ">
+              <Button className="hover:text-white ">
                 <Link href={"/login"}>Login</Link>
               </Button>
-              <button
-                onClick={async () => {
-                  "use server";
-                  await signIn("github");
-                }}
-              >
-                Login Gihub
-              </button>
-
-              <button
-                onClick={async () => {
-                  "use server";
-                  await signIn("google");
-                }}
-              >
-                Login Google
-              </button>
             </div>
 
             // The previous login method with Github

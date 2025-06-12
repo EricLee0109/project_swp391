@@ -36,6 +36,3 @@ export const { handlers, signIn, signOut, auth } = NextAuth(authOptions);
 // });
 
 // lib/auth.ts
-
-
-
