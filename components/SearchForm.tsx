@@ -9,7 +9,7 @@ export default function SearchForm({ query }: { query?: string }) {
         name="query"
         defaultValue={query}
         className="search-input"
-        placeholder="Search your startup"
+        placeholder="Search your symtoms, diseases, or blogs"
         type="text"
       />
       <div className="flex gap-2">

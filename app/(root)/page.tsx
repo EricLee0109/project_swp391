@@ -40,12 +40,14 @@ export default async function Home({
     <>
       <section className="pink_container">
         <h1 className="heading">
-          Pitch your startup, <br />
-          Connect with Entrepreneurs
+          Menstrual Cycle, <br />
+          Sexual Health Care
         </h1>
 
         <p className="sub-heading !max-w-3xl">
-          Submit Ideas, Vote on Pitches, and Get Noticed in Virtual Competition
+          Easy to follow menstrual cycle with automatic system, update sexual
+          health knowledge by blogs, meet professional consultant, personal
+          information confidential, fast payment, and more.
         </p>
 
         <SearchForm query={query} />
@@ -61,9 +63,9 @@ export default async function Home({
               <StartupCard key={post._id} post={post} />
             ))
           ) : (
-            <p className="no-result">No startups found</p>
+            <p className="no-result">Not found</p>
           )}
-            {/* {posts?.length > 0 ? (
+          {/* {posts?.length > 0 ? (
             posts.map((post: StartupCardType, index: number) => (
               <StartupCard key={post._id} post={post} />
             ))

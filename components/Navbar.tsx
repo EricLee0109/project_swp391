@@ -1,5 +1,6 @@
 import { auth, signOut } from "@/auth";
 import { Button } from "@/components/ui/button";
+import { MessageCircleHeart } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -37,11 +38,19 @@ export default async function Navbar() {
           ) : (
             // Latest login method with Github (but if did not login yet, github login page will display)
             <div className="flex items-center gap-5 text-black">
-              <Button className="hover:text-white ">
-                <Link href={"/login"}>Sing in </Link>
+              <Button className="hover:text-white bg-none!important">
+                <Link href={"/menstrualCycle"}>
+                  <div className="flex-between gap-2">
+                    <p>Menstrual Cycle</p>
+                    <MessageCircleHeart />
+                  </div>
+                </Link>
               </Button>
-                 <button >
-               <Link href={"/signup"}> Sing up</Link> 
+              <Button className="hover:text-white ">
+                <Link href={"/login"}>Sign in </Link>
+              </Button>
+              <button>
+                <Link href={"/signup"}> Sign up</Link>
               </button>
             </div>
 
