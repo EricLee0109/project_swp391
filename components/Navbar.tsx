@@ -38,8 +38,11 @@ export default async function Navbar() {
             // Latest login method with Github (but if did not login yet, github login page will display)
             <div className="flex items-center gap-5 text-black">
               <Button className="hover:text-white ">
-                <Link href={"/login"}>Login</Link>
+                <Link href={"/login"}>Sing in </Link>
               </Button>
+                 <button >
+               <Link href={"/signup"}> Sing up</Link> 
+              </button>
             </div>
 
             // The previous login method with Github

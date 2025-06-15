@@ -18,6 +18,7 @@ import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import { useState, useTransition } from "react";
 import { githubSignIn, googleSignIn } from "@/app/(auth)/login/actions";
+import { loginAction } from "@/app/api/auth/login/action";
 
 // Schema validate bằng zod
 const loginSchema = z.object({
@@ -43,11 +44,24 @@ export function LoginForm({
       password: "",
     },
   });
-
+  const [message, setMessage] = useState("");
   const onSubmit = (data: LoginFormValues) => {
-    console.log("Login data:", data);
-
-    // TODO: gọi API đăng nhập tại đây
+    setMessage("");
+    startTransition(async () => {
+      try {
+        const result = await loginAction(data);
+        console.log("Login success:", result);
+        setMessage("Đăng nhập thành công!");
+        form.reset();
+        // TODO: lưu token vào cookie hoặc localStorage nếu cần
+      } catch (error: unknown) {
+        if (error instanceof Error) {
+          setMessage(error.message);
+        } else {
+          setMessage("Đăng nhập thất bại!");
+        }
+      }
+    });
   };
 
   const handleGoogleLogin = () => {
@@ -175,6 +189,7 @@ export function LoginForm({
                 </Link>
               </div>
             </div>
+            {message && <div>{message}</div>}
           </form>
         </CardContent>
       </Card>
