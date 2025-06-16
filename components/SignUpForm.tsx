@@ -17,6 +17,8 @@ import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import { useState, useTransition } from "react";
 import { signupAction } from "@/app/api/auth/signup/actions";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 // Schema validate bằng zod
 const signupSchema = z
@@ -49,29 +51,35 @@ export function SignUpForm({
 
   const [isPending, startTransition] = useTransition();
   const [message, setMessage] = useState("");
-
-  const onSubmit = (data: SignUpFormValues) => {
-    setMessage("");
-    startTransition(async () => {
-      try {
-        await signupAction({
-          email: data.email,
-          password: data.password,
-          fullName: data.fullName,
-        });
-        console.log("Đăng ký thành công:", data); // Log đăng ký thành công
-
-        setMessage("Đăng ký thành công!");
-        form.reset();
-      } catch (error: unknown) {
-        if (error instanceof Error) {
-          setMessage(error.message);
-        } else {
-          setMessage("Đăng nhập thất bại!");
-        }
+  const router = useRouter();
+ const onSubmit = (data: SignUpFormValues) => {
+  setMessage("");
+  startTransition(async () => {
+    try {
+      await signupAction({
+        email: data.email,
+        password: data.password,
+        fullName: data.fullName,
+      });
+      console.log("Đăng ký thành công:", data);
+      
+      toast.success("Đăng ký thành công!"); // ✅ Thêm toaster thành công
+      
+      router.push("/login");
+      setMessage("Đăng ký thành công!");
+      form.reset();
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        toast.error(error.message);  // ✅ Thêm toaster cho lỗi có message
+        setMessage(error.message);
+      } else {
+        toast.error("Đăng ký thất bại!");  // ✅ Thêm toaster fallback
+        setMessage("Đăng ký thất bại!");
       }
-    });
-  };
+    }
+  });
+};
+
 
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>

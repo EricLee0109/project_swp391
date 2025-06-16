@@ -2,7 +2,8 @@
 
 import { LoginForm } from "@/components/LoginForm";
 import { GalleryVerticalEnd } from "lucide-react";
-
+import Image from "next/image";
+import Link from "next/link";
 
 export default function LoginPage() {
   return (
@@ -12,7 +13,9 @@ export default function LoginPage() {
           <div className="bg-primary text-primary-foreground flex size-6 items-center justify-center rounded-md">
             <GalleryVerticalEnd className="size-4" />
           </div>
-          Acme Inc.
+          <Link href={"/"}>
+            <Image src={"/logo.png"} alt="logo" width={144} height={30} />
+          </Link>
         </a>
         <LoginForm />
       </div>
