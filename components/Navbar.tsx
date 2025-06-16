@@ -7,6 +7,8 @@ import Link from "next/link";
 export default async function Navbar() {
   const session = await auth();
 
+  console.log("Session in Navbar:", session?.user.role || "admin"); //get visualize the session data when connect database
+
   return (
     <header className="px-5 py-3 bg-white shadow-2xl font-work-sans">
       <nav className="flex justify-between items-center">
@@ -16,11 +18,26 @@ export default async function Navbar() {
         <div>
           {session && session.user ? (
             <div className="flex items-center gap-5 text-black">
-              <Link href={"/starup/create"}>
-                <Button className="bg-blue-500 text-white px-4 py-2 rounded-md mr-2">
-                  Create Startup
-                </Button>
-              </Link>
+              {/* <Button
+                className="bg-blue-500 text-white px-4 py-2 rounded-md mr-2"
+                asChild
+              >
+                <Link href={"/starup/create"}>Create Startup</Link>
+              </Button> */}
+              <Button
+                className="bg-blue-500 text-white px-4 py-2 rounded-md mr-2"
+                asChild
+              >
+                <Link href={`/dashboard/${session?.user.role || "admin"}`}>
+                  Dashboard
+                </Link>
+              </Button>
+              <Button
+                className="bg-blue-500 text-white px-4 py-2 rounded-md mr-2"
+                asChild
+              >
+                <Link href={"/menstrualCycle"}>Menstrual Cycle</Link>
+              </Button>
               <Button
                 className="text-white-100 hover:bg-red-200 hover:text-black-100 transition-colors duration-300"
                 onClick={async () => {
