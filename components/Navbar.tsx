@@ -12,7 +12,6 @@ export default async function Navbar() {
         <Link href={"/"}>
           <Image src={"/logo.png"} alt="logo" width={144} height={30} />
         </Link>
-
         <div>
           {session && session.user ? (
             <div className="flex items-center gap-5 text-black">
