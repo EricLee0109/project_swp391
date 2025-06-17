@@ -6,9 +6,11 @@ import Link from "next/link";
 
 export default async function Navbar() {
   const session = await auth();
-
+  
   console.log("Session in Navbar:", session?.user.role || "admin"); //get visualize the session data when connect database
-
+  console.log("Session in Navbar:", session?.user.user_id);
+  const accessToken = localStorage.getItem("accessToken");
+  console.log("Access Token in Navbar:", accessToken); 
   return (
     <header className="px-5 py-3 bg-white shadow-2xl font-work-sans">
       <nav className="flex justify-between items-center">
@@ -18,12 +20,7 @@ export default async function Navbar() {
         <div>
           {session && session.user ? (
             <div className="flex items-center gap-5 text-black">
-              {/* <Button
-                className="bg-blue-500 text-white px-4 py-2 rounded-md mr-2"
-                asChild
-              >
-                <Link href={"/starup/create"}>Create Startup</Link>
-              </Button> */}
+            
               <Button
                 className="bg-blue-500 text-white px-4 py-2 rounded-md mr-2"
                 asChild
@@ -47,8 +44,8 @@ export default async function Navbar() {
               >
                 Logout
               </Button>
-              <Link href={`/user/${session?.user?.id}`}>
-                <button>{session?.user?.name}</button>
+              <Link href={`/user/${session?.user?.user_id}`}>
+                <button>{session?.user?.email}</button>
               </Link>
             </div>
           ) : (
