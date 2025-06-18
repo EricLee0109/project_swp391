@@ -53,7 +53,6 @@ export function LoginForm({
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(data),
           });
-          console.log("Response from login API:", res);
           if (!res.ok) {
             let message = "Đăng nhập thất bại!";
             try {
