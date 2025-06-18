@@ -32,28 +32,27 @@ const data = {
       items: [
         {
           title: "Dashboard",
-          url: "/dashboard",
+          url: "/dashboard/id", // same as main
         },
       ],
     },
-
     {
       title: "Người dùng",
-      url: "dashboard/user",
+      url: "/dashboard/user", 
       icon: CircleUserRound,
       isActive: true,
       items: [
         {
           title: "Tài khoản",
-          url: "dashboard/user",
+          url: "/dashboard/user", 
         },
         {
           title: "Nhân viên",
-          url: "/user/staff",
+          url: "/dashboard/staff", 
         },
         {
           title: "Khách hàng",
-          url: "/user/customer",
+          url: "/dashboard/customer", 
         },
       ],
     },
@@ -70,6 +69,7 @@ const data = {
     },
   ],
 };
+
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
