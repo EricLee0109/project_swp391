@@ -17,9 +17,9 @@ export default async function Navbar() {
         <div>
           {session?.user ? (
             <div className="flex items-center gap-5 text-black">
-              <Button asChild>
+              {/* <Button asChild>
                 <Link href={`/dashboard/${session.user.role}`}>Dashboard</Link>
-              </Button>
+              </Button> */}
               <Button asChild>
                 <Link href={"/menstrualCycle"}>Menstrual Cycle</Link>
               </Button>
