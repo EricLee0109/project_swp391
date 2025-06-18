@@ -16,7 +16,7 @@ export async function signupAction(formData: {
   });
 
   const data = await response.json();
- console.log("BE response:", data);  // <-- log tay vào đây
+  console.log("BE response:", data); // <-- log tay vào đây
   if (!response.ok) {
     throw new Error(data.message || "Signup failed");
   }
