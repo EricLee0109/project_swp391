@@ -3,7 +3,7 @@ import jwt from "jsonwebtoken";
 
 const JWT_SECRET = process.env.JWT_SECRET!;
 
-export async function auth() {
+export async function authJWT() {
   const cookieStore = await cookies();
   const token = cookieStore.get("accessToken")?.value;
 
