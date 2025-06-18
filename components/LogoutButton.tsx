@@ -3,33 +3,50 @@
 import { useTransition } from "react";
 import { logout } from "@/app/api/auth/actions/logout";
 import { signOut } from "next-auth/react";
-import { Button } from "@/components/ui/button";
 import { notify } from "@/lib/toastNotify";
+import { cn } from "@/lib/utils"; // Nếu dùng Tailwind để hợp nhất className
 
-export function LogoutButton({ type }: { type: "jwt" | "oauth" }) {
+export function LogoutButton({
+  type,
+  className,
+}: {
+  type: "jwt" | "oauth";
+  className?: string;
+}) {
   const [isPending, startTransition] = useTransition();
 
   const handleLogout = () => {
-    startTransition(async () => {
-      try {
-        if (type === "jwt") {
-          await logout();
-          notify("success", "Đăng xuất thành công!");
-        } else {
-          notify("success", "Đăng xuất thành công!");
-          setTimeout(() => {
-            signOut({ callbackUrl: "/" });
-          }, 1000); // Cho thời gian để hiện toast
-        }
-      } catch {
-        notify("error", "Đăng xuất thất bại.");
+  startTransition(async () => {
+    try {
+      notify("success", "Đăng xuất thành công!");
+
+      if (type === "jwt") {
+        await logout(); 
+        setTimeout(() => {
+          window.location.href = "/"; 
+        }, 1000); 
+      } else {
+        setTimeout(() => {
+          signOut({ callbackUrl: "/" }); 
+        }, 1000);
       }
-    });
-  };
+    } catch {
+      notify("error", "Đăng xuất thất bại.");
+    }
+  });
+};
+
 
   return (
-    <Button onClick={handleLogout} disabled={isPending} variant="outline">
-      {isPending ? "Đang thoát..." : "Logout"}
-    </Button>
+    <p
+      onClick={handleLogout}
+      className={cn(
+        "text-red-500 cursor-pointer hover:underline",
+        isPending && "opacity-50 pointer-events-none",
+        className
+      )}
+    >
+      {isPending ? "Đang thoát..." : "Đăng xuất"}
+    </p>
   );
 }

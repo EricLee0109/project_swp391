@@ -16,6 +16,7 @@ import {
   SidebarRail,
 } from "@/components/ui/sidebar";
 import Image from "next/image";
+import Link from "next/link";
 
 const data = {
   user: {
@@ -76,17 +77,18 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
         <SidebarMenu>
-          <SidebarMenuItem className="flex gap-2">
+          <SidebarMenuItem className="flex gap-2">      
             <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-pink-500  text-sidebar-primary-foreground">
              <Image src="/logo.png" alt="Logo" width={24} height={24} className="size-6 " />
-
             </div>
+              <Link href="/" >
             <div className="grid flex-1 text-left text-sm leading-tight">
               <span className="truncate text font-bold">
                 <span className="text-pink-500">YC</span>Directory
               </span>
               <span className="truncate text-xs">Welcome back </span>
             </div>
+            </Link>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
