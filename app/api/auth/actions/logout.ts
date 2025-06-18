@@ -1,10 +1,10 @@
-// app/actions/logout.ts
-'use server';
+// app/api/auth/actions/logout.ts
+"use server"
 
-import { cookies } from 'next/headers';
+import { cookies } from "next/headers"
 
 export async function logout() {
-  const cookieStore = await cookies();
-  cookieStore.delete('accessToken');
-  cookieStore.delete('refreshToken');
+  const cookieStore = await cookies()
+  cookieStore.delete("accessToken")
+  cookieStore.delete("refreshToken")
 }

@@ -15,9 +15,18 @@
         --sidebar-accent-foreground: 240 5.9% 10%;
         --sidebar-border: 220 13% 91%;
         --sidebar-ring: 217.2 91.2% 59.8%;
-     
+        --toast-success-bg: hsl(138, 76%, 95%);
+        --toast-success-text: hsl(138, 36%, 26%);
+        --toast-error-bg: hsl(0, 100%, 97%);
+        --toast-error-text: hsl(0, 80%, 40%);
+        --toast-info-bg: hsl(210, 100%, 97%);
+        --toast-info-text: hsl(210, 100%, 35%);
+        --toast-warning-bg: hsl(45, 100%, 95%);
+        --toast-warning-text: hsl(35, 100%, 32%);
+
     }
-  .dark {
+
+    .dark {
         --sidebar-background: 240 5.9% 10%;
         --sidebar-foreground: 240 4.8% 95.9%;
         --sidebar-primary: 224.3 76.3% 48%;
@@ -26,6 +35,14 @@
         --sidebar-accent-foreground: 240 4.8% 95.9%;
         --sidebar-border: 240 3.7% 15.9%;
         --sidebar-ring: 217.2 91.2% 59.8%;
+        --toast-success-bg: hsl(138, 20%, 15%);
+        --toast-success-text: hsl(138, 90%, 75%);
+        --toast-error-bg: hsl(0, 20%, 15%);
+        --toast-error-text: hsl(0, 100%, 80%);
+        --toast-info-bg: hsl(210, 20%, 15%);
+        --toast-info-text: hsl(210, 100%, 80%);
+        --toast-warning-bg: hsl(45, 20%, 15%);
+        --toast-warning-text: hsl(45, 100%, 75%);
     }
 }
 
@@ -34,39 +51,74 @@
 /* ---------------------------------- */
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(-10px); }
-  to { opacity: 1; transform: translateY(0); }
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 @keyframes successFade {
-  0% { opacity: 0; transform: translateY(20px); }
-  10% { opacity: 1; transform: translateY(0); }
-  90% { opacity: 1; transform: translateY(0); }
-  100% { opacity: 0; transform: translateY(-20px); }
+    0% {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    10% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    90% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    100% {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
 }
 
 @keyframes modal-bg-fade-in {
-  from { background-color: transparent; }
-  to { background-color: rgba(0, 0, 0, 0.8); }
+    from {
+        background-color: transparent;
+    }
+
+    to {
+        background-color: rgba(0, 0, 0, 0.8);
+    }
 }
 
 @keyframes modal-content-slide-in {
-  from { opacity: 0; transform: scale(0.95) translateY(20px); }
-  to { opacity: 1; transform: scale(1) translateY(0); }
+    from {
+        opacity: 0;
+        transform: scale(0.95) translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
 }
 
 ::-webkit-scrollbar {
-  width: 10px;
+    width: 10px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #e0e0e0;
+    background: #e0e0e0;
 }
 
 ::-webkit-scrollbar-thumb {
-  border-radius: 0.5rem;
-  background: gray;
+    border-radius: 0.5rem;
+    background: gray;
 }
+
 @layer utilities {
     .flex-between {
         @apply flex justify-between items-center;
@@ -146,7 +198,7 @@
     }
 
     .profile_title {
-        @apply w-11/12 bg-white border-[5px] border-black rounded-[20px] px-5 py-3 absolute -top-9 after:absolute after:content-[''] after:-top-1 after:right-0 after:-skew-y-6 after:bg-black after:-z-[1] after:rounded-[20px] after:w-full after:h-[60px] before:absolute before:content-[''] before:-bottom-1 before:left-0  before:-skew-y-6 before:w-full before:h-[60px] before:bg-black  before:-z-[1] before:rounded-[20px] shadow-100;
+        @apply w-11/12 bg-white border-[5px] border-black rounded-[20px] px-5 py-3 absolute -top-9 after:absolute after:content-[''] after:-top-1 after:right-0 after:-skew-y-6 after:bg-black after:-z-[1] after:rounded-[20px] after:w-full after:h-[60px] before:absolute before:content-[''] before:-bottom-1 before:left-0 before:-skew-y-6 before:w-full before:h-[60px] before:bg-black before:-z-[1] before:rounded-[20px] shadow-100;
     }
 
     .profile_image {
@@ -256,13 +308,11 @@
     }
 
     .pattern {
-        background-image: linear-gradient(
-                to right,
+        background-image: linear-gradient(to right,
                 transparent 49.5%,
                 rgba(251, 232, 67, 0.2) 49.5%,
                 rgba(251, 232, 67, 0.6) 50.5%,
-                transparent 50.5%
-        );
+                transparent 50.5%);
         background-size: 5% 100%;
         background-position: center;
         background-repeat: repeat-x;
@@ -272,16 +322,19 @@
         @apply before:content-[''] before:absolute before:top-2 before:left-2 before:border-t-[10px] before:border-t-black before:border-r-[10px] before:border-r-transparent after:content-[''] after:absolute after:bottom-2 after:right-2 after:border-b-[10px] after:border-b-black after:border-l-[10px] after:border-l-transparent;
     }
 
-     /* Animation classes here so Tailwind knows about them */
+    /* Animation classes here so Tailwind knows about them */
     .animate-fadeIn {
         animation: fadeIn 0.5s ease-out forwards;
     }
+
     .animate-success {
         animation: successFade 3s ease-in-out forwards;
     }
+
     .animate-modal-bg {
         animation: modal-bg-fade-in 0.3s ease-out forwards;
     }
+
     .animate-modal-content {
         animation: modal-content-slide-in 0.4s ease-out forwards;
     }
@@ -294,10 +347,11 @@
 
 
 @layer base {
-  * {
-    @apply border-border;
+    * {
+        @apply border-border;
     }
-  body {
-    @apply bg-background text-foreground;
+
+    body {
+        @apply bg-background text-foreground;
     }
 }

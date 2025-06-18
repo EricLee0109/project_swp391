@@ -1,9 +1,10 @@
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import Image from "next/image";
-import { logout } from "@/app/api/auth/actions/logout";
-import { auth } from "@/auth";
+
+import { auth,  } from "@/auth";
 import { authJWT } from "@/lib/auth";
+import { LogoutButton } from "./LogoutButton";
 
 export default async function Navbar() {
   const session = await authJWT();
@@ -28,16 +29,9 @@ export default async function Navbar() {
               <Button asChild>
                 <Link href={"/menstrualCycle"}>Menstrual Cycle</Link>
               </Button>
-              <form
-                action={async () => {
-                  "use server";
-                  await logout();
-                }}
-              >
-                <Button type="submit" variant="outline">
-                  Logout
-                </Button>
-              </form>
+              {session?.user && <LogoutButton type="jwt" />}
+              {ggSession?.user && <LogoutButton type="oauth" />}
+
               <Link
                 href={`/user/${session?.user.user_id || ggSession?.user.id}`}
               >

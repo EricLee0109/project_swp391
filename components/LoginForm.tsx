@@ -17,7 +17,7 @@ import { cn } from "@/lib/utils";
 import { useState, useTransition } from "react";
 import { githubSignIn, googleSignIn } from "@/app/(auth)/login/actions";
 import { useRouter } from "next/navigation";
-import { toast } from "sonner";
+import { notify } from "@/lib/toastNotify";
 const loginSchema = z.object({
   email: z.string().email("Email không hợp lệ"),
   password: z.string().min(6, "Mật khẩu ít nhất 6 ký tự"),
@@ -54,7 +54,6 @@ export function LoginForm({
             body: JSON.stringify(data),
           });
           console.log("Response from login API:", res);
-
           if (!res.ok) {
             let message = "Đăng nhập thất bại!";
             try {
@@ -69,19 +68,16 @@ export function LoginForm({
             }
             throw new Error(message);
           }
-
-          toast.success("Đăng nhập thành công");
+           notify("success", "Đăng nhập thành công!")
           router.refresh(); // Gọi lại Server Component (Navbar)
           router.push("/");
         }
         // Google & GitHub vẫn giữ nguyên
       } catch (error: unknown) {
         if (error instanceof Error) {
-          toast.error(error.message);
-          setMessage(error.message);
+          notify("error", error.message);
         } else {
-          toast.error("Đăng nhập thất bại");
-          setMessage("Đăng nhập thất bại!");
+          notify("error", "Đăng nhập thất bại");
         }
       }
     });
