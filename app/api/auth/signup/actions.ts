@@ -2,10 +2,6 @@
 
 import { BE_BASE_URL } from "@/lib/config";
 
-import { signIn } from "next-auth/react";
-
-
-
 export async function signupAction(formData: {
   email: string;
   password: string;

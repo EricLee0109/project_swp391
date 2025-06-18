@@ -16,7 +16,6 @@ import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import { useState, useTransition } from "react";
 import { githubSignIn, googleSignIn } from "@/app/(auth)/login/actions";
-import { loginAction } from "@/app/api/auth/login/action";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 const loginSchema = z.object({
@@ -49,20 +48,36 @@ export function LoginForm({
     startTransition(async () => {
       try {
         if (loginType === "custom") {
-          const result = await loginAction(data);
-          localStorage.setItem("accessToken", result.accessToken);
-          console.log("Login success:", result);
+          const res = await fetch("/api/auth/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data),
+          });
+          console.log("Response from login API:", res);
+
+          if (!res.ok) {
+            let message = "Đăng nhập thất bại!";
+            try {
+              const errorData = await res.json();
+              message = errorData.message || message;
+            } catch (jsonError) {
+              // JSON parse failed (res might be 204 or HTML)
+              console.error(
+                "Không parse được JSON từ response lỗi:",
+                jsonError
+              );
+            }
+            throw new Error(message);
+          }
+
           toast.success("Đăng nhập thành công");
-          setMessage("Đăng nhập thành công!");
-          router.refresh();
+          router.refresh(); // Gọi lại Server Component (Navbar)
           router.push("/");
-        } else if (loginType === "google") {
-          googleSignIn();
-        } else if (loginType === "github") {
-          githubSignIn();
         }
+        // Google & GitHub vẫn giữ nguyên
       } catch (error: unknown) {
         if (error instanceof Error) {
+          toast.error(error.message);
           setMessage(error.message);
         } else {
           toast.error("Đăng nhập thất bại");
