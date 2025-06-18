@@ -54,8 +54,6 @@ export function LoginForm({
           console.log("Login success:", result);
           toast.success("Đăng nhập thành công");
           setMessage("Đăng nhập thành công!");
-          console.log("Login success:", result);
-
           router.refresh();
           router.push("/");
         } else if (loginType === "google") {
