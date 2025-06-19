@@ -108,6 +108,8 @@ const CycleCalendar = React.memo(({ selectedDate, onSelect, phaseModifiers }: {
   </Card>
 ));
 
+CycleCalendar.displayName = "CycleCalendar";
+
 export default function MenstrualCycleTracker() { 
   const [cycles, setCycles] = useState<Cycle[]>([]);
   const [loading, setLoading] = useState(true);
