@@ -23,7 +23,7 @@ import { LogoutButton } from "../LogoutButton";
 
 type UserType = {
   name?: string;
-  full_name?: string;
+  fullname?: string;
   email?: string;
   avatar?: string;
 };
@@ -58,7 +58,7 @@ export default function ProfileMenu({
   user: UserType;
   type: "jwt" | "oauth";
 }) {
-  const displayName = user?.full_name || user?.name || "User";
+  const displayName = user?.fullname || user?.name || "User";
   const displayEmail = user?.email || "user@example.com";
   const avatarUrl =
     user?.avatar || `https://ui-avatars.com/api/?name=${displayName}`;

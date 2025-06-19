@@ -60,6 +60,8 @@ export function LoginForm({
               message = errorData.message || message;
             } catch (jsonError) {
               // JSON parse failed (res might be 204 or HTML)
+              console.log("user 1", data);
+              
               console.error(
                 "Không parse được JSON từ response lỗi:",
                 jsonError

@@ -1,7 +1,8 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import MenstrualCycleTracker from "@/components/MenstrualCycle";
-import MenstrualCycleSetup from "@/components/MenstrualCycleSetup";
+
+import MenstrualCycleSetup from "@/components/menstrualcycle/MenstrualCycleSetup";
+import MenstrualCycleTracker from "@/components/menstrualcycle/MenstrualCycle";
 
 export default function MenstrualCyclePage() {
   const [loading, setLoading] = useState(true);
