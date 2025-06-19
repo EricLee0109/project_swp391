@@ -20,6 +20,12 @@ interface Cycle {
   notes?: string;
 }
 
+interface Predictions {
+  nextCycleStart: string;
+  ovulationDate: string;
+}
+
+
 
 // Helper: Tính ngày rụng trứng theo start_date & ovulation_date API
 function getOvulationDay(start_date: string, ovulation_date: string) {
@@ -40,7 +46,7 @@ function getDynamicPhases(periodLength: number, cycleLength: number, ovulationDa
       description: "Niêm mạc tử cung bong ra dẫn đến ra máu kinh. Estrogen và progesterone thấp.",
     },
     {
-      name: "Pha nang noãn",
+      name: "Pha nang trứng",
       key: "FOLLICULAR",
       duration: [periodLength + 1, ovulationDay - 1],
       icon: BrainCircuit,
@@ -84,6 +90,8 @@ export default function MenstrualCycleTracker() {
   const [openRecord, setOpenRecord] = useState(false);
   const [showSymptomModal, setShowSymptomModal] = useState(false);
   const [showAnalyticsModal, setShowAnalyticsModal] = useState(false);
+  const [predictions, setPredictions] = useState<Predictions | null>(null);
+
 
   const fetchCycles = useCallback(async () => {
     try {
@@ -94,6 +102,7 @@ export default function MenstrualCycleTracker() {
         (a: Cycle, b: Cycle) => parseISO(b.start_date).getTime() - parseISO(a.start_date).getTime()
       );
       setCycles(sortedCycles);
+      setPredictions(data.predictions || null)
       if (!selectedDate) setSelectedDate(startOfDay(new Date()));
     } catch {
       setCycles([]);
@@ -230,6 +239,22 @@ export default function MenstrualCycleTracker() {
           <p className="text-lg text-gray-600 dark:text-gray-400 mt-2">
             Hướng dẫn tương tác theo dõi chu kỳ hàng tháng của bạn
           </p>
+          {predictions && (
+    <div className="mt-4 flex flex-col items-center text-base">
+      <div className="flex items-center gap-2">
+        <span className="font-medium text-rose-600">Dự đoán kỳ tới:</span>
+        <span className="font-semibold text-gray-900 dark:text-gray-100">
+          {new Date(predictions.nextCycleStart).toLocaleDateString("vi-VN")}
+        </span>
+      </div>
+      <div className="flex items-center gap-2">
+        <span className="font-medium text-yellow-600">Dự đoán rụng trứng:</span>
+        <span className="font-semibold text-gray-900 dark:text-gray-100">
+          {new Date(predictions.ovulationDate).toLocaleDateString("vi-VN")}
+        </span>
+      </div>
+    </div>
+  )}
           <div className="flex flex-wrap gap-2 justify-center mt-4">
             <button
               className="px-4 py-2 rounded bg-blue-500 text-white hover:bg-blue-600 font-semibold transition"
