@@ -25,8 +25,6 @@ interface Predictions {
   ovulationDate: string;
 }
 
-
-
 // Helper: Tính ngày rụng trứng theo start_date & ovulation_date API
 function getOvulationDay(start_date: string, ovulation_date: string) {
   return differenceInDays(startOfDay(parseISO(ovulation_date)), startOfDay(parseISO(start_date))) + 1;
@@ -82,16 +80,47 @@ function getPhaseForDayDynamic(day: number, phases: ReturnType<typeof getDynamic
   return phases.find((p) => day >= p.duration[0] && day <= p.duration[1]) || phases[0];
 }
 
-export default function MenstrualCycleTracker() {
+const CycleCalendar = React.memo(({ selectedDate, onSelect, phaseModifiers }: {
+  selectedDate: Date | undefined;
+  onSelect: (date: Date | undefined) => void;
+  phaseModifiers: Record<string, Date[]>;
+}) => (
+  <Card className="shadow-lg dark:bg-gray-800/50">
+    <CardHeader>
+      <CardTitle>Lịch chu kỳ</CardTitle>
+      <CardDescription>Chọn ngày để xem giai đoạn chu kỳ.</CardDescription>
+    </CardHeader>
+    <CardContent className="flex justify-center">
+      <Calendar
+        mode="single"
+        selected={selectedDate}
+        onSelect={onSelect}
+        className="p-0"
+        modifiers={phaseModifiers}
+        modifiersClassNames={{
+          menstruation: "day-menstruation",
+          follicular: "day-follicular",
+          ovulation: "day-ovulation",
+          luteal: "day-luteal",
+        }}
+      />
+    </CardContent>
+  </Card>
+));
+
+export default function MenstrualCycleTracker() { 
   const [cycles, setCycles] = useState<Cycle[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(startOfDay(new Date()));
   const [isClient, setIsClient] = useState(false);
   const [openRecord, setOpenRecord] = useState(false);
   const [showSymptomModal, setShowSymptomModal] = useState(false);
   const [showAnalyticsModal, setShowAnalyticsModal] = useState(false);
   const [predictions, setPredictions] = useState<Predictions | null>(null);
 
+  const handleSelectDate = useCallback((date: Date | undefined) => {
+    setSelectedDate(date ? startOfDay(date) : undefined);
+  }, []);
 
   const fetchCycles = useCallback(async () => {
     try {
@@ -102,15 +131,13 @@ export default function MenstrualCycleTracker() {
         (a: Cycle, b: Cycle) => parseISO(b.start_date).getTime() - parseISO(a.start_date).getTime()
       );
       setCycles(sortedCycles);
-      setPredictions(data.predictions || null)
-      if (!selectedDate) setSelectedDate(startOfDay(new Date()));
+      setPredictions(data.predictions || null);
     } catch {
       setCycles([]);
     } finally {
       setLoading(false);
     }
-  }, [selectedDate]);
-
+  }, []); // Remove selectedDate from dependencies
 
   useEffect(() => {
     setIsClient(true);
@@ -210,25 +237,16 @@ export default function MenstrualCycleTracker() {
     setShowSymptomModal(true);
   };
 
-  // const handleOpenAnalyticsModal = () => {
-  //   if (!cycleId) {
-  //     notify("error", "Ngày bạn chọn không thuộc bất kỳ chu kỳ nào!");
-  //     return;
-  //   }
-  //   setShowAnalyticsModal(true);
-  // };
-
-
   const cycleId = currentCycle?.cycle_id;
   const Icon = currentPhaseInfo.icon;
 
   return (
-    <div className="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 min-h-screen w-full flex items-center justify-center p-4 font-sans">
+    <div className="bg-gray-50 dark:bg-gray-900 min-h-screen w-full flex items-center justify-center p-4 font-sans">
       <style>{`
-        .day-menstruation { background-color: #ef4444; color: white; border-radius: 9999px; }
-        .day-follicular { background-color: #60a5fa; color: white; border-radius: 9999px; }
-        .day-ovulation { background-color: #facc15; color: black; border-radius: 9999px; font-weight: bold; }
-        .day-luteal { background-color: #a855f7; color: white; border-radius: 9999px; }
+        .day-menstruation { background-color: #ef4444; color: white; border-radius: 9999px; transition: none; }
+        .day-follicular { background-color: #60a5fa; color: white; border-radius: 9999px; transition: none; }
+        .day-ovulation { background-color: #facc15; color: black; border-radius: 9999px; font-weight: bold; transition: none; }
+        .day-luteal { background-color: #a855f7; color: white; border-radius: 9999px; transition: none; }
         .day-menstruation:hover, .day-follicular:hover, .day-ovulation:hover, .day-luteal:hover { opacity: 0.8; }
       `}</style>
       <div className="w-full max-w-5xl mx-auto">
@@ -240,21 +258,21 @@ export default function MenstrualCycleTracker() {
             Hướng dẫn tương tác theo dõi chu kỳ hàng tháng của bạn
           </p>
           {predictions && (
-    <div className="mt-4 flex flex-col items-center text-base">
-      <div className="flex items-center gap-2">
-        <span className="font-medium text-rose-600">Dự đoán kỳ tới:</span>
-        <span className="font-semibold text-gray-900 dark:text-gray-100">
-          {new Date(predictions.nextCycleStart).toLocaleDateString("vi-VN")}
-        </span>
-      </div>
-      <div className="flex items-center gap-2">
-        <span className="font-medium text-yellow-600">Dự đoán rụng trứng:</span>
-        <span className="font-semibold text-gray-900 dark:text-gray-100">
-          {new Date(predictions.ovulationDate).toLocaleDateString("vi-VN")}
-        </span>
-      </div>
-    </div>
-  )}
+            <div className="mt-4 flex flex-col items-center text-base">
+              <div className="flex items-center gap-2">
+                <span className="font-medium text-rose-600">Dự đoán kỳ tới:</span>
+                <span className="font-semibold text-gray-900 dark:text-gray-100">
+                  {new Date(predictions.nextCycleStart).toLocaleDateString("vi-VN")}
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="font-medium text-yellow-600">Dự đoán rụng trứng:</span>
+                <span className="font-semibold text-gray-900 dark:text-gray-100">
+                  {new Date(predictions.ovulationDate).toLocaleDateString("vi-VN")}
+                </span>
+              </div>
+            </div>
+          )}
           <div className="flex flex-wrap gap-2 justify-center mt-4">
             <button
               className="px-4 py-2 rounded bg-blue-500 text-white hover:bg-blue-600 font-semibold transition"
@@ -270,12 +288,11 @@ export default function MenstrualCycleTracker() {
             </button>
             <button
               className="px-4 py-2 rounded bg-purple-500 text-white hover:bg-purple-600 font-semibold transition"
-              onClick={() =>setShowAnalyticsModal(true)}
+              onClick={() => setShowAnalyticsModal(true)}
             >
               Phân tích chu kỳ
             </button>
           </div>
-
         </header>
 
         {openRecord && (
@@ -297,8 +314,6 @@ export default function MenstrualCycleTracker() {
               await fetchCycles();
               setShowSymptomModal(false);
             }}
-
-
           />
         )}
         {showAnalyticsModal && (
@@ -380,29 +395,12 @@ export default function MenstrualCycleTracker() {
               </CardContent>
             </Card>
 
-            <Card className="shadow-lg dark:bg-gray-800/50">
-              <CardHeader>
-                <CardTitle>Lịch chu kỳ</CardTitle>
-                <CardDescription>
-                  Chọn ngày để xem bạn đang ở giai đoạn nào của chu kỳ.
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="flex justify-center">
-                <Calendar
-                  mode="single"
-                  selected={selectedDate}
-                  onSelect={(date) => setSelectedDate(date ? startOfDay(date) : undefined)}
-                  className="p-0"
-                  modifiers={phaseModifiers}
-                  modifiersClassNames={{
-                    menstruation: "day-menstruation",
-                    follicular: "day-follicular",
-                    ovulation: "day-ovulation",
-                    luteal: "day-luteal",
-                  }}
-                />
-              </CardContent>
-            </Card>
+            <CycleCalendar
+              key={cycleId || "no-cycle"}
+              selectedDate={selectedDate}
+              onSelect={handleSelectDate}
+              phaseModifiers={phaseModifiers}
+            />
           </div>
         </div>
       </div>
