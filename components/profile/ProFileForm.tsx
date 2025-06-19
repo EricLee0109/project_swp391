@@ -1,199 +1,137 @@
 "use client";
 
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
-
-import { Button } from "@/components/ui/button";
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+import { useEffect, useState } from "react";
 import { CalendarIcon } from "lucide-react";
-import { Calendar } from "@/components/ui/calendar";
-import { cn, formatDate } from "@/lib/utils";
-import { useDropzone } from "react-dropzone";
 import Image from "next/image";
 
-const formSchema = z.object({
-  email: z.string().email(),
-  fullName: z.string().min(1, "Họ tên đầy đủ là bắt buộc"),
-  address: z.string({ required_error: "Vui lòng nhập địa chỉ" }),
-  birthDate: z
-    .date({ required_error: "Vui lòng nhập ngày sinh" })
-    .refine((date) => date <= new Date(), {
-      message: "Ngày sinh không hợp lệ",
-    }),
-});
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
+import { formatDate } from "@/lib/utils";
 
-export default function ProfileForm() {
-  const maxFileSize = 1 * 1024 * 1024; // 1MB
-
-  const onDrop = (acceptedFiles: File[]) => {
-    console.log("Files dropped:", acceptedFiles);
+ interface ProfileType {
+  profile_id: string;
+  user_id: string;
+  full_name: string;
+  address: string | null;
+  date_of_birth: string;
+  gender: "Male" | "Female" | "Other";
+  medical_history?: string;
+  privacy_settings: {
+    shareData: boolean;
+    showEmail: boolean;
   };
+}
 
-  const { getRootProps, getInputProps, isDragActive, isDragReject } = useDropzone({
-    onDrop,
-    accept: {
-      "image/jpeg": [".jpg", ".jpeg"],
-      "image/png": [".png"],
-    },
-    maxSize: maxFileSize,
-  });
+export default function ProfileViewer() {
+ const [profile, setProfile] = useState<ProfileType | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      email: "",
-      fullName: "",
-      address: "",
-      birthDate: undefined,
-    },
-  });
+  useEffect(() => {
+  async function fetchProfile() {
+    try {
+      const res = await fetch("/api/profile/customer", {
+        credentials: "include", 
+      });
+      const data = await res.json();
 
+      console.log("GET profile", res.status, data);
 
-
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log("Submitting:", values);
+      if (res.ok) {
+        setProfile(data);
+      } else {
+        console.error("Không thể tải hồ sơ:", data?.error);
+      }
+    } catch (err) {
+      console.error("Lỗi mạng khi tải hồ sơ:", err);
+    } finally {
+      setLoading(false);
+    }
   }
 
+  fetchProfile();
+}, []);
 
+  console.log("profile", profile);
+  
+  if (loading) {
+    return (
+      <Card className="p-6 space-y-4">
+        <Skeleton className="h-6 w-1/3" />
+        <Skeleton className="h-4 w-1/2" />
+        <Skeleton className="h-4 w-2/3" />
+      </Card>
+    );
+  }
+
+  if (!profile) {
+    return <p className="text-center text-red-500">Không thể tải hồ sơ người dùng.</p>;
+  }
 
   return (
-    <div className="py-5">
-      <div className="bg-white p-5 drop-shadow">
-        <h1 className="text-xl font-semibold">Hồ sơ của tôi</h1>
-        <p className="text-sm text-zinc-500">Quản lý thông tin hồ sơ</p>
-        <hr className="my-3" />
-        <div className="grid grid-cols-12 gap-5">
-          <div className="col-span-8">
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-3">
-                <FormField
-                  control={form.control}
-                  name="email"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Email</FormLabel>
-                      <FormControl>
-                        <Input readOnly placeholder="Nhập địa chỉ email" {...field} />
-                      </FormControl>
-                      <FormDescription>Email sử dụng để đăng nhập (không thể thay đổi).</FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+    <Card className="p-6">
+      <CardHeader>
+        <CardTitle className="text-xl">Hồ sơ của tôi</CardTitle>
+        <p className="text-sm text-muted-foreground">Thông tin cá nhân</p>
+      </CardHeader>
 
-                <FormField
-                  control={form.control}
-                  name="fullName"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Họ và tên</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Nhập họ và tên" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="address"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Địa chỉ</FormLabel>
-                      <Input placeholder="Nhập địa chỉ" className="py-6" {...field} />
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="birthDate"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-col my-3">
-                      <FormLabel>Ngày sinh</FormLabel>
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <FormControl>
-                            <Button
-                              variant="outline"
-                              className={cn(
-                                "w-[240px] pl-3 text-left font-normal",
-                                !field.value && "text-muted-foreground"
-                              )}
-                            >
-                              {field.value ? formatDate(field.value) : <span>Chọn ngày sinh</span>}
-                              <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                            </Button>
-                          </FormControl>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0" align="start">
-                          <Calendar
-                            mode="single"
-                            selected={field.value}
-                            onSelect={field.onChange}
-                            disabled={(date) =>
-                              date > new Date() || date < new Date("1900-01-01")
-                            }
-                          />
-                        </PopoverContent>
-                      </Popover>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <Button type="submit"  className="bg-pink-500 hover:bg-pink-400">
-                  Lưu thay đổi
-                </Button>
-              </form>
-            </Form>
+      <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Cột trái */}
+        <div className="space-y-4">
+          <div>
+            <p className="text-sm text-muted-foreground">Họ tên</p>
+            <p className="font-medium">{profile.full_name}</p>
           </div>
 
-          <div className="col-span-4 py-5">
-            <div className="flex justify-center">
-             <Image
-  src="https://github.com/shadcn.png"
-  alt="Avatar"
-  width={144}
-  height={144}
-  className="rounded-full object-cover"
-/>
-            </div>
-            <p className="my-3 text-center font-semibold">Cập nhật ảnh đại diện</p>
-            <div
-              {...getRootProps()}
-              className="border-dashed border-2  border-pink-500 text-pink-500 p-3 text-sm rounded-lg text-center cursor-pointer"
-            >
-              <input {...getInputProps()} />
-              {isDragActive ? (
-                <p>Thả các tập tin ở đây ...</p>
-              ) : isDragReject ? (
-                <p className="text-red-500">File không được hỗ trợ</p>
-              ) : (
-                <p>Kéo và thả một số tệp ở đây hoặc nhấp để chọn tệp</p>
-              )}
-              <p>Kích thước tập tin tối đa: 1MB</p>
-            </div>
+          <div>
+            <p className="text-sm text-muted-foreground">Địa chỉ</p>
+            <p className="font-medium">{profile.address}</p>
+          </div>
+
+          <div>
+            <p className="text-sm text-muted-foreground">Ngày sinh</p>
+            <p className="font-medium flex items-center gap-1">
+              {profile.date_of_birth ? formatDate(new Date(profile.date_of_birth)) : ""}
+              <CalendarIcon className="w-4 h-4 text-muted-foreground" />
+            </p>
+          </div>
+
+          <div>
+            <p className="text-sm text-muted-foreground">Giới tính</p>
+            <p className="font-medium">{profile.gender}</p>
+          </div>
+
+          <div>
+            <p className="text-sm text-muted-foreground">Tiền sử bệnh</p>
+            <p className="font-medium">{profile.medical_history || "Không có"}</p>
+          </div>
+
+          <div>
+            <p className="text-sm text-muted-foreground">Chia sẻ dữ liệu</p>
+            <p className="font-medium">
+              {profile.privacy_settings?.shareData ? "Có" : "Không"}
+            </p>
+          </div>
+
+          <div>
+            <p className="text-sm text-muted-foreground">Hiển thị email công khai</p>
+            <p className="font-medium">
+              {profile.privacy_settings?.showEmail ? "Có" : "Không"}
+            </p>
           </div>
         </div>
-      </div>
-    </div>
+
+        {/* Cột phải: Ảnh đại diện */}
+        <div className="flex flex-col items-center gap-2">
+          <Image
+            src="https://github.com/shadcn.png"
+            alt="Avatar"
+            width={144}
+            height={144}
+            className="rounded-full border object-cover"
+          />
+          <p className="text-sm text-muted-foreground">Ảnh đại diện (demo)</p>
+        </div>
+      </CardContent>
+    </Card>
   );
 }

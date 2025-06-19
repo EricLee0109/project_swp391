@@ -1,4 +1,5 @@
 // "use server";
+// //api/auth/login/action.ts
 
 // import { cookies } from "next/headers";
 // import { BE_BASE_URL } from "@/lib/config";
@@ -14,7 +15,8 @@
 //     headers: { "Content-Type": "application/json" },
 //     body: JSON.stringify({ email, password }),
 //   });
-
+//    console.log("Login request body:", res.body);
+   
 //   const data = await res.json();
 
 //   if (!res.ok) {
