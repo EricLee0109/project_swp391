@@ -1,26 +1,42 @@
 "use client";
-
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import MenstrualCycleTracker from "@/components/MenstrualCycle";
 import MenstrualCycleSetup from "@/components/MenstrualCycleSetup";
 
 export default function MenstrualCyclePage() {
-  const [isSetupOpen, setIsSetupOpen] = useState(true);
+  const [loading, setLoading] = useState(true);
+  const [hasCycle, setHasCycle] = useState(false);
+  const [setupKey, setSetupKey] = useState(0); // để trigger re-render tracker
 
-  // Function to close the modal
-  const handleCloseSetup = () => {
-    setIsSetupOpen(false);
+  useEffect(() => {
+    const checkCycles = async () => {
+      try {
+        const res = await fetch("/api/cycles");
+        const data = await res.json();
+        setHasCycle(!!(data.cycles && data.cycles.length));
+      } catch {
+        setHasCycle(false);
+      } finally {
+        setLoading(false);
+      }
+    };
+    checkCycles();
+  }, [setupKey]);
+
+
+  // Khi setup xong thì hiển thị tracker (không reload trang)
+  const handleCloseSetup = (cycleCreated?: boolean) => {
+    if (cycleCreated) {
+      setSetupKey(k => k + 1); // force lại useEffect => fetch lại data
+      setHasCycle(true);
+    }
   };
 
-  return (
-    <>
-      <div className="section">
-        {/* The tracker will be visible in the background */}
-        <MenstrualCycleTracker />
-      </div>
+  if (loading) return null; // hoặc spinner
 
-      {/* Conditionally render the setup modal */}
-      {isSetupOpen && <MenstrualCycleSetup onClose={handleCloseSetup} />}
-    </>
+  return hasCycle ? (
+    <MenstrualCycleTracker key={setupKey} /> // thêm key để chắc chắn re-mount
+  ) : (
+    <MenstrualCycleSetup onClose={handleCloseSetup} />
   );
 }
