@@ -5,7 +5,6 @@ import Image from "next/image";
 import { auth } from "@/auth";
 import { authJWT } from "@/lib/auth";
 
-
 import ProfileMenu from "./profile/profile-menu";
 
 export default async function Navbar() {
@@ -21,12 +20,12 @@ export default async function Navbar() {
     type = "oauth";
   }
   return (
-    <header className="px-5 py-3 bg-white shadow-2xl font-work-sans">
+    <header className="px-5 py-3 bg-white    font-work-sans">
       <nav className="flex justify-between items-center">
         <Link href={"/"}>
           <Image src={"/logo.png"} alt="logo" width={144} height={30} />
         </Link>
-          <div className="flex items-center gap-5 text-black">
+        <div className="flex items-center gap-5 text-black">
           <Button asChild>
             <Link href={"/sexualHealthServices"}>Health Services</Link>
           </Button>
@@ -62,13 +61,13 @@ export default async function Navbar() {
               {session?.user && <LogoutButton type="jwt" />}
               {ggSession?.user && <LogoutButton type="oauth" />} */}
 
-              {/* <Link
+        {/* <Link
                 href={`/user/${session?.user.user_id || ggSession?.user.id}`}
               >
                 <span>{session?.user.email || ggSession?.user.name}</span>
               </Link> */}
-         
-            {/* </div>
+
+        {/* </div>
           ) : (
             <div className="flex items-center gap-5 text-black">
               <Button asChild>
