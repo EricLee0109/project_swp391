@@ -10,21 +10,14 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-import {
-  Bell,
-  CircleUser,
-  DoorOpen,
-  Heart,
-  Settings,
-} from "lucide-react";
+import { Bell, CircleUser, DoorOpen, Heart, Settings } from "lucide-react";
 import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { LogoutButton } from "../LogoutButton";
 
 type UserType = {
-  name?: string;
-  full_name?: string;
-  email?: string;
+  fullName: string;
+  email: string;
   avatar?: string;
 };
 
@@ -58,12 +51,14 @@ export default function ProfileMenu({
   user: UserType;
   type: "jwt" | "oauth";
 }) {
-  const displayName = user?.full_name || user?.name || "User";
+  console.log(user, "user");
+
+  const displayName = user?.fullName || "User";
   const displayEmail = user?.email || "user@example.com";
   const avatarUrl =
     user?.avatar || `https://ui-avatars.com/api/?name=${displayName}`;
-  console.log("user", user);
-  
+  console.log("user");
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -91,7 +86,7 @@ export default function ProfileMenu({
             </Link>
           ))}
         </DropdownMenuGroup>
-        
+
         <DropdownMenuSeparator />
         <DropdownMenuItem className="text-red-500 cursor-pointer gap-2">
           <DoorOpen className="h-4 w-4" />
