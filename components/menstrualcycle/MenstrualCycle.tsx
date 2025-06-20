@@ -17,10 +17,11 @@ import {
 import { Calendar } from "@/components/ui/calendar";
 import { Badge } from "@/components/ui/badge";
 import { Droplets, Egg, BrainCircuit, Wind } from "lucide-react";
+
+import { notify } from "@/lib/toastNotify";
 import MenstrualCycleRecord from "./MenstrualCycleRecord";
 import MenstrualCycleSymptomModal from "./MenstrualCycleSymptomModal";
 import MenstrualCycleAnalyticsModal from "./MenstrualCycleAnalyticsModal";
-import { notify } from "@/lib/toastNotify";
 
 interface Cycle {
   cycle_id: string;

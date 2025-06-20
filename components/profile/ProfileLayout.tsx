@@ -15,7 +15,7 @@ import { LogoutButton } from "@/components/LogoutButton";
 
 type UserType = {
   name?: string;
-  full_name?: string;
+  fullName?: string;
   email?: string;
   avatar?: string;
 };
@@ -58,13 +58,13 @@ export default function ProfileLayout({
   type: "jwt" | "oauth";
 }) {
   const pathname = usePathname();
-  const displayName = user?.full_name || user?.name || "User";
+  const displayName = user?.fullName || user?.name || "User";
   const displayEmail = user?.email || "user@example.com";
   const avatarUrl =
     user?.avatar || `https://ui-avatars.com/api/?name=${displayName}`;
 
   return (
-    <MaxWidthWrapper className="bg-zinc-100">
+    <MaxWidthWrapper className="">
       <div className="grid grid-cols-12 gap-3">
         {/* Sidebar */}
         <div className="col-span-3 py-5">

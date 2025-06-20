@@ -16,8 +16,9 @@ import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { LogoutButton } from "../LogoutButton";
 
 type UserType = {
-  fullName: string;
-  email: string;
+  name?: string;
+  fullname?: string;
+  email?: string;
   avatar?: string;
 };
 
@@ -51,9 +52,7 @@ export default function ProfileMenu({
   user: UserType;
   type: "jwt" | "oauth";
 }) {
-  console.log(user, "user");
-
-  const displayName = user?.fullName || "User";
+  const displayName = user?.fullname || user?.name || "User";
   const displayEmail = user?.email || "user@example.com";
   const avatarUrl =
     user?.avatar || `https://ui-avatars.com/api/?name=${displayName}`;
