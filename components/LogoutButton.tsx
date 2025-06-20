@@ -16,26 +16,25 @@ export function LogoutButton({
   const [isPending, startTransition] = useTransition();
 
   const handleLogout = () => {
-  startTransition(async () => {
-    try {
-      notify("success", "Đăng xuất thành công!");
+    startTransition(async () => {
+      try {
+        notify("success", "Đăng xuất thành công!");
 
-      if (type === "jwt") {
-        await logout(); 
-        setTimeout(() => {
-          window.location.href = "/"; 
-        }, 1000); 
-      } else {
-        setTimeout(() => {
-          signOut({ callbackUrl: "/" }); 
-        }, 1000);
+        if (type === "jwt") {
+          await logout();
+          setTimeout(() => {
+            window.location.href = "/";
+          }, 1000);
+        } else {
+          setTimeout(() => {
+            signOut({ callbackUrl: "/" });
+          });
+        }
+      } catch {
+        notify("error", "Đăng xuất thất bại.");
       }
-    } catch {
-      notify("error", "Đăng xuất thất bại.");
-    }
-  });
-};
-
+    });
+  };
 
   return (
     <p

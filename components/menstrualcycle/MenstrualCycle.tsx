@@ -1,7 +1,19 @@
 "use client";
 import React, { useState, useMemo, useEffect, useCallback } from "react";
-import { addDays, differenceInDays, isBefore, parseISO, startOfDay } from "date-fns";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  addDays,
+  differenceInDays,
+  isBefore,
+  parseISO,
+  startOfDay,
+} from "date-fns";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Calendar } from "@/components/ui/calendar";
 import { Badge } from "@/components/ui/badge";
 import { Droplets, Egg, BrainCircuit, Wind } from "lucide-react";
@@ -28,11 +40,20 @@ interface Predictions {
 
 // Helper: Tính ngày rụng trứng theo start_date & ovulation_date API
 function getOvulationDay(start_date: string, ovulation_date: string) {
-  return differenceInDays(startOfDay(parseISO(ovulation_date)), startOfDay(parseISO(start_date))) + 1;
+  return (
+    differenceInDays(
+      startOfDay(parseISO(ovulation_date)),
+      startOfDay(parseISO(start_date))
+    ) + 1
+  );
 }
 
 // Helper: Sinh ra phase động đúng thực tế
-function getDynamicPhases(periodLength: number, cycleLength: number, ovulationDay: number) {
+function getDynamicPhases(
+  periodLength: number,
+  cycleLength: number,
+  ovulationDay: number
+) {
   return [
     {
       name: "Kinh nguyệt",
@@ -42,7 +63,8 @@ function getDynamicPhases(periodLength: number, cycleLength: number, ovulationDa
       color: "#ef4444",
       textColor: "text-red-500",
       symptoms: ["Đau bụng", "Chướng bụng", "Mệt mỏi"],
-      description: "Niêm mạc tử cung bong ra dẫn đến ra máu kinh. Estrogen và progesterone thấp.",
+      description:
+        "Niêm mạc tử cung bong ra dẫn đến ra máu kinh. Estrogen và progesterone thấp.",
     },
     {
       name: "Pha nang trứng",
@@ -52,7 +74,8 @@ function getDynamicPhases(periodLength: number, cycleLength: number, ovulationDa
       color: "#60a5fa",
       textColor: "text-blue-500",
       symptoms: ["Tăng năng lượng", "Cải thiện tâm trạng"],
-      description: "Các nang trứng phát triển, chuẩn bị rụng trứng. Estrogen tăng dần.",
+      description:
+        "Các nang trứng phát triển, chuẩn bị rụng trứng. Estrogen tăng dần.",
     },
     {
       name: "Rụng trứng",
@@ -62,7 +85,8 @@ function getDynamicPhases(periodLength: number, cycleLength: number, ovulationDa
       color: "#facc15",
       textColor: "text-amber-500",
       symptoms: ["Đỉnh điểm thụ thai", "Nhiệt độ cơ thể tăng"],
-      description: "Lượng hormone LH tăng mạnh kích thích trứng chín rụng khỏi buồng trứng.",
+      description:
+        "Lượng hormone LH tăng mạnh kích thích trứng chín rụng khỏi buồng trứng.",
     },
     {
       name: "Pha hoàng thể",
@@ -72,49 +96,64 @@ function getDynamicPhases(periodLength: number, cycleLength: number, ovulationDa
       color: "#a855f7",
       textColor: "text-purple-500",
       symptoms: ["Hội chứng tiền kinh nguyệt (PMS)", "Đau tức ngực", "Thèm ăn"],
-      description: "Cơ thể sản xuất progesterone, chuẩn bị cho thai kỳ. Có thể xuất hiện triệu chứng PMS.",
+      description:
+        "Cơ thể sản xuất progesterone, chuẩn bị cho thai kỳ. Có thể xuất hiện triệu chứng PMS.",
     },
   ];
 }
 
-function getPhaseForDayDynamic(day: number, phases: ReturnType<typeof getDynamicPhases>) {
-  return phases.find((p) => day >= p.duration[0] && day <= p.duration[1]) || phases[0];
+function getPhaseForDayDynamic(
+  day: number,
+  phases: ReturnType<typeof getDynamicPhases>
+) {
+  return (
+    phases.find((p) => day >= p.duration[0] && day <= p.duration[1]) ||
+    phases[0]
+  );
 }
 
-const CycleCalendar = React.memo(({ selectedDate, onSelect, phaseModifiers }: {
-  selectedDate: Date | undefined;
-  onSelect: (date: Date | undefined) => void;
-  phaseModifiers: Record<string, Date[]>;
-}) => (
-  <Card className="shadow-lg dark:bg-gray-800/50">
-    <CardHeader>
-      <CardTitle>Lịch chu kỳ</CardTitle>
-      <CardDescription>Chọn ngày để xem giai đoạn chu kỳ.</CardDescription>
-    </CardHeader>
-    <CardContent className="flex justify-center">
-      <Calendar
-        mode="single"
-        selected={selectedDate}
-        onSelect={onSelect}
-        className="p-0"
-        modifiers={phaseModifiers}
-        modifiersClassNames={{
-          menstruation: "day-menstruation",
-          follicular: "day-follicular",
-          ovulation: "day-ovulation",
-          luteal: "day-luteal",
-        }}
-      />
-    </CardContent>
-  </Card>
-));
+const CycleCalendar = React.memo(
+  ({
+    selectedDate,
+    onSelect,
+    phaseModifiers,
+  }: {
+    selectedDate: Date | undefined;
+    onSelect: (date: Date | undefined) => void;
+    phaseModifiers: Record<string, Date[]>;
+  }) => (
+    <Card className="shadow-lg dark:bg-gray-800/50">
+      <CardHeader>
+        <CardTitle>Lịch chu kỳ</CardTitle>
+        <CardDescription>Chọn ngày để xem giai đoạn chu kỳ.</CardDescription>
+      </CardHeader>
+      <CardContent className="flex justify-center">
+        <Calendar
+          mode="single"
+          selected={selectedDate}
+          onSelect={onSelect}
+          className="p-0"
+          modifiers={phaseModifiers}
+          modifiersClassNames={{
+            menstruation: "day-menstruation",
+            follicular: "day-follicular",
+            ovulation: "day-ovulation",
+            luteal: "day-luteal",
+          }}
+        />
+      </CardContent>
+    </Card>
+  )
+);
 
 CycleCalendar.displayName = "CycleCalendar";
 
-export default function MenstrualCycleTracker() { 
+export default function MenstrualCycleTracker() {
   const [cycles, setCycles] = useState<Cycle[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedDate, setSelectedDate] = useState<Date | undefined>(startOfDay(new Date()));
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(
+    startOfDay(new Date())
+  );
   const [isClient, setIsClient] = useState(false);
   const [openRecord, setOpenRecord] = useState(false);
   const [showSymptomModal, setShowSymptomModal] = useState(false);
@@ -131,7 +170,8 @@ export default function MenstrualCycleTracker() {
       const res = await fetch("/api/cycles");
       const data = await res.json();
       const sortedCycles = (data.cycles || []).sort(
-        (a: Cycle, b: Cycle) => parseISO(b.start_date).getTime() - parseISO(a.start_date).getTime()
+        (a: Cycle, b: Cycle) =>
+          parseISO(b.start_date).getTime() - parseISO(a.start_date).getTime()
       );
       setCycles(sortedCycles);
       setPredictions(data.predictions || null);
@@ -163,14 +203,19 @@ export default function MenstrualCycleTracker() {
     });
   }, [selectedDate, cycles]);
 
-  const anchorDate = currentCycle ? startOfDay(parseISO(currentCycle.start_date)) : undefined;
+  const anchorDate = currentCycle
+    ? startOfDay(parseISO(currentCycle.start_date))
+    : undefined;
   const periodLength = currentCycle?.period_length || 5;
   const cycleLength = currentCycle?.cycle_length || 28;
 
   // Tính ovulationDay theo dữ liệu API, fallback là 14 nếu chưa có ovulation_date
   const ovulationDay = useMemo(() => {
     if (!currentCycle?.ovulation_date || !currentCycle?.start_date) return 14;
-    return getOvulationDay(currentCycle.start_date, currentCycle.ovulation_date);
+    return getOvulationDay(
+      currentCycle.start_date,
+      currentCycle.ovulation_date
+    );
   }, [currentCycle]);
 
   // Sinh phase đúng tỉ lệ động
@@ -244,7 +289,7 @@ export default function MenstrualCycleTracker() {
   const Icon = currentPhaseInfo.icon;
 
   return (
-    <div className="bg-gray-50 dark:bg-gray-900 min-h-screen w-full flex items-center justify-center p-4 font-sans">
+    <div className="bg-gray-50 dark:bg-gray-900 min-h-screen w-full flex items-center justify-center p-4 font-work-sans">
       <style>{`
         .day-menstruation { background-color: #ef4444; color: white; border-radius: 9999px; transition: none; }
         .day-follicular { background-color: #60a5fa; color: white; border-radius: 9999px; transition: none; }
@@ -263,15 +308,23 @@ export default function MenstrualCycleTracker() {
           {predictions && (
             <div className="mt-4 flex flex-col items-center text-base">
               <div className="flex items-center gap-2">
-                <span className="font-medium text-rose-600">Dự đoán kỳ tới:</span>
+                <span className="font-medium text-rose-600">
+                  Dự đoán kỳ tới:
+                </span>
                 <span className="font-semibold text-gray-900 dark:text-gray-100">
-                  {new Date(predictions.nextCycleStart).toLocaleDateString("vi-VN")}
+                  {new Date(predictions.nextCycleStart).toLocaleDateString(
+                    "vi-VN"
+                  )}
                 </span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="font-medium text-yellow-600">Dự đoán rụng trứng:</span>
+                <span className="font-medium text-yellow-600">
+                  Dự đoán rụng trứng:
+                </span>
                 <span className="font-semibold text-gray-900 dark:text-gray-100">
-                  {new Date(predictions.ovulationDate).toLocaleDateString("vi-VN")}
+                  {new Date(predictions.ovulationDate).toLocaleDateString(
+                    "vi-VN"
+                  )}
                 </span>
               </div>
             </div>
@@ -351,7 +404,9 @@ export default function MenstrualCycleTracker() {
               <div
                 className="absolute top-0 left-2 -translate-x-1/2 w-full h-full transition-transform duration-500"
                 style={{
-                  transform: `rotate(${((currentDay - 1) / cycleLength) * 360 - 90}deg)`,
+                  transform: `rotate(${
+                    ((currentDay - 1) / cycleLength) * 360 - 90
+                  }deg)`,
                 }}
               >
                 <div className="absolute top-[-8px] left-1/2 -translate-x-1/2 w-4 h-4 bg-white dark:bg-gray-800 rounded-full border-4 border-blue-500 shadow-lg" />
@@ -364,14 +419,20 @@ export default function MenstrualCycleTracker() {
               <CardHeader>
                 <div className="flex justify-between items-start">
                   <div>
-                    <CardTitle className={`text-2xl ${currentPhaseInfo.textColor}`}>
+                    <CardTitle
+                      className={`text-2xl ${currentPhaseInfo.textColor}`}
+                    >
                       {currentPhaseInfo.name}
                     </CardTitle>
                     <CardDescription>
-                      Ngày {currentPhaseInfo.duration[0]}-{currentPhaseInfo.duration[1]}
+                      Ngày {currentPhaseInfo.duration[0]}-
+                      {currentPhaseInfo.duration[1]}
                     </CardDescription>
                   </div>
-                  <div className={`p-3 rounded-full`} style={{ background: currentPhaseInfo.color }}>
+                  <div
+                    className={`p-3 rounded-full`}
+                    style={{ background: currentPhaseInfo.color }}
+                  >
                     <Icon className="w-6 h-6 text-white" />
                   </div>
                 </div>

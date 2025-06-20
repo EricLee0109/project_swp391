@@ -10,13 +10,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-import {
-  Bell,
-  CircleUser,
-  DoorOpen,
-  Heart,
-  Settings,
-} from "lucide-react";
+import { Bell, CircleUser, DoorOpen, Heart, Settings } from "lucide-react";
 import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { LogoutButton } from "../LogoutButton";
@@ -62,8 +56,8 @@ export default function ProfileMenu({
   const displayEmail = user?.email || "user@example.com";
   const avatarUrl =
     user?.avatar || `https://ui-avatars.com/api/?name=${displayName}`;
-  console.log("user", user);
-  
+  console.log("user");
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -91,7 +85,7 @@ export default function ProfileMenu({
             </Link>
           ))}
         </DropdownMenuGroup>
-        
+
         <DropdownMenuSeparator />
         <DropdownMenuItem className="text-red-500 cursor-pointer gap-2">
           <DoorOpen className="h-4 w-4" />
