@@ -7,6 +7,7 @@ import {
   Service,
 } from "@/types/ServiceType/HealthServiceType";
 import { ArrowLeft, Home, Hospital, ShieldCheck } from "lucide-react";
+import Image from "next/image";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -133,10 +134,12 @@ export function BookingModal({
                     alt={c.user.full_name || ""}
                     className="w-12 h-12 rounded-full mr-4"
                   /> */}
-                  <img
+                  <Image
                     src={c.user.avatar || "/default-avatar.png"}
                     alt={c.user.full_name || ""}
-                    className="w-12 h-12 rounded-full mr-4"
+                    width={48}
+                    height={48}
+                    className="rounded-full mr-4"
                   />
                   <div className="flex-grow">
                     <div className="flex items-center gap-2">

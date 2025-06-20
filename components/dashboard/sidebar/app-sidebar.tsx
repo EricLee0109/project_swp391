@@ -57,6 +57,19 @@ const data = {
         },
       ],
     },
+       {
+      title: "Đặt lịch",
+      url: "/dashboard/schuldes", 
+      icon: CircleUserRound,
+      isActive: true,
+      items: [
+        {
+          title: "Tư vấn viên khách hàng",
+          url: "/dashboard/schuldes", 
+        },
+        
+      ],
+    },
     {
       title: "Khác",
       url: "#",
@@ -70,7 +83,6 @@ const data = {
     },
   ],
 };
-
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (

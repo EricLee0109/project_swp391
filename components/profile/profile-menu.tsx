@@ -56,7 +56,7 @@ export default function ProfileMenu({
   const displayEmail = user?.email || "user@example.com";
   const avatarUrl =
     user?.avatar || `https://ui-avatars.com/api/?name=${displayName}`;
-  console.log("user");
+  console.log("user" + type, user);
 
   return (
     <DropdownMenu>
