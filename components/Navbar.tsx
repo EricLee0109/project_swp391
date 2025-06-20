@@ -29,9 +29,11 @@ export default async function Navbar() {
           <Button asChild>
             <Link href={"/sexualHealthServices"}>Health Services</Link>
           </Button>
-          <Button asChild>
-            <Link href={"/menstrualCycle"}>Menstrual Cycle</Link>
-          </Button>
+          {user && type && (
+            <Button asChild>
+              <Link href={"/menstrualCycle"}>Menstrual Cycle</Link>
+            </Button>
+          )}
 
           {user && type && <ProfileMenu user={user} type={type} />}
 
