@@ -30,7 +30,7 @@ export function BookingTrigger({
         onClick={() => setIsModalOpen(true)}
         className="w-full bg-primary text-white font-bold py-3 px-4 rounded-lg hover:bg-primary-600 transition-colors duration-300 shadow-lg"
       >
-        Book Appointment
+        Đặt lịch hẹn
       </Button>
       {isModalOpen && (
         <BookingModal

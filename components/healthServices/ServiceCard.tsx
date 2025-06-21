@@ -22,12 +22,12 @@ export const ServiceCard: React.FC<ServiceCardProps> = ({ service }) => (
       <p className="text-gray-600 mb-4 h-12">{service.description}</p>
 
       <div className="flex items-center text-sm text-gray-500 mb-4">
-        <span className="font-semibold mr-2">Category:</span>
+        <span className="font-semibold mr-2">Loại dịch vụ:</span>
         <span>{service.category}</span>
       </div>
 
       <div className="flex items-center text-sm text-gray-500 mb-4">
-        <span className="font-semibold mr-2">Availability:</span>
+        <span className="font-semibold mr-2">Có thể khám:</span>
         <div className="flex gap-3">
           {service.available_modes.includes("AT_HOME") && (
             <div className="flex items-center gap-1 bg-teal-50 text-teal-700 px-2 py-1 rounded-full">
@@ -51,7 +51,7 @@ export const ServiceCard: React.FC<ServiceCardProps> = ({ service }) => (
         <Link
           href={`/sexualHealthServices/detail/?query=${slugify(service.name)}`}
         >
-          Book Now
+          Đặt lịch
         </Link>
       </Button>
     </div>

@@ -8,7 +8,7 @@ export default function SchuldesPage() {
     <div>
       <Header
         title="Đặt lịch"
-        href="/dashboard/schuldes"
+        href="/dashboard/schedule"
         currentPage="Đặt lịch tư vấn có khách hàng"
       />
       <div className="container mx-auto p-6">

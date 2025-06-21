@@ -1,5 +1,8 @@
 import SearchForm from "@/components/SearchForm";
 import StartupCard from "@/components/StartupCard";
+import { authJWT } from "@/lib/auth";
+import { RoleTypeEnums } from "@/types/enums/HealthServiceEnums";
+import { redirect } from "next/navigation";
 
 type StartupCardType = {
   _id?: number;
@@ -21,6 +24,31 @@ export default async function Home({
   searchParams: Promise<{ query?: string }>;
 }) {
   const query = (await searchParams).query;
+  const userSession = await authJWT();
+  const role = userSession?.user?.role; // Safely get the role
+
+  if (
+    role &&
+    (role === RoleTypeEnums.Consultant ||
+      role === RoleTypeEnums.Staff ||
+      role === RoleTypeEnums.Admin)
+  ) {
+    // Define the destination based on the role
+    let destination = "/";
+    switch (role) {
+      case RoleTypeEnums.Consultant:
+        destination = "/dashboard/consultant";
+        break;
+      case RoleTypeEnums.Staff:
+        destination = "/dashboard/staff";
+        break;
+      case RoleTypeEnums.Admin:
+        destination = "/dashboard/admin";
+        break;
+    }
+
+    redirect(destination);
+  }
 
   const posts = [
     {

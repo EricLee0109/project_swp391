@@ -11,8 +11,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-
-import { toast } from "sonner";
+import { notify } from "@/lib/toastNotify";
 
 interface DeleteScheduleDialogProps {
   trigger: React.ReactNode;
@@ -35,10 +34,10 @@ export function DeleteScheduleDialog({
         throw new Error("Xóa lịch thất bại");
       }
 
-      toast.success("Đã xóa lịch thành công");
+      notify("success", "Đã xóa lịch thành công");
       onDeleted?.();
-    } catch  {
-      toast.error("Có lỗi xảy ra khi xóa lịch");
+    } catch {
+      notify("error", "Có lỗi xảy ra khi xóa lịch");
     }
   };
 
@@ -49,7 +48,8 @@ export function DeleteScheduleDialog({
         <AlertDialogHeader>
           <AlertDialogTitle>Xác nhận xóa lịch</AlertDialogTitle>
           <AlertDialogDescription>
-            Hành động này không thể hoàn tác. Bạn có chắc chắn muốn xóa lịch tư vấn này không?
+            Hành động này không thể hoàn tác. Bạn có chắc chắn muốn xóa lịch tư
+            vấn này không?
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>

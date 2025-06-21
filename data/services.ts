@@ -27,8 +27,8 @@ export const servicesData: Service[] = [
     testing_hours: "9 AM - 5 PM",
     daily_capacity: 20,
     return_address: "123 Health St, Medtown",
-    return_phone: "555-1234",
-    available_modes: ["AT_CLINIC"],
+    return_phone: "0928192812",
+    available_modes: ["AT_CLINIC", "AT_HOME"],
   },
   {
     service_id: "3b9c4d5a-5c89-4b21-b3f9-8d4e5f6a7b8c",
@@ -54,8 +54,8 @@ export const servicesData: Service[] = [
     type: "Testing",
     testing_hours: null,
     daily_capacity: 25,
-    return_address: null,
-    return_phone: null,
+    return_address: "789 Health Blvd, Caretown",
+    return_phone: "0387654321",
     available_modes: ["AT_CLINIC"],
   },
   {
