@@ -1,6 +1,6 @@
-import { toast } from "sonner"
+import { toast } from "sonner";
 
-type ToastType = "success" | "error" 
+type ToastType = "success" | "error" | "info";
 
 export const notify = (type: ToastType, message: string) => {
   const baseStyle = {
@@ -9,7 +9,7 @@ export const notify = (type: ToastType, message: string) => {
     padding: "1rem",
     fontWeight: 500,
     boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
-  }
+  };
 
   switch (type) {
     case "success":
@@ -20,9 +20,8 @@ export const notify = (type: ToastType, message: string) => {
           color: "var(--toast-success-text)",
           borderColor: "var(--toast-success-text)",
         },
-   
-      })
-      break
+      });
+      break;
 
     case "error":
       toast.error(message, {
@@ -32,10 +31,18 @@ export const notify = (type: ToastType, message: string) => {
           color: "var(--toast-error-text)",
           borderColor: "var(--toast-error-text)",
         },
-      
-      })
-      break
+      });
+      break;
 
-    
+    case "info":
+      toast.info(message, {
+        style: {
+          ...baseStyle,
+          background: "var(--toast-info-bg)",
+          color: "var(--toast-info-text)",
+          borderColor: "var(--toast-info-text)",
+        },
+      });
+      break;
   }
-}
+};

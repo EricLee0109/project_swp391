@@ -61,7 +61,7 @@ export function LoginForm({
             } catch (jsonError) {
               // JSON parse failed (res might be 204 or HTML)
               console.log("user 1", data);
-              
+
               console.error(
                 "Không parse được JSON từ response lỗi:",
                 jsonError
@@ -69,9 +69,9 @@ export function LoginForm({
             }
             throw new Error(message);
           }
-           notify("success", "Đăng nhập thành công!")
+          notify("success", "Đăng nhập thành công!");
           router.refresh(); // Gọi lại Server Component (Navbar)
-          router.push("/");
+          router.push("/"); // Chuyển hướng đến trang dashboard
         }
         // Google & GitHub vẫn giữ nguyên
       } catch (error: unknown) {
@@ -158,7 +158,7 @@ export function LoginForm({
                           fill="currentColor"
                         />
                       </svg>
-                      <>Login with Google</>
+                      <span style={{ marginLeft: 8 }}>Login with Google</span>
                     </>
                   )}
                 </Button>

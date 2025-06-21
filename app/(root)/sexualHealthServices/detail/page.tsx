@@ -1,10 +1,11 @@
 import { BookingTrigger } from "@/components/healthServices/BookingTrigger";
 import { DetailItem } from "@/components/healthServices/DetailItem";
+// import { Badge } from "@/components/ui/badge";
 import { consultantsData } from "@/data/consultants";
 import { schedulesData } from "@/data/schedules";
 import { servicesData } from "@/data/services";
 import { slugify } from "@/lib/utils";
-import { Home, Clock, Hospital, Info, Users } from "lucide-react";
+import { Home, Clock, Hospital, Info, Users, CheckCircle2 } from "lucide-react";
 import { notFound } from "next/navigation";
 
 export default async function ServiceDetailPage({
@@ -55,22 +56,33 @@ export default async function ServiceDetailPage({
               </p>
 
               <h2 className="text-xl font-bold text-gray-800 mb-4 border-b pb-2">
-                Service Details
+                Dịch vụ chi tiết
               </h2>
-              <div className="grid sm:grid-cols-2 gap-6">
+              <div className="grid sm:grid-cols-2 gap-6 ">
                 <DetailItem
                   icon={<Info size={24} />}
-                  label="Status"
-                  value={service.is_active ? "Currently Active" : "Not Active"}
+                  label="Trang thái dịch vụ"
+                  value={
+                    service.is_active ? (
+                      <div>
+                        <span className="animate-pulse">
+                          <CheckCircle2 size={20} className="icon-check" />
+                        </span>
+                        <span>Đang hoạt động</span>
+                      </div>
+                    ) : (
+                      "Tạm dừng"
+                    )
+                  }
                 />
                 <DetailItem
                   icon={<Users size={24} />}
-                  label="Daily Capacity"
-                  value={`${service.daily_capacity} appointments/day`}
+                  label="Số lượng khách hàng"
+                  value={`${service.daily_capacity} lịch hẹn/ngày`}
                 />
                 <DetailItem
                   icon={<Clock size={24} />}
-                  label="Testing Hours"
+                  label="Giờ xét nghiệm"
                   value={service.testing_hours}
                 />
               </div>
@@ -80,26 +92,26 @@ export default async function ServiceDetailPage({
             <div className="md:col-span-1">
               <div className="bg-gray-50 rounded-xl p-6 sticky top-8">
                 <div className="flex justify-between items-center mb-4">
-                  <p className="text-lg font-medium text-gray-600">Price</p>
-                  <p className="text-3xl font-bold text-teal-600">
+                  <p className="text-lg font-medium text-gray-600">Chi phí</p>
+                  <p className="text-3xl font-bold text-primary">
                     ${(service.price / 100).toFixed(2)}
                   </p>
                 </div>
                 <div className="mb-6">
                   <h3 className="font-semibold text-gray-700 mb-2">
-                    Available At:
+                    Khám có thể thực hiện:
                   </h3>
                   <div className="space-y-3">
                     {service.available_modes.includes("AT_CLINIC") && (
                       <div className="flex items-center gap-2 text-gray-600">
                         <Hospital size={20} className="text-indigo-600" />
-                        <span>In-Person at Clinic</span>
+                        <span>Xét nghiệm tại bệnh viện</span>
                       </div>
                     )}
                     {service.available_modes.includes("AT_HOME") && (
                       <div className="flex items-center gap-2 text-gray-600">
                         <Home size={20} className="text-teal-600" />
-                        <span>At-Home Service</span>
+                        <span>Khám tại nhà</span>
                       </div>
                     )}
                   </div>

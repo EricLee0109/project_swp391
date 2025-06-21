@@ -14,9 +14,9 @@ export const DetailItem: React.FC<DetailItemProps> = ({
   return (
     <div className="flex items-start text-sm">
       <div className="flex-shrink-0 w-6 h-6 text-gray-500 mr-3">{icon}</div>
-      <div>
+      <div className="space-y-1">
         <p className="font-semibold text-gray-700">{label}</p>
-        <p className="text-gray-600">{value}</p>
+        <p className="text-black-200 font-bold">{value}</p>
       </div>
     </div>
   );

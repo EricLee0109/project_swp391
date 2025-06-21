@@ -82,7 +82,7 @@ export default function CreateSchedule() {
 
       notify("success", "Tạo lịch thành công!");
       form.reset();
-    } catch  {
+    } catch {
       notify("error", "Không thể kết nối tới máy chủ.");
     }
   };
@@ -98,7 +98,10 @@ export default function CreateSchedule() {
             <DialogTitle>Tạo lịch tư vấn mới</DialogTitle>
           </DialogHeader>
 
-          <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-4 py-4">
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="grid gap-4 py-4"
+          >
             <div>
               <Label>Ngày bắt đầu</Label>
               <div className="flex gap-4">
@@ -112,6 +115,7 @@ export default function CreateSchedule() {
                         {form.watch("startDate")
                           ? format(form.watch("startDate"), "dd/MM/yyyy")
                           : "Chọn ngày"}
+                        {/* Có Util formatDate */}
                         <ChevronDownIcon />
                       </Button>
                     </PopoverTrigger>
@@ -129,7 +133,9 @@ export default function CreateSchedule() {
                     </PopoverContent>
                   </Popover>
                   {form.formState.errors.startDate && (
-                    <p className="text-sm text-red-500">{form.formState.errors.startDate.message}</p>
+                    <p className="text-sm text-red-500">
+                      {form.formState.errors.startDate.message}
+                    </p>
                   )}
                 </div>
 
@@ -141,7 +147,9 @@ export default function CreateSchedule() {
                     className="bg-background"
                   />
                   {form.formState.errors.startTime && (
-                    <p className="text-sm text-red-500">{form.formState.errors.startTime.message}</p>
+                    <p className="text-sm text-red-500">
+                      {form.formState.errors.startTime.message}
+                    </p>
                   )}
                 </div>
               </div>
@@ -149,7 +157,7 @@ export default function CreateSchedule() {
 
             {/* End time */}
             <div>
-              <Label className="px-1" >Ngày kết thúc</Label>
+              <Label className="px-1">Ngày kết thúc</Label>
               <div className="flex gap-4">
                 <div className="flex flex-col gap-2">
                   <Popover open={openEnd} onOpenChange={setOpenEnd}>
@@ -178,7 +186,9 @@ export default function CreateSchedule() {
                     </PopoverContent>
                   </Popover>
                   {form.formState.errors.endDate && (
-                    <p className="text-sm text-red-500">{form.formState.errors.endDate.message}</p>
+                    <p className="text-sm text-red-500">
+                      {form.formState.errors.endDate.message}
+                    </p>
                   )}
                 </div>
 
@@ -190,7 +200,9 @@ export default function CreateSchedule() {
                     className="bg-background"
                   />
                   {form.formState.errors.endTime && (
-                    <p className="text-sm text-red-500">{form.formState.errors.endTime.message}</p>
+                    <p className="text-sm text-red-500">
+                      {form.formState.errors.endTime.message}
+                    </p>
                   )}
                 </div>
               </div>
@@ -205,7 +217,9 @@ export default function CreateSchedule() {
                 {...form.register("serviceId")}
               />
               {form.formState.errors.serviceId && (
-                <p className="text-sm text-red-500">{form.formState.errors.serviceId.message}</p>
+                <p className="text-sm text-red-500">
+                  {form.formState.errors.serviceId.message}
+                </p>
               )}
             </div>
 

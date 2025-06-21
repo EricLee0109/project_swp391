@@ -1,17 +1,17 @@
+import { StiTestBookingForm } from "@/components/healthServices/appoinmentBookingType/StiServiceForm";
+import { notify } from "@/lib/toastNotify";
 import { formatDate } from "@/lib/utils";
-import { AvailableMode } from "@/types/enums/HealthServiceEnums";
+import { AvailableModeEnums } from "@/types/enums/HealthServiceEnums";
 import {
   Consultant,
   CreateAppointmentDto,
   Schedule,
   Service,
 } from "@/types/ServiceType/HealthServiceType";
-import { ArrowLeft, Home, Hospital, ShieldCheck } from "lucide-react";
+import { Home, ArrowLeft, Hospital, ShieldCheck } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
-import { toast } from "sonner";
 
-// --- BOOKING MODAL ---
 export function BookingModal({
   service,
   consultants,
@@ -23,7 +23,6 @@ export function BookingModal({
   schedules: Schedule[];
   onClose: () => void;
 }) {
-  const sonner = toast;
   const [step, setStep] = useState(1);
   const [appointment, setAppointment] = useState<Partial<CreateAppointmentDto>>(
     {
@@ -35,7 +34,7 @@ export function BookingModal({
   const [selectedTime, setSelectedTime] = useState("");
   const [selectedDate, setSelectedDate] = useState("");
 
-  const handleLocationSelect = (location: AvailableMode) => {
+  const handleLocationSelect = (location: AvailableModeEnums) => {
     setAppointment((prev) => ({
       ...prev,
       location: location === "AT_HOME" ? "At Home" : "At Clinic",
@@ -60,7 +59,7 @@ export function BookingModal({
 
   const createAppointment = () => {
     console.log("Creating appointment:", appointment);
-    sonner.success("Appointment created successfully!");
+    notify("success", "Appointment created successfully!");
     onClose();
   };
 
@@ -71,9 +70,14 @@ export function BookingModal({
     (s) => s.consultant_id === appointment.consultant_id
   );
 
+  // --- Conditional Rendering Logic ---
+  if (service.type === "Testing") {
+    return <StiTestBookingForm service={service} onClose={onClose} />;
+  }
+
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center p-4">
-      <div className="bg-white rounded-lg shadow-2xl p-8 w-full max-w-lg relative">
+    <div className="form-container">
+      <div className="form-container-inner">
         <button
           onClick={onClose}
           className="absolute top-4 right-4 text-gray-500 hover:text-gray-800 text-3xl leading-none"
@@ -128,12 +132,6 @@ export function BookingModal({
                   onClick={() => handleConsultantSelect(c)}
                   className="flex items-center p-4 border rounded-lg cursor-pointer hover:bg-gray-100"
                 >
-                  {/* In real data use Image form Next to secure! */}
-                  {/* <Image
-                    src={c.user.avatar || "/default-avatar.png"}
-                    alt={c.user.full_name || ""}
-                    className="w-12 h-12 rounded-full mr-4"
-                  /> */}
                   <Image
                     src={c.user.avatar || "/default-avatar.png"}
                     alt={c.user.full_name || ""}
@@ -200,19 +198,30 @@ export function BookingModal({
             </h2>
             <div className="space-y-3 text-gray-700 p-4 bg-gray-50 rounded-lg border">
               <p>
-                <strong>Service:</strong> {service.name}
+                <span>Service:</span> &nbsp;
+                <span className="font-bold">{service.name}</span>
               </p>
               <p>
-                <strong>Location:</strong> {appointment.location || "At Clinic"}
+                <span>Location:</span> &nbsp;
+                <span className="font-bold">
+                  {appointment.location || "At Clinic"}
+                </span>
               </p>
               <p>
-                <strong>Consultant:</strong> {selectedConsultant.user.full_name}
+                <span>Consultant:</span> &nbsp;
+                <span className="font-bold">
+                  {selectedConsultant.user.full_name}
+                </span>
               </p>
               <p>
-                <strong>Date:</strong> {formatDate(new Date(selectedDate))}
+                <span>Date:</span> &nbsp;
+                <span className="font-bold">
+                  {formatDate(new Date(selectedDate))}
+                </span>
               </p>
               <p>
-                <strong>Time:</strong> {selectedTime}
+                <span>Time:</span> &nbsp;
+                <span className="font-bold">{selectedTime}</span>
               </p>
             </div>
             <button
