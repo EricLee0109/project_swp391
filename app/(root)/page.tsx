@@ -37,13 +37,13 @@ export default async function Home({
     let destination = "/";
     switch (role) {
       case RoleTypeEnums.Consultant:
-        destination = "/dashboard/consultant";
+        destination = "/dashboard";
         break;
       case RoleTypeEnums.Staff:
-        destination = "/dashboard/staff";
+        destination = "/dashboard";
         break;
       case RoleTypeEnums.Admin:
-        destination = "/dashboard/admin";
+        destination = "/dashboard";
         break;
     }
 

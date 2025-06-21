@@ -1,23 +1,20 @@
 import { DataTable } from "@/components/data-table";
 import { columns } from "@/components/dashboard/appointment/columns";
-import { appointmentData } from "@/data/appointment";
-import { authJWT } from "@/lib/auth";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { authJWT } from "@/lib/auth";
+import { appointmentData } from "@/data/appointment";
 
-//Add Params if needed
-export default async function DashboardPage() {
+export default async function AppointmentListPage() {
+  const data = appointmentData;
   const userSession = await authJWT();
   const { fullName } = userSession?.user || {};
-
-  // Fetch the appointment data here
-  const appointmentDataTable = appointmentData;
 
   return (
     <div className="container mx-auto py-10">
       <div className="ml-4">
         <div className="mb-8">
           <h1 className="text-3xl font-bold tracking-tight">
-            Quản lý cuộc hẹn
+            Theo dõi cuộc hẹn
           </h1>
           <p className="text-muted-foreground">
             Được giám sát bởi - {fullName}.
@@ -26,11 +23,11 @@ export default async function DashboardPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Danh sách khách hàng</CardTitle>
+            <CardTitle>Các cuộc hẹn</CardTitle>
           </CardHeader>
           <CardContent>
             {/* Note: I'm reusing the AppointmentDataTable. You might want to rename it to just "DataTable" to reflect its generic nature. */}
-            <DataTable columns={columns} data={appointmentDataTable} />
+            <DataTable columns={columns} data={data} />
           </CardContent>
         </Card>
       </div>

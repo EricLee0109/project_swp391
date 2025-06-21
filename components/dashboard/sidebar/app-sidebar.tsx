@@ -33,7 +33,7 @@ const data = {
       items: [
         {
           title: "Dashboard",
-          url: "/dashboard/id", // same as main
+          url: "/dashboard", // same as main
         },
       ],
     },
@@ -49,11 +49,11 @@ const data = {
         },
         {
           title: "Nhân viên (Quản lý cuộc hẹn)",
-          url: "/dashboard/staff",
+          url: "/dashboard/appointment/view",
         },
         {
           title: "Nhân viên (Quản lý vận chuyển)",
-          url: "/dashboard/shipping",
+          url: "/dashboard/shippingPad/view",
         },
         {
           title: "Khách hàng",
