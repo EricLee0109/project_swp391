@@ -89,7 +89,7 @@ export interface CreateStiAppoinment {
     service_id: string;
     schedule_id?: string | null;
     related_appointment_id?: string | null;
-    free_consultation_valid_until?: string | null;
+    free_consultation_valid_until: null;
     payment_refunded: boolean;
     sample_collected_date?: string | null;
     mode: "AT_CLINIC";

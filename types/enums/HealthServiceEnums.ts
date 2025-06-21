@@ -22,3 +22,17 @@ export type StatusTypeEnums =
   | "SampleCollected"
   | "Completed"
   | "Cancelled";
+
+//Payment Status Enums
+export type PaymentStatusEnums = "Pending" | "Paid" | "Failed";
+
+//Shipping Status Enums
+export type ShippingStatusEnums =
+  | "Pending" // Đang chờ gửi hàng
+  | "Shipped" // Đã gửi đi
+  | "DeliveredToCustomer" // Khách nhận kit
+  | "PickupRequested" // Khách yêu cầu lấy mẫu
+  | "SampleInTransit" // Mẫu đang trên đường về
+  | "SampleCollected" // Đã nhận mẫu tại phòng xét nghiệm
+  | "ReturnedToLab" // Trả về phòng xét nghiệm (xử lý hoàn thành)
+  | "Failed"; // Lỗi vận chuyển (nếu có);

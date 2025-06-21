@@ -39,35 +39,38 @@ const data = {
     },
     {
       title: "Người dùng",
-      url: "/dashboard/user", 
+      url: "/dashboard/user",
       icon: CircleUserRound,
       isActive: true,
       items: [
         {
           title: "Tài khoản",
-          url: "/dashboard/user", 
+          url: "/dashboard/user",
         },
         {
-          title: "Nhân viên",
-          url: "/dashboard/staff", 
+          title: "Nhân viên (Quản lý cuộc hẹn)",
+          url: "/dashboard/staff",
+        },
+        {
+          title: "Nhân viên (Quản lý vận chuyển)",
+          url: "/dashboard/shipping",
         },
         {
           title: "Khách hàng",
-          url: "/dashboard/customer", 
+          url: "/dashboard/customer",
         },
       ],
     },
-       {
+    {
       title: "Đặt lịch",
-      url: "/dashboard/schuldes", 
+      url: "/dashboard/schuldes",
       icon: CircleUserRound,
       isActive: true,
       items: [
         {
           title: "Tư vấn viên khách hàng",
-          url: "/dashboard/schuldes", 
+          url: "/dashboard/schuldes",
         },
-        
       ],
     },
     {
@@ -89,17 +92,23 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
         <SidebarMenu>
-          <SidebarMenuItem className="flex gap-2">      
+          <SidebarMenuItem className="flex gap-2">
             <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-pink-500  text-sidebar-primary-foreground">
-             <Image src="/logo.png" alt="Logo" width={24} height={24} className="size-6 " />
+              <Image
+                src="/logo.png"
+                alt="Logo"
+                width={24}
+                height={24}
+                className="size-6 "
+              />
             </div>
-              <Link href="/" >
-            <div className="grid flex-1 text-left text-sm leading-tight">
-              <span className="truncate text font-bold">
-                <span className="text-pink-500">YC</span>Directory
-              </span>
-              <span className="truncate text-xs">Welcome back </span>
-            </div>
+            <Link href="/">
+              <div className="grid flex-1 text-left text-sm leading-tight">
+                <span className="truncate text font-bold">
+                  <span className="text-pink-500">YC</span>Directory
+                </span>
+                <span className="truncate text-xs">Welcome back </span>
+              </div>
             </Link>
           </SidebarMenuItem>
         </SidebarMenu>

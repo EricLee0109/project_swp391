@@ -1,8 +1,8 @@
 import { notify } from "@/lib/toastNotify";
 import { formatDate } from "@/lib/utils";
 import {
-  stiFormServiceForm,
-  StiFormServiceSchema,
+  StiFormServiceValues,
+  stiFormServiceSchema,
 } from "@/types/schemas/FormSchemas";
 import { Service, StiService } from "@/types/ServiceType/HealthServiceType";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -17,8 +17,8 @@ export function StiTestBookingForm({
   service: Service;
   onClose: () => void;
 }) {
-  const form = useForm<StiFormServiceSchema>({
-    resolver: zodResolver(stiFormServiceForm),
+  const form = useForm<StiFormServiceValues>({
+    resolver: zodResolver(stiFormServiceSchema),
     defaultValues: {
       serviceId: service.service_id,
       selected_mode: service.available_modes[0] || "AT_CLINIC",
@@ -27,7 +27,7 @@ export function StiTestBookingForm({
 
   const selectedMode = form.watch("selected_mode");
 
-  function onSubmit(data: StiFormServiceSchema) {
+  function onSubmit(data: StiFormServiceValues) {
     const payload: StiService = {
       ...data,
       location: service.return_address || "",
