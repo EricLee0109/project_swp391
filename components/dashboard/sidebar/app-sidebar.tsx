@@ -1,116 +1,15 @@
-"use client";
+import { AppSidebarClient } from "@/components/dashboard/sidebar/app-sidebar-client";
+import { Sidebar } from "@/components/ui/sidebar";
+import { authJWT } from "@/lib/auth";
 
-import * as React from "react";
-import { ChartPie, CircleUserRound, RectangleEllipsis } from "lucide-react";
+// This is a Server Component, so it can be async
+export async function AppSidebar({
+  ...props
+}: React.ComponentProps<typeof Sidebar>) {
+  // 1. Fetch data on the server
+  const session = await authJWT();
+  const user = session?.user || null;
 
-import { NavMain } from "./nav-main";
-
-import { NavUser } from "./nav-user";
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarFooter,
-  SidebarHeader,
-  SidebarMenu,
-  SidebarMenuItem,
-  SidebarRail,
-} from "@/components/ui/sidebar";
-import Image from "next/image";
-import Link from "next/link";
-
-const data = {
-  user: {
-    name: "Admin",
-    email: "admin@gmail.com",
-    avatar: "/avatars/shadcn.jpg",
-  },
-  navMain: [
-    {
-      title: "Tổng quan",
-      url: "/dashboard",
-      icon: ChartPie,
-      isActive: true,
-      items: [
-        {
-          title: "Dashboard",
-          url: "/dashboard/id", // same as main
-        },
-      ],
-    },
-    {
-      title: "Người dùng",
-      url: "/dashboard/user", 
-      icon: CircleUserRound,
-      isActive: true,
-      items: [
-        {
-          title: "Tài khoản",
-          url: "/dashboard/user", 
-        },
-        {
-          title: "Nhân viên",
-          url: "/dashboard/staff", 
-        },
-        {
-          title: "Khách hàng",
-          url: "/dashboard/customer", 
-        },
-      ],
-    },
-       {
-      title: "Đặt lịch",
-      url: "/dashboard/schuldes", 
-      icon: CircleUserRound,
-      isActive: true,
-      items: [
-        {
-          title: "Tư vấn viên khách hàng",
-          url: "/dashboard/schuldes", 
-        },
-        
-      ],
-    },
-    {
-      title: "Khác",
-      url: "#",
-      icon: RectangleEllipsis,
-      items: [
-        {
-          title: "Blog",
-          url: "/blog",
-        },
-      ],
-    },
-  ],
-};
-
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  return (
-    <Sidebar collapsible="icon" {...props}>
-      <SidebarHeader>
-        <SidebarMenu>
-          <SidebarMenuItem className="flex gap-2">      
-            <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-pink-500  text-sidebar-primary-foreground">
-             <Image src="/logo.png" alt="Logo" width={24} height={24} className="size-6 " />
-            </div>
-              <Link href="/" >
-            <div className="grid flex-1 text-left text-sm leading-tight">
-              <span className="truncate text font-bold">
-                <span className="text-pink-500">YC</span>Directory
-              </span>
-              <span className="truncate text-xs">Welcome back </span>
-            </div>
-            </Link>
-          </SidebarMenuItem>
-        </SidebarMenu>
-      </SidebarHeader>
-      <SidebarContent>
-        <NavMain items={data.navMain} />
-      </SidebarContent>
-      <SidebarFooter>
-        <NavUser user={data.user} />
-      </SidebarFooter>
-      <SidebarRail />
-    </Sidebar>
-  );
+  // 2. Render the client component and pass the data as a prop
+  return <AppSidebarClient user={user} {...props} />;
 }

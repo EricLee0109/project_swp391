@@ -14,6 +14,7 @@ export async function authJWT() {
       user_id: string;
       email: string;
       full_name: string;
+      fullName?: string;
       role: string;
       phone_number?: string;
       address?: string;
