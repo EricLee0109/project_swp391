@@ -33,14 +33,27 @@ const formSchema = z.object({
   startTime: z.string().min(1, "Chọn giờ bắt đầu"),
   endDate: z.date({ required_error: "Chọn ngày kết thúc" }),
   endTime: z.string().min(1, "Chọn giờ kết thúc"),
-  serviceId: z.string().min(1, "Nhập mã dịch vụ"),
+  serviceId: z.string().min(1, "Chọn dịch vụ"),
 });
 
 type FormValues = z.infer<typeof formSchema>;
 
-export default function CreateSchedule() {
+interface Service {
+  service_id: string;
+  name: string;
+  type: string;
+}
+
+interface CreateScheduleProps {
+  serverAccessToken?: string;
+  onScheduleCreated?: () => void;
+}
+
+export default function CreateSchedule({ serverAccessToken, onScheduleCreated }: CreateScheduleProps) {
+  const [open, setOpen] = React.useState(false); // ĐIỀU KHIỂN DIALOG
   const [openStart, setOpenStart] = React.useState(false);
   const [openEnd, setOpenEnd] = React.useState(false);
+  const [services, setServices] = React.useState<Service[]>([]);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -53,6 +66,26 @@ export default function CreateSchedule() {
     },
   });
 
+  // Fetch services on component mount
+  React.useEffect(() => {
+    const fetchServices = async () => {
+      try {
+        const res = await fetch("/api/services");
+        if (!res.ok) throw new Error("Failed to fetch services");
+        const data = await res.json();
+        // Filter for type "Consultation"
+        const consultationServices = data.filter(
+          (service: Service) => service.type === "Consultation"
+        );
+        setServices(consultationServices);
+      } catch (error) {
+        console.error("Error fetching services:", error);
+        notify("error", "Không thể tải danh sách dịch vụ.");
+      }
+    };
+    fetchServices();
+  }, []);
+
   const onSubmit = async (values: FormValues) => {
     try {
       const [sh, sm, ss] = values.startTime.split(":").map(Number);
@@ -64,9 +97,14 @@ export default function CreateSchedule() {
       const end = new Date(values.endDate);
       end.setHours(eh, em, es);
 
+      if (!serverAccessToken) throw new Error("No access token found");
+
       const res = await fetch("/api/schedules", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${serverAccessToken}`,
+        },
         body: JSON.stringify({
           start_time: start.toISOString(),
           end_time: end.toISOString(),
@@ -82,26 +120,27 @@ export default function CreateSchedule() {
 
       notify("success", "Tạo lịch thành công!");
       form.reset();
-    } catch {
-      notify("error", "Không thể kết nối tới máy chủ.");
+      setOpen(false); // ĐÓNG DIALOG SAU KHI TẠO XONG
+      if (onScheduleCreated) onScheduleCreated();
+    } catch (error) {
+      console.error("Error submitting form:", error);
+      const errMsg = error instanceof Error ? error.message : "Unknown error";
+      notify("error", errMsg || "Không thể kết nối tới máy chủ.");
     }
   };
 
   return (
     <div className="mb-6">
-      <Dialog>
+      <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>
-          <Button>Tạo lịch mới</Button>
+          <Button onClick={() => setOpen(true)}>Tạo lịch mới</Button>
         </DialogTrigger>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Tạo lịch tư vấn mới</DialogTitle>
           </DialogHeader>
 
-          <form
-            onSubmit={form.handleSubmit(onSubmit)}
-            className="grid gap-4 py-4"
-          >
+          <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-4 py-4">
             <div>
               <Label>Ngày bắt đầu</Label>
               <div className="flex gap-4">
@@ -115,7 +154,6 @@ export default function CreateSchedule() {
                         {form.watch("startDate")
                           ? format(form.watch("startDate"), "dd/MM/yyyy")
                           : "Chọn ngày"}
-                        {/* Có Util formatDate */}
                         <ChevronDownIcon />
                       </Button>
                     </PopoverTrigger>
@@ -138,7 +176,6 @@ export default function CreateSchedule() {
                     </p>
                   )}
                 </div>
-
                 <div className="flex flex-col gap-2">
                   <Input
                     type="time"
@@ -155,9 +192,8 @@ export default function CreateSchedule() {
               </div>
             </div>
 
-            {/* End time */}
             <div>
-              <Label className="px-1">Ngày kết thúc</Label>
+              <Label>Ngày kết thúc</Label>
               <div className="flex gap-4">
                 <div className="flex flex-col gap-2">
                   <Popover open={openEnd} onOpenChange={setOpenEnd}>
@@ -191,7 +227,6 @@ export default function CreateSchedule() {
                     </p>
                   )}
                 </div>
-
                 <div className="flex flex-col gap-2">
                   <Input
                     type="time"
@@ -208,14 +243,23 @@ export default function CreateSchedule() {
               </div>
             </div>
 
-            {/* Service ID */}
             <div className="grid gap-2">
-              <Label htmlFor="serviceId">Mã dịch vụ</Label>
-              <Input
+              <Label htmlFor="serviceId">Dịch vụ</Label>
+              <select
                 id="serviceId"
-                placeholder="Nhập mã dịch vụ (vd: svc003)"
                 {...form.register("serviceId")}
-              />
+                className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                defaultValue=""
+              >
+                <option value="" disabled>
+                  Chọn dịch vụ
+                </option>
+                {services.map((service) => (
+                  <option key={service.service_id} value={service.service_id}>
+                    {service.name}
+                  </option>
+                ))}
+              </select>
               {form.formState.errors.serviceId && (
                 <p className="text-sm text-red-500">
                   {form.formState.errors.serviceId.message}

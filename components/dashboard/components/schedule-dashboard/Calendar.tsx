@@ -1,9 +1,8 @@
 "use client";
 
 import * as React from "react";
-import { vi } from "date-fns/locale";
-
 import { Calendar } from "@/components/ui/calendar";
+import { vi } from "date-fns/locale";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -13,22 +12,25 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-export default function CalendarPicker() {
+interface CalendarPickerProps {
+  selectedDate: Date;
+  onDateChange: (date: Date) => void;
+}
+
+export default function CalendarPicker({ selectedDate, onDateChange }: CalendarPickerProps) {
   const [dropdown, setDropdown] = React.useState<
     React.ComponentProps<typeof Calendar>["captionLayout"]
   >("dropdown");
-
-  const [date, setDate] = React.useState<Date | undefined>(new Date());
 
   return (
     <div className="flex flex-col gap-4 w-full max-w-xs">
       <Calendar
         mode="single"
-        selected={date}
-        onSelect={setDate}
-        defaultMonth={date}
+        selected={selectedDate}
+        onSelect={(date) => date && onDateChange(date)}
+        defaultMonth={selectedDate}
         captionLayout={dropdown}
-        locale={vi} 
+        locale={vi}
         className="rounded-lg border shadow-sm"
       />
 

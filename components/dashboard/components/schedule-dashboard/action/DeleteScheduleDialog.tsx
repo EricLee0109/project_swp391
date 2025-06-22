@@ -31,13 +31,16 @@ export function DeleteScheduleDialog({
       });
 
       if (!res.ok) {
-        throw new Error("Xóa lịch thất bại");
+        const errorData = await res.json(); // Lấy JSON từ response
+        throw new Error(errorData.message || "Xóa lịch thất bại"); // Sử dụng message từ backend
       }
 
       notify("success", "Đã xóa lịch thành công");
       onDeleted?.();
-    } catch {
-      notify("error", "Có lỗi xảy ra khi xóa lịch");
+    } catch (error) {
+      console.error("Delete error:", error);
+      const errorMessage = error instanceof Error ? error.message : "Có lỗi xảy ra khi xóa lịch";
+      notify("error", errorMessage);
     }
   };
 
