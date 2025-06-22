@@ -15,6 +15,8 @@ export enum RoleTypeEnums {
   Admin = "Admin",
 }
 
+export type RoleTypeEnum = keyof typeof RoleTypeEnums;
+
 //Status Enums
 export type StatusTypeEnums =
   | "Pending"
