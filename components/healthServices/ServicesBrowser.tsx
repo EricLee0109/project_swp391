@@ -1,17 +1,47 @@
 "use client";
+
 import { FilterPill } from "@/components/healthServices/FilterPill";
 import { ServiceCard } from "@/components/healthServices/ServiceCard";
-import { Service } from "@/types/ServiceType/HealthServiceType";
+import { useState, useEffect } from "react";
 import { Search } from "lucide-react";
-import { useState } from "react";
 
-interface ServiceBrowserProps {
-  services: Service[];
-}
+// Import enums and types
+import { Service, ServiceTypeEnums, AvailableModeEnums } from "@/types/ServiceType/HealthServiceType";
 
-export function ServiceBrowser({ services }: ServiceBrowserProps) {
+type RawService = Omit<Service, "price"> & { price: string };
+
+export function ServiceBrowser() {
+  const [services, setServices] = useState<Service[]>([]);
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [activeFilter, setActiveFilter] = useState<string>("All");
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchServices = async () => {
+      try {
+        const res = await fetch("/api/services");
+        if (!res.ok) throw new Error("Failed to fetch services");
+        const data: RawService[] = await res.json();
+        const activeServices: Service[] = data
+          .filter((service) => service.is_active)
+          .map((service) => ({
+            ...service,
+            price: parseInt(service.price, 10),
+            type: service.type as ServiceTypeEnums, // Cast type to ServiceTypeEnums
+            available_modes: service.available_modes as AvailableModeEnums[], // Cast available_modes to AvailableModeEnums
+          }));
+        setServices(activeServices);
+        setError(null);
+      } catch (error) {
+        console.error("Error fetching services:", error);
+        setError("Không thể tải danh sách dịch vụ.");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchServices();
+  }, []);
 
   const categories: string[] = [
     "All",
@@ -25,6 +55,14 @@ export function ServiceBrowser({ services }: ServiceBrowserProps) {
     .filter(
       (service) => activeFilter === "All" || service.category === activeFilter
     );
+
+  if (loading) {
+    return <div className="text-center py-10">Đang tải...</div>;
+  }
+
+  if (error) {
+    return <div className="text-center py-10 text-red-500">{error}</div>;
+  }
 
   return (
     <>
