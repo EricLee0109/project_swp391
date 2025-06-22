@@ -7,53 +7,126 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { PaymentActionsDropdown } from "./action/PaymentActionsDropdown";
 
-interface Schedule {
+interface Service {
+  service_id: string;
+  name: string;
+}
+
+interface ScheduleItem {
   schedule_id: string;
   start_time: string;
   end_time: string;
   service_id: string;
   created_at: string;
   updated_at: string;
+  is_booked: boolean;
+  service?: Service;
 }
 
-const sampleSchedules: Schedule[] = [
-  {
-    schedule_id: "1",
-    start_time: "2025-06-22T08:00:00.000Z",
-    end_time: "2025-06-22T09:00:00.000Z",
-    service_id: "svc001",
-    created_at: "2025-06-20T10:00:00.000Z",
-    updated_at: "2025-06-20T12:00:00.000Z",
-  },
-  {
-    schedule_id: "2",
-    start_time: "2025-06-23T10:00:00.000Z",
-    end_time: "2025-06-23T11:00:00.000Z",
-    service_id: "svc002",
-    created_at: "2025-06-20T11:00:00.000Z",
-    updated_at: "2025-06-20T13:00:00.000Z",
-  },
-];
+interface ScheduleProps {
+  serverTime: string;
+  serverAccessToken?: string;
+  reloadFlag?: number;
+  selectedDate: Date;
+}
 
-export default function DashboardSchedules() {
-  const [schedules, setSchedules] = useState<Schedule[] | null>(null);
+export default function Schedule({
+  serverTime,
+  serverAccessToken,
+  reloadFlag,
+  selectedDate,
+}: ScheduleProps) {
+  const [schedules, setSchedules] = useState<ScheduleItem[] | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchSchedules = async () => {
+    try {
+      if (!serverAccessToken) throw new Error("No access token found");
+
+      const [schedulesRes, servicesRes] = await Promise.all([
+        fetch("/api/schedules", {
+          headers: {
+            Authorization: `Bearer ${serverAccessToken}`,
+          },
+        }),
+        fetch("/api/services"),
+      ]);
+
+      if (!schedulesRes.ok) {
+        const errorData = await schedulesRes.json();
+        throw new Error(errorData.message || "Failed to fetch schedules");
+      }
+      if (!servicesRes.ok) {
+        const errorData = await servicesRes.json();
+        throw new Error(errorData.message || "Failed to fetch services");
+      }
+
+      const schedulesData: ScheduleItem[] = await schedulesRes.json();
+      const servicesData: Service[] = await servicesRes.json();
+
+      const schedulesWithServiceName = schedulesData.map((schedule) => ({
+        ...schedule,
+        service: servicesData.find(
+          (service) => service.service_id === schedule.service_id
+        ) || { service_id: schedule.service_id, name: "Unknown Service" },
+      }));
+
+      setSchedules(schedulesWithServiceName);
+      setError(null);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+      if (error instanceof Error) {
+        setError(error.message || "Error fetching data");
+      } else {
+        setError("Unknown error occurred");
+      }
+      setSchedules([]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    setTimeout(() => {
-      setSchedules(sampleSchedules);
-      setLoading(false);
-    }, 1000);
-  }, []);
+    setLoading(true);
+    fetchSchedules();
+  }, [serverAccessToken, reloadFlag]);
+
+  function isSameDay(dateStr: string, day: Date) {
+    const date = new Date(dateStr);
+    return (
+      date.getFullYear() === day.getFullYear() &&
+      date.getMonth() === day.getMonth() &&
+      date.getDate() === day.getDate()
+    );
+  }
+
+  const filteredSchedules = schedules?.filter(
+    (schedule) => isSameDay(schedule.start_time, selectedDate)
+  ) ?? [];
+
+  const handleDeleted = () => {
+    setLoading(true); // Show loading while re-fetching
+    fetchSchedules();
+  };
+
+  const handleUpdated = () => {
+    setLoading(true); // Show loading while re-fetching
+    fetchSchedules();
+  };
 
   return (
-    <div >
+    <div>
       <Card className="p-6">
         <CardHeader>
           <CardTitle className="text-2xl font-bold">
-            {`Hôm nay: ${format(new Date(), "EEEE, dd/MM/yyyy")}`}
+            Lịch
             <span className="text-sm text-muted-foreground ml-2">
-              {schedules ? `${schedules.length} lịch trống` : "Đang tải..."}
+              {error
+                ? error
+                : schedules
+                ? `${filteredSchedules.length} lịch`
+                : "Đang tải..."}
             </span>
           </CardTitle>
         </CardHeader>
@@ -66,12 +139,12 @@ export default function DashboardSchedules() {
             </div>
           )}
 
-          {!loading && schedules?.length === 0 && (
-            <p className="text-muted-foreground">Không có lịch trống nào.</p>
+          {!loading && filteredSchedules.length === 0 && !error && (
+            <p className="text-muted-foreground">Không có lịch nào trong ngày này.</p>
           )}
 
           {!loading &&
-            schedules?.map((schedule) => (
+            filteredSchedules.map((schedule) => (
               <div
                 key={schedule.schedule_id}
                 className="border p-4 rounded-xl shadow-sm flex justify-between items-start"
@@ -82,17 +155,23 @@ export default function DashboardSchedules() {
                     → {format(new Date(schedule.end_time), "HH:mm")}
                   </p>
                   <div className="text-sm text-muted-foreground">
-                    Dịch vụ: <Badge>{schedule.service_id}</Badge>
+                    Dịch vụ:{" "}
+                    <Badge>{schedule.service?.name || "Unknown Service"}</Badge>
                   </div>
                 </div>
                 <div className="flex flex-col items-end gap-2">
-                  <div className="text-xs text-zinc-500">
-                    Cập nhật:{" "}
-                    {format(new Date(schedule.updated_at), "dd/MM/yyyy")}
+                  <div className="text-sm text-muted-foreground">
+                    Trạng thái:{" "}
+                    <Badge variant={schedule.is_booked ? "destructive" : "secondary"}>
+                      {schedule.is_booked ? "Đã đặt" : "Còn trống"}
+                    </Badge>
                   </div>
-                
-                    <PaymentActionsDropdown scheduleId={schedule.schedule_id} />
-                 
+                  <PaymentActionsDropdown
+                    scheduleId={schedule.schedule_id}
+                    onDeleted={handleDeleted}
+                    onUpdated={handleUpdated}
+                    serverAccessToken={serverAccessToken}
+                  />
                 </div>
               </div>
             ))}
