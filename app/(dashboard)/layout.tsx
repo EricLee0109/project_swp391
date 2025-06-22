@@ -1,8 +1,8 @@
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
-import { AppSidebar } from "@/components/dashboard/sidebar/app-sidebar";
 import { Toaster } from "@/components/ui/sonner";
 import { authJWT } from "@/lib/auth";
 import { notFound } from "next/navigation";
+import { AppSidebar } from "@/components/dashboard/sidebar/app-sidebar";
 
 export default async function DashboardLayout({
   children,
@@ -17,7 +17,7 @@ export default async function DashboardLayout({
 
   return (
     <SidebarProvider>
-      <AppSidebar />
+      <AppSidebar className="h-screen" />
       <SidebarInset>{children}</SidebarInset>
       <Toaster />
     </SidebarProvider>

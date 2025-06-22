@@ -18,21 +18,30 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
-
+import { RoleTypeEnum } from "@/types/enums/HealthServiceEnums";
+import { Button } from "@/components/ui/button";
+import { signOutAuth } from "@/app/(auth)/login/actions";
 
 export function NavUser({
   user,
 }: {
   user: {
-    name: string;
+    user_id: string;
     email: string;
-    avatar: string;
+    full_name?: string | null;
+    fullName?: string | null; // Alias for full_name
+    phone_number?: string | null;
+    // Avatar is not in the User schema, but added here for UI display purposes.
+    // In a real app, this might come from a separate profile table or a CDN URL.
+    avatar?: string;
+    role?: RoleTypeEnum;
   };
 }) {
   const { isMobile } = useSidebar();
 
   const handleLogout = () => {
     // Implement logout logic here
+    signOutAuth();
     console.log("User logged out");
   };
   return (
@@ -45,11 +54,16 @@ export function NavUser({
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
             >
               <Avatar className="h-8 w-8 rounded-lg">
-                <AvatarImage src={user.avatar} alt={user.name} />
+                <AvatarImage
+                  src={user?.avatar || "/avatars/shadcn.jpg"}
+                  alt={user.fullName || user.full_name || "User Avatar"}
+                />
                 <AvatarFallback className="rounded-lg">CN</AvatarFallback>
               </Avatar>
               <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-semibold">{user.name}</span>
+                <span className="truncate font-semibold">
+                  {user.fullName || user.full_name}
+                </span>
                 <span className="truncate text-xs">{user.email}</span>
               </div>
               <ChevronsUpDown className="ml-auto size-4" />
@@ -64,11 +78,16 @@ export function NavUser({
             <DropdownMenuLabel className="p-0 font-normal">
               <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                 <Avatar className="h-8 w-8 rounded-lg">
-                  <AvatarImage src={user.avatar} alt={user.name} />
+                  <AvatarImage
+                    src={user?.avatar || "/avatars/shadcn.jpg"}
+                    alt={user.fullName || user.full_name || "User Avatar"}
+                  />
                   <AvatarFallback className="rounded-lg">CN</AvatarFallback>
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-semibold">{user.name}</span>
+                  <span className="truncate font-semibold">
+                    {user.fullName || user.full_name}
+                  </span>
                   <span className="truncate text-xs">{user.email}</span>
                 </div>
               </div>
@@ -82,8 +101,10 @@ export function NavUser({
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={handleLogout}>
-              <LogOut />
-              Đăng xuất
+              <Button onClick={handleLogout} className="text-white-100">
+                <LogOut />
+                Đăng xuất
+              </Button>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
