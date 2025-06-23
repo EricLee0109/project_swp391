@@ -1,5 +1,4 @@
 import { Button } from "@/components/ui/button";
-import { slugify } from "@/lib/utils";
 import { Service, AvailableModeEnums } from "@/types/ServiceType/HealthServiceType";
 import { Home, Hospital } from "lucide-react";
 import Link from "next/link";
@@ -56,7 +55,7 @@ export const ServiceCard: React.FC<ServiceCardProps> = ({ service }) => {
           asChild
         >
           <Link
-            href={`/sexualHealthServices/detail/?query=${slugify(service.name)}`}
+            href={`/sexualHealthServices/detail?service_id=${service.service_id}`}
           >
             Đặt lịch
           </Link>

@@ -1,42 +1,67 @@
+"use client";
+
 import { notify } from "@/lib/toastNotify";
 import { formatDate } from "@/lib/utils";
 import {
   StiFormServiceValues,
   stiFormServiceSchema,
 } from "@/types/schemas/FormSchemas";
-import { Service, StiService } from "@/types/ServiceType/HealthServiceType";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Home, Hospital } from "lucide-react";
 import { useForm } from "react-hook-form";
+import { CustomService, CreateAppointmentDto } from "@/types/ServiceType/CustomServiceType";
 
-// --- FORM FOR 'TESTING' TYPE ---
 export function StiTestBookingForm({
   service,
   onClose,
 }: {
-  service: Service;
+  service: CustomService;
   onClose: () => void;
 }) {
   const form = useForm<StiFormServiceValues>({
     resolver: zodResolver(stiFormServiceSchema),
     defaultValues: {
       serviceId: service.service_id,
-      selected_mode: service.available_modes[0] || "AT_CLINIC",
+      selected_mode: service.available_modes[0] ?? "AT_CLINIC",
+      date: undefined,
+      session: undefined,
+      contact_name: undefined,
+      contact_phone: undefined,
+      shipping_address: undefined,
     },
   });
 
   const selectedMode = form.watch("selected_mode");
 
-  function onSubmit(data: StiFormServiceValues) {
-    const payload: StiService = {
-      ...data,
-      location: service.return_address || "",
-      date: formatDate(data.date),
-      category: "STI",
+  async function onSubmit(data: StiFormServiceValues) {
+    const payload: CreateAppointmentDto = {
+      service_id: data.serviceId,
+      type: service.type,
+      location: data.selected_mode === "AT_HOME" ? "Tại nhà" : service.return_address || "Tại phòng khám",
+      related_appointment_id: null,
+      contact_name: data.contact_name,
+      contact_phone: data.contact_phone,
+      shipping_address: data.shipping_address,
+      consultant_id: "default-consultant",
+      schedule_id: `${data.serviceId}-${formatDate(data.date)}-${data.session}`,
     };
-    console.log("Submitting STI Test Appointment:", payload);
-    notify("success", "STI Test booked successfully!");
-    onClose();
+
+    try {
+      const response = await fetch("/api/appointments", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) throw new Error("Không thể đặt lịch xét nghiệm STI");
+      notify("success", "Đặt lịch xét nghiệm STI thành công!");
+      onClose();
+    } catch (error) {
+      console.error("Lỗi khi đặt lịch xét nghiệm STI:", error);
+      notify("error", "Không thể đặt lịch xét nghiệm STI. Vui lòng thử lại.");
+    }
   }
 
   return (
@@ -46,18 +71,17 @@ export function StiTestBookingForm({
           onClick={onClose}
           className="absolute top-4 right-4 text-gray-500 hover:text-gray-800 text-3xl leading-none"
         >
-          &times;
+          ×
         </button>
         <h2 className="text-2xl font-bold mb-6 text-center">
-          Book STI Test: {service.name}
+          Đặt lịch xét nghiệm STI: {service.name}
         </h2>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
           className="space-y-6 max-h-[70vh] overflow-y-auto pr-3"
         >
-          {/* Mode Selection */}
           <div className="space-y-2">
-            <label className="font-semibold">Service Mode</label>
+            <label className="font-semibold">Hình thức dịch vụ</label>
             <div className="flex gap-4">
               {service.available_modes.map((mode) => (
                 <label
@@ -77,22 +101,26 @@ export function StiTestBookingForm({
                   ) : (
                     <Home size={20} />
                   )}
-                  <span>{mode === "AT_CLINIC" ? "At Clinic" : "At Home"}</span>
+                  <span>{mode === "AT_CLINIC" ? "Tại phòng khám" : "Tại nhà"}</span>
                 </label>
               ))}
             </div>
+            {form.formState.errors.selected_mode && (
+              <p className="text-red-500 text-sm">
+                {form.formState.errors.selected_mode.message}
+              </p>
+            )}
           </div>
 
-          {/* Date and Session */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
               <label htmlFor="date" className="font-semibold">
-                Date
+                Ngày
               </label>
               <input
                 id="date"
                 type="date"
-                {...form.register("date", { valueAsDate: true })}
+                {...form.register("date")}
                 className="w-full p-2 border rounded-md"
               />
               {form.formState.errors.date && (
@@ -102,14 +130,14 @@ export function StiTestBookingForm({
               )}
             </div>
             <div className="space-y-2">
-              <label className="font-semibold">Session</label>
+              <label className="font-semibold">Buổi</label>
               <select
                 {...form.register("session")}
                 className="w-full p-2 border rounded-md"
               >
-                <option value="">Select a session</option>
-                <option value="morning">Morning</option>
-                <option value="afternoon">Afternoon</option>
+                <option value="">Chọn buổi</option>
+                <option value="morning">Buổi sáng</option>
+                <option value="afternoon">Buổi chiều</option>
               </select>
               {form.formState.errors.session && (
                 <p className="text-red-500 text-sm">
@@ -119,35 +147,15 @@ export function StiTestBookingForm({
             </div>
           </div>
 
-          {/* Conditional Fields */}
-          {/* {selectedMode === "AT_CLINIC" && (
-            <div className="space-y-2">
-              <label htmlFor="location" className="font-semibold">
-                Clinic Location
-              </label>
-              <input
-                id="location"
-                {...form.register("location")}
-                placeholder="e.g., 123 Health St, Medtown"
-                className="w-full p-2 border rounded-md"
-              />
-              {form.formState.errors.location && (
-                <p className="text-red-500 text-sm">
-                  {form.formState.errors.location.message}
-                </p>
-              )}
-            </div>
-          )} */}
-
           {selectedMode === "AT_HOME" && (
             <div className="space-y-6 bg-gray-50 p-6 rounded-lg border">
               <h3 className="font-bold text-lg mb-4">
-                At-Home Service Details
+                Chi tiết dịch vụ tại nhà
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <label htmlFor="contact_name" className="font-semibold">
-                    Contact Name
+                    Tên liên hệ
                   </label>
                   <input
                     id="contact_name"
@@ -162,7 +170,7 @@ export function StiTestBookingForm({
                 </div>
                 <div className="space-y-2">
                   <label htmlFor="contact_phone" className="font-semibold">
-                    Contact Phone
+                    Số điện thoại liên hệ
                   </label>
                   <input
                     id="contact_phone"
@@ -178,12 +186,12 @@ export function StiTestBookingForm({
               </div>
               <div className="space-y-2">
                 <label htmlFor="shipping_address" className="font-semibold">
-                  Shipping Address
+                  Địa chỉ giao hàng
                 </label>
                 <input
                   id="shipping_address"
                   {...form.register("shipping_address")}
-                  placeholder="123 Main St"
+                  placeholder="123 Đường Chính"
                   className="w-full p-2 border rounded-md"
                 />
                 {form.formState.errors.shipping_address && (
@@ -199,7 +207,7 @@ export function StiTestBookingForm({
             type="submit"
             className="w-full bg-primary text-white font-bold py-3 px-4 rounded-lg hover:bg-primary-600 transition-colors duration-300 shadow-lg"
           >
-            Book Test
+            Đặt lịch xét nghiệm
           </button>
         </form>
       </div>

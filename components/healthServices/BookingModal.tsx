@@ -1,16 +1,12 @@
+"use client";
+
 import { StiTestBookingForm } from "@/components/healthServices/appoinmentBookingType/StiServiceForm";
 import { notify } from "@/lib/toastNotify";
 import { formatDate } from "@/lib/utils";
-import { AvailableModeEnums } from "@/types/enums/HealthServiceEnums";
-import {
-  Consultant,
-  CreateAppointmentDto,
-  Schedule,
-  Service,
-} from "@/types/ServiceType/HealthServiceType";
-import { Home, ArrowLeft, Hospital, ShieldCheck } from "lucide-react";
+import { Home, ArrowLeft, Hospital } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
+import { CustomService, Consultant, Schedule, CreateAppointmentDto } from "@/types/ServiceType/CustomServiceType";
 
 export function BookingModal({
   service,
@@ -18,26 +14,24 @@ export function BookingModal({
   schedules,
   onClose,
 }: {
-  service: Service;
+  service: CustomService;
   consultants: Consultant[];
   schedules: Schedule[];
   onClose: () => void;
 }) {
   const [step, setStep] = useState(1);
-  const [appointment, setAppointment] = useState<Partial<CreateAppointmentDto>>(
-    {
-      service_id: service.service_id,
-      type: service.type,
-      related_appointment_id: null,
-    }
-  );
+  const [appointment, setAppointment] = useState<Partial<CreateAppointmentDto>>({
+    service_id: service.service_id,
+    type: service.type,
+    related_appointment_id: null,
+  });
   const [selectedTime, setSelectedTime] = useState("");
   const [selectedDate, setSelectedDate] = useState("");
 
-  const handleLocationSelect = (location: AvailableModeEnums) => {
+  const handleLocationSelect = (location: "AT_HOME" | "AT_CLINIC") => {
     setAppointment((prev) => ({
       ...prev,
-      location: location === "AT_HOME" ? "At Home" : "At Clinic",
+      location: location === "AT_HOME" ? "Tại nhà" : "Tại phòng khám",
     }));
     setStep(2);
   };
@@ -53,24 +47,40 @@ export function BookingModal({
   const handleScheduleSelect = (schedule: Schedule, time: string) => {
     setAppointment((prev) => ({ ...prev, schedule_id: schedule.schedule_id }));
     setSelectedTime(time);
-    setSelectedDate(schedule.date);
+    setSelectedDate(schedule.start_time);
     setStep(4);
   };
 
-  const createAppointment = () => {
-    console.log("Creating appointment:", appointment);
-    notify("success", "Appointment created successfully!");
-    onClose();
+  const createAppointment = async () => {
+    if (!appointment.consultant_id || !appointment.schedule_id || !appointment.location) {
+      notify("error", "Vui lòng hoàn thành tất cả các bước trước khi đặt lịch.");
+      return;
+    }
+
+    try {
+      const response = await fetch("/api/appointments", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(appointment),
+      });
+      if (!response.ok) throw new Error("Không thể tạo lịch hẹn");
+      notify("success", "Đặt lịch hẹn thành công!");
+      onClose();
+    } catch (error) {
+      console.error("Lỗi khi tạo lịch hẹn:", error);
+      notify("error", "Không thể tạo lịch hẹn. Vui lòng thử lại.");
+    }
   };
 
   const selectedConsultant = consultants.find(
     (c) => c.consultant_id === appointment.consultant_id
   );
   const consultantSchedules = schedules.filter(
-    (s) => s.consultant_id === appointment.consultant_id
+    (s) => consultants.find((c) => c.consultant_id === appointment.consultant_id)?.schedules.some((sch) => sch.schedule_id === s.schedule_id)
   );
 
-  // --- Conditional Rendering Logic ---
   if (service.type === "Testing") {
     return <StiTestBookingForm service={service} onClose={onClose} />;
   }
@@ -82,7 +92,7 @@ export function BookingModal({
           onClick={onClose}
           className="absolute top-4 right-4 text-gray-500 hover:text-gray-800 text-3xl leading-none"
         >
-          &times;
+          ×
         </button>
         {step > 1 && (
           <button
@@ -95,9 +105,7 @@ export function BookingModal({
 
         {step === 1 && service.available_modes.length > 1 && (
           <div>
-            <h2 className="text-2xl font-bold mb-6 text-center">
-              Choose Location
-            </h2>
+            <h2 className="text-2xl font-bold mb-6 text-center">Chọn địa điểm</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {service.available_modes.map((mode) => (
                 <div
@@ -110,21 +118,16 @@ export function BookingModal({
                   ) : (
                     <Home className="mx-auto mb-2" size={32} />
                   )}
-                  <p className="font-semibold">
-                    {mode === "AT_CLINIC" ? "At Clinic" : "At Home"}
-                  </p>
+                  <p className="font-semibold">{mode === "AT_CLINIC" ? "Tại phòng khám" : "Tại nhà"}</p>
                 </div>
               ))}
             </div>
           </div>
         )}
 
-        {(step === 2 ||
-          (step === 1 && service.available_modes.length <= 1)) && (
+        {(step === 2 || (step === 1 && service.available_modes.length <= 1)) && (
           <div>
-            <h2 className="text-2xl font-bold mb-6 text-center">
-              Choose a Consultant
-            </h2>
+            <h2 className="text-2xl font-bold mb-6 text-center">Chọn tư vấn viên</h2>
             <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-2">
               {consultants.map((c) => (
                 <div
@@ -133,19 +136,14 @@ export function BookingModal({
                   className="flex items-center p-4 border rounded-lg cursor-pointer hover:bg-gray-100"
                 >
                   <Image
-                    src={c.user.avatar || "/default-avatar.png"}
-                    alt={c.user.full_name || ""}
+                    src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTHfd3PPulVSp4ZbuBFNkePoUR_fLJQe474Ag&s"
+                    alt={c.full_name || ""}
                     width={48}
                     height={48}
                     className="rounded-full mr-4"
                   />
                   <div className="flex-grow">
-                    <div className="flex items-center gap-2">
-                      <p className="font-bold">{c.user.full_name}</p>
-                      {c.is_verified && (
-                        <ShieldCheck size={16} className="text-blue-500" />
-                      )}
-                    </div>
+                    <p className="font-bold">{c.full_name}</p>
                     <p className="text-sm text-gray-500">{c.specialization}</p>
                   </div>
                 </div>
@@ -154,38 +152,38 @@ export function BookingModal({
           </div>
         )}
 
-        {step === 3 && selectedConsultant && (
+     {step === 3 && selectedConsultant && (
           <div>
-            <h2 className="text-2xl font-bold mb-6 text-center">
-              Select a Schedule
-            </h2>
-            <h3 className="text-lg font-semibold text-center mb-4">
-              {selectedConsultant.user.full_name}
-            </h3>
-            <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-2">
+            <h2 className="text-2xl font-semibold mb-2 text-center">Chọn thời gian tư vấn</h2>
+            <h3 className="text-lg font-medium text-center mb-6 text-gray-600">{selectedConsultant.full_name}</h3>
+            <div className="space-y-4 max-h-[70vh] overflow-y-auto pr-3">
               {consultantSchedules.length > 0 ? (
                 consultantSchedules.map((s) => (
-                  <div key={s.schedule_id} className="p-4 border rounded-lg">
-                    <p className="font-bold mb-2">
-                      {formatDate(new Date(s.date))}
+                  <div
+                    key={s.schedule_id}
+                    className="p-4 bg-white border border-gray-300 rounded-lg shadow-sm"
+                  >
+                    <p className="font-semibold text-gray-800 mb-2">
+                      {formatDate(new Date(s.start_time))}
                     </p>
                     <div className="flex flex-wrap gap-2">
-                      {s.time_slots.map((time) => (
-                        <button
-                          key={time}
-                          onClick={() => handleScheduleSelect(s, time)}
-                          className="px-4 py-2 bg-teal-100 text-teal-800 rounded-md hover:bg-teal-200"
-                        >
-                          {time}
-                        </button>
-                      ))}
+                      <button
+                        onClick={() => handleScheduleSelect(s, s.start_time)}
+                        className="px-4 py-2 bg-teal-500 text-white rounded-lg hover:bg-teal-600 transition-colors"
+                      >
+                        {`${new Date(s.start_time).toLocaleTimeString([], {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })} - ${new Date(s.end_time).toLocaleTimeString([], {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}`}
+                      </button>
                     </div>
                   </div>
                 ))
               ) : (
-                <p className="text-center text-gray-500">
-                  No available schedules for this consultant.
-                </p>
+                <p className="text-center text-gray-500">Không có lịch hẹn nào cho tư vấn viên này.</p>
               )}
             </div>
           </div>
@@ -193,42 +191,31 @@ export function BookingModal({
 
         {step === 4 && selectedConsultant && (
           <div>
-            <h2 className="text-2xl font-bold mb-6 text-center">
-              Confirm Appointment
-            </h2>
+            <h2 className="text-2xl font-bold mb-6 text-center">Xác nhận lịch hẹn</h2>
             <div className="space-y-3 text-gray-700 p-4 bg-gray-50 rounded-lg border">
               <p>
-                <span>Service:</span> &nbsp;
-                <span className="font-bold">{service.name}</span>
+                <span>Dịch vụ:</span> <span className="font-bold">{service.name}</span>
               </p>
               <p>
-                <span>Location:</span> &nbsp;
-                <span className="font-bold">
-                  {appointment.location || "At Clinic"}
+                <span>Địa điểm:</span> <span className="font-bold">{appointment.location || "Tại phòng khám"}</span>
+              </p>
+              <p>
+                <span>Tư vấn viên:</span> <span className="font-bold">{selectedConsultant.full_name}</span>
+              </p>
+              <p>
+                <span>Ngày:</span> <span className="font-bold">{formatDate(new Date(selectedDate))}</span>
+              </p>
+              <p>
+                <span>Giờ:</span> <span className="font-bold">
+                  {new Date(selectedTime).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
                 </span>
-              </p>
-              <p>
-                <span>Consultant:</span> &nbsp;
-                <span className="font-bold">
-                  {selectedConsultant.user.full_name}
-                </span>
-              </p>
-              <p>
-                <span>Date:</span> &nbsp;
-                <span className="font-bold">
-                  {formatDate(new Date(selectedDate))}
-                </span>
-              </p>
-              <p>
-                <span>Time:</span> &nbsp;
-                <span className="font-bold">{selectedTime}</span>
               </p>
             </div>
             <button
               onClick={createAppointment}
               className="w-full mt-6 bg-primary text-white font-bold py-3 px-4 rounded-lg hover:bg-primary-600"
             >
-              Confirm Booking
+              Xác nhận đặt lịch
             </button>
           </div>
         )}
