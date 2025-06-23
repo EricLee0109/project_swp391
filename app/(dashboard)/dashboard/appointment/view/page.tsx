@@ -3,6 +3,7 @@ import { columns } from "@/components/dashboard/appointment/columns";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { authJWT } from "@/lib/auth";
 import { appointmentData } from "@/data/appointment";
+import Header from "@/components/dashboard/header";
 
 export default async function AppointmentListPage() {
   const data = appointmentData;
@@ -10,7 +11,14 @@ export default async function AppointmentListPage() {
   const { fullName } = userSession?.user || {};
 
   return (
-    <div className="container mx-auto py-10">
+    <div>
+      <Header
+        title="Quản lý cuộc hẹn"
+        href="/dashboard/appointment/view"
+        currentPage="Theo dõi cuộc hẹn"
+      />
+       <div className="container mx-auto p-6"> 
+ 
       <div className="ml-4">
         <div className="mb-8">
           <h1 className="text-3xl font-bold tracking-tight">
@@ -32,5 +40,7 @@ export default async function AppointmentListPage() {
         </Card>
       </div>
     </div>
+    </div>
+   
   );
 }
