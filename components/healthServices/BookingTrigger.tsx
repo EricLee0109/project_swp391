@@ -2,21 +2,15 @@
 
 import { BookingModal } from "@/components/healthServices/BookingModal";
 import { Button } from "@/components/ui/button";
-import {
-  Consultant,
-  Schedule,
-  Service,
-} from "@/types/ServiceType/HealthServiceType";
 import { useState } from "react";
+import { CustomService, Consultant, Schedule } from "@/types/ServiceType/CustomServiceType";
 
-// Props definition for the client component
 interface BookingTriggerProps {
-  service: Service;
+  service: CustomService;
   consultants: Consultant[];
   schedules: Schedule[];
 }
 
-// This is the client component wrapper
 export function BookingTrigger({
   service,
   consultants,
@@ -29,7 +23,7 @@ export function BookingTrigger({
       <Button
         onClick={() => setIsModalOpen(true)}
         className="w-full bg-primary text-white font-bold py-3 px-4 rounded-lg hover:bg-primary-600 transition-colors duration-300 shadow-lg"
-        suppressHydrationWarning // Thêm để tạm thời giảm lỗi
+        suppressHydrationWarning
       >
         Đặt lịch hẹn
       </Button>
