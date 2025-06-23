@@ -31,7 +31,6 @@ interface ScheduleProps {
 }
 
 export default function Schedule({
-  serverTime,
   serverAccessToken,
   reloadFlag,
   selectedDate,

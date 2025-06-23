@@ -9,12 +9,12 @@ const Footer = () => {
         <div className="grid grid-cols-12 gap-5">
           {/* SHOP */}
           <div className="col-span-12 sm:col-span-3">
-            <h4 className="uppercase font-bold text-white">Shop</h4>
+            <h4 className="uppercase font-bold text-white">Phòng khám Directory</h4>
             <hr className="my-2 border-white/30" />
             <ul className="space-y-2">
               <li><Link href="/about-us">Về chúng tôi</Link></li>
               <li><Link href="/our-team">Đội ngũ của chúng tôi</Link></li>
-              <li><Link href="/flagship-store">Cửa hàng hàng đầu</Link></li>
+              <li><Link href="/flagship-store">Phòng khám hàng đầu</Link></li>
             </ul>
           </div>
 
@@ -25,8 +25,6 @@ const Footer = () => {
             <ul className="space-y-2">
               <li><Link href="/faq/contact">Liên hệ</Link></li>
               <li><Link href="/faq/services-and-maintenance">Dịch vụ & Bảo trì</Link></li>
-              <li><Link href="/faq/wholesale">Bán buôn</Link></li>
-              <li><Link href="/faq/sell-your-gear">Bán thiết bị của bạn</Link></li>
               <li><Link href="/faq/shipping-policies">Chính sách vận chuyển</Link></li>
               <li><Link href="/faq/terms-of-service">Điều khoản dịch vụ</Link></li>
               <li><Link href="/faq/return-policies">Chính sách trả hàng</Link></li>
@@ -45,17 +43,9 @@ const Footer = () => {
                 <p>10:00 AM - 08:30 PM</p>
               </div>
               <div>
-                <h5 className="font-semibold">Reverb</h5>
-                <p>Ghé thăm cửa hàng trên Reverb</p>
-              </div>
-              <div>
-                <h5 className="font-semibold">Vintage & Rare</h5>
-                <p>Ghé thăm cửa hàng trên <span className="font-bold">Vintage & Rare</span></p>
-              </div>
-              <div>
-                <h5 className="font-semibold">Lab's Shopee</h5>
-                <p>Ghé thăm cửa hàng trên <span className="font-bold">Shopee</span></p>
-              </div>
+                <h5 className="font-semibold">Địa chỉ</h5>
+                <p>123 Phố Chính, Quận 1, TP.HCM</p>
+                </div>
             </div>
           </div>
 
@@ -71,7 +61,7 @@ const Footer = () => {
           </div>
         </div>
 
-        <p className="text-xs text-white mt-10 text-center">© Innovibe 2024</p>
+        <p className="text-xs text-white mt-10 text-center">© Directory 2025</p>
       </MaxWidthWrapper>
     </div>
   );

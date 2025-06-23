@@ -58,13 +58,13 @@ const navMain = [
   },
   {
     title: "Đặt lịch",
-    url: "/dashboard/schuldes",
+    url: "/dashboard/schedule",
     icon: CircleUserRound,
     isActive: true,
     items: [
       {
         title: "Tư vấn viên khách hàng",
-        url: "/dashboard/schuldes",
+        url: "/dashboard/schedule",
       },
     ],
   },
