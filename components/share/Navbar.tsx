@@ -4,8 +4,9 @@ import Image from "next/image";
 
 import { auth } from "@/auth";
 import { authJWT } from "@/lib/auth";
+import ProfileMenu from "../profile/profile-menu";
 
-import ProfileMenu from "./profile/profile-menu";
+
 
 export default async function Navbar() {
   const session = await authJWT();
