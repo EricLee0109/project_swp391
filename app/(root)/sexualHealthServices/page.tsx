@@ -1,9 +1,6 @@
 import { ServiceBrowser } from "@/components/healthServices/ServicesBrowser";
-import { servicesData } from "@/data/services";
 
 export default function SexualHealthServicesPage() {
-  const services = servicesData; // Use the dummy data
-
   return (
     <div className="bg-gray-50 min-h-screen font-sans">
       <main className="container mx-auto px-4 py-8 md:py-12">
@@ -18,7 +15,7 @@ export default function SexualHealthServicesPage() {
         </header>
 
         {/* The stateful, interactive part is delegated to a Client Component */}
-        <ServiceBrowser services={services} />
+        <ServiceBrowser />
       </main>
     </div>
   );

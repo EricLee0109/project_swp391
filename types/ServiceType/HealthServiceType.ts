@@ -3,19 +3,27 @@ import {
   ServiceTypeEnums,
 } from "@/types/enums/HealthServiceEnums";
 
+export interface TestingHours {
+  morning?: { start: string; end: string };
+  afternoon?: { start: string; end: string };
+}
+
 export interface Service {
   service_id: string;
   name: string;
   description: string;
-  price: number; // Changed from string to number as per schema
+  price: number;
   category: string;
   is_active: boolean;
-  type: ServiceTypeEnums; // Changed from string to ServiceTypeEnums
-  testing_hours?: string | null; // Optional field from original data
-  daily_capacity?: number; // Optional field from original data
+  type: ServiceTypeEnums;
+  testing_hours?: TestingHours | null;
+  daily_capacity?: number;
   return_address: string | null;
   return_phone: string | null;
   available_modes: AvailableModeEnums[];
+  created_at: string;
+  updated_at: string;
+  deleted_at: string | null;
 }
 
 export interface StiService {
@@ -136,3 +144,5 @@ export interface UserAuth {
     deleted_at?: string;
   } | null;
 }
+
+export { ServiceTypeEnums, AvailableModeEnums };

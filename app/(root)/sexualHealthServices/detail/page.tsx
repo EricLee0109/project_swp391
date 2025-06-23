@@ -1,37 +1,83 @@
 import { BookingTrigger } from "@/components/healthServices/BookingTrigger";
 import { DetailItem } from "@/components/healthServices/DetailItem";
-// import { Badge } from "@/components/ui/badge";
-import { consultantsData } from "@/data/consultants";
-import { schedulesData } from "@/data/schedules";
-import { servicesData } from "@/data/services";
+import { consultantsData } from "@/data/consultants"; // Dùng mock data tạm thời
+import { schedulesData } from "@/data/schedules"; // Dùng mock data tạm thời
 import { slugify } from "@/lib/utils";
 import { Home, Clock, Hospital, Info, Users, CheckCircle2 } from "lucide-react";
 import { notFound } from "next/navigation";
+import { Service, AvailableModeEnums } from "@/types/ServiceType/HealthServiceType";
 
+// Chú ý: searchParams luôn là object (không Promise)
+// Fix kiểu cho chuẩn Next.js App Router:
 export default async function ServiceDetailPage({
   searchParams,
 }: {
-  searchParams?: Promise<{ query: string }>;
+  searchParams?: Promise<{ query: string}>;
 }) {
-  let slug = (await searchParams)?.query;
-  console.log(slug, "slug from params");
-
-  // Fallback for preview environment where props might not be passed
-  if (!slug && typeof window !== "undefined") {
-    const pathParts = window.location.pathname.split("/");
-    const slugFromUrl = pathParts[pathParts.length - 1];
-    if (slugFromUrl) {
-      slug = slugFromUrl;
-    }
+    const params = await searchParams;
+  const slug = params?.query;
+  // Fetch all services từ API nội bộ trên server
+  const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3000"}/api/services`, {
+    cache: "no-store", // Hoặc "force-cache" tuỳ app
+  });
+  if (!res.ok) {
+    console.error("Fetch error:", await res.text());
+    throw new Error("Failed to fetch services");
   }
+const services: Service[] = await res.json();
+const service: Service | undefined = services.find((s) => slugify(s.name) === slug);
 
-  const service =
-    servicesData.find((s) => slugify(s.name) === slug) || servicesData[0];
+  if (!service) notFound();
+
+  // Optionally: fetch consultants/schedules API nếu có (hoặc lấy mock)
   const consultants = consultantsData || [];
   const schedules = schedulesData || [];
 
-  // Not found service handling
-  if (!service) notFound();
+  // Format price thành VNĐ (nếu price là number)
+  const formattedPrice = new Intl.NumberFormat("vi-VN", {
+    style: "currency",
+    currency: "VND",
+    maximumFractionDigits: 0,
+  }).format(Number(service.price));
+
+
+  type TestingHours = {
+  morning?: { start: string; end: string };
+  afternoon?: { start: string; end: string };
+} | null;
+
+  // Format testing_hours trên server
+const formatTestingHours = (testingHours?: TestingHours): string => {
+  if (!testingHours) {
+    return (
+      <>
+        <div>
+          <b>Ca sáng:</b> N/A
+        </div>
+        <div>
+          <b>Ca chiều:</b> N/A
+        </div>
+      </>
+    ) as unknown as string; // Trick để dùng với DetailItem cũ, nếu bạn muốn kiểu JSX, xem phần dưới!
+  }
+  const morning = testingHours.morning
+    ? `${testingHours.morning.start} - ${testingHours.morning.end}`
+    : "N/A";
+  const afternoon = testingHours.afternoon
+    ? `${testingHours.afternoon.start} - ${testingHours.afternoon.end}`
+    : "N/A";
+
+  return (
+    <>
+      <div>
+        <b>Ca sáng:</b> {morning}
+      </div>
+      <div>
+        <b>Ca chiều:</b> {afternoon}
+      </div>
+    </>
+  ) as unknown as string;
+};
 
   return (
     <div className="bg-gray-50 min-h-screen font-sans">
@@ -83,7 +129,7 @@ export default async function ServiceDetailPage({
                 <DetailItem
                   icon={<Clock size={24} />}
                   label="Giờ xét nghiệm"
-                  value={service.testing_hours}
+                  value={formatTestingHours(service.testing_hours)}
                 />
               </div>
             </div>
@@ -94,21 +140,21 @@ export default async function ServiceDetailPage({
                 <div className="flex justify-between items-center mb-4">
                   <p className="text-lg font-medium text-gray-600">Chi phí</p>
                   <p className="text-3xl font-bold text-primary">
-                    ${(service.price / 100).toFixed(2)}
+                    {formattedPrice}
                   </p>
                 </div>
                 <div className="mb-6">
                   <h3 className="font-semibold text-gray-700 mb-2">
-                    Khám có thể thực hiện:
+                    Có thể khám:
                   </h3>
                   <div className="space-y-3">
-                    {service.available_modes.includes("AT_CLINIC") && (
+                    {service.available_modes.includes(AvailableModeEnums.AT_CLINIC) && (
                       <div className="flex items-center gap-2 text-gray-600">
                         <Hospital size={20} className="text-indigo-600" />
                         <span>Xét nghiệm tại bệnh viện</span>
                       </div>
                     )}
-                    {service.available_modes.includes("AT_HOME") && (
+                    {service.available_modes.includes(AvailableModeEnums.AT_HOME) && (
                       <div className="flex items-center gap-2 text-gray-600">
                         <Home size={20} className="text-teal-600" />
                         <span>Khám tại nhà</span>
@@ -121,6 +167,7 @@ export default async function ServiceDetailPage({
                   service={service}
                   consultants={consultants}
                   schedules={schedules}
+                  // suppressHydrationWarning 
                 />
               </div>
             </div>

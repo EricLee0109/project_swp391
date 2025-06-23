@@ -29,6 +29,7 @@ export function BookingTrigger({
       <Button
         onClick={() => setIsModalOpen(true)}
         className="w-full bg-primary text-white font-bold py-3 px-4 rounded-lg hover:bg-primary-600 transition-colors duration-300 shadow-lg"
+        suppressHydrationWarning // Thêm để tạm thời giảm lỗi
       >
         Đặt lịch hẹn
       </Button>
