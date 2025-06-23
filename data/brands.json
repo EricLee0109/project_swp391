@@ -1,0 +1,34 @@
+[
+    {
+        "id": 1,
+        "brandName": "D'Angelico Guitars"
+    },
+    {
+        "id": 2,
+        "brandName": "Ernie Ball Music Man"
+    },
+    {
+        "id": 3,
+        "brandName": "Fender"
+    },
+    {
+        "id": 4,
+        "brandName": "Ibanez"
+    },
+    {
+        "id": 5,
+        "brandName": "Mint"
+    },
+    {
+        "id": 6,
+        "brandName": "PRS Guitars"
+    },
+    {
+        "id": 7,
+        "brandName": "Sterling By Music Man"
+    },
+    {
+        "id": 8,
+        "brandName": "Suhr Guitars"
+    }
+]
