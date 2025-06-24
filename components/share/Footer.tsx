@@ -4,7 +4,7 @@ import { Input } from "../ui/input";
 
 const Footer = () => {
   return (
-    <div className="bg-[#3b3b43] text-white text-sm">
+    <div className="bg-black text-white text-sm">
       <MaxWidthWrapper className="px-6 py-16">
         <div className="grid grid-cols-12 gap-5">
           {/* SHOP */}

@@ -1,3 +1,8 @@
+import BlogHome from "@/components/home/Blogs";
+import Features from "@/components/home/Features";
+import Hero from "@/components/home/Hero";
+
+import MaxWidthWrapper from "@/components/profile/MaxWidthWrapper";
 import SearchForm from "@/components/SearchForm";
 import StartupCard from "@/components/StartupCard";
 import { authJWT } from "@/lib/auth";
@@ -65,7 +70,7 @@ export default async function Home({
   ];
 
   return (
-    <>
+    <div>
       <section className="pink_container">
         <h1 className="heading">
           Menstrual Cycle, <br />
@@ -80,28 +85,27 @@ export default async function Home({
 
         <SearchForm query={query} />
       </section>
+      <MaxWidthWrapper className="bg-white">
+        <section className="section_container">
+          <p className="text-30-semibold">
+            {query ? `Search result for ${query}` : "All Blogs"}
+          </p>
+          <ul className="mt-7 card_grid">
+            {posts?.length > 0 ? (
+              posts.map((post: StartupCardType) => (
+                <StartupCard key={post._id} post={post} />
+              ))
+            ) : (
+              <p className="no-result">Not found</p>
+            )}
+          </ul>
+        </section>
+        {/* <TrustSignals /> */}
 
-      <section className="section_container">
-        <p className="text-30-semibold">
-          {query ? `Search result for ${query}` : "All Blogs"}
-        </p>
-        <ul className="mt-7 card_grid">
-          {posts?.length > 0 ? (
-            posts.map((post: StartupCardType) => (
-              <StartupCard key={post._id} post={post} />
-            ))
-          ) : (
-            <p className="no-result">Not found</p>
-          )}
-          {/* {posts?.length > 0 ? (
-            posts.map((post: StartupCardType, index: number) => (
-              <StartupCard key={post._id} post={post} />
-            ))
-          ) : (
-            <p className="no-result">No startups found</p>
-          )} */}
-        </ul>
-      </section>
-    </>
+        <Hero />
+        <BlogHome />
+        <Features />
+      </MaxWidthWrapper>
+    </div>
   );
 }
