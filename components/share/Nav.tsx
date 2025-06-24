@@ -7,10 +7,11 @@ import {
   NavigationMenuTrigger,
   navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu";
+import { auth } from "@/auth";
+import { authJWT } from "@/lib/auth";
 import React from "react";
 import { cn } from "@/lib/utils";
 import MaxWidthWrapper from "../profile/MaxWidthWrapper";
-
 
 const stisCategories = [
   { id: 1, title: "Chlamydia" },
@@ -23,7 +24,18 @@ const stisCategories = [
   { id: 8, title: "Viêm gan B" },
 ];
 
-const   Nav = () => {
+export default async function Nav() {
+  const session = await authJWT();
+  const ggSession = await auth();
+  let user = null;
+  let type: "jwt" | "oauth" | null = null;
+  if (session?.user) {
+    user = session.user;
+    type = "jwt";
+  } else if (ggSession?.user) {
+    user = ggSession.user;
+    type = "oauth";
+  }
   return (
     <div className="bg-black transition-all duration-300">
       <MaxWidthWrapper className="flex justify-evenly gap-5 items-center">
@@ -57,15 +69,38 @@ const   Nav = () => {
                 Bài đăng
               </NavigationMenuLink>
             </NavigationMenuItem>
+
+            <NavigationMenuItem>
+              <NavigationMenuLink
+                href="/sexualHealthServices"
+                className={cn(
+                  navigationMenuTriggerStyle(),
+                  "bg-transparent text-white hover:text-white hover:bg-white/20 rounded-none uppercase font-bold"
+                )}
+              >
+                Dịch vụ y tế
+              </NavigationMenuLink>
+            </NavigationMenuItem>
+
+            {user && type && (
+              <NavigationMenuItem>
+                <NavigationMenuLink
+                  href="/menstrualCycle"
+                  className={cn(
+                    navigationMenuTriggerStyle(),
+                    "bg-transparent text-white hover:text-white hover:bg-white/20 rounded-none uppercase font-bold"
+                  )}
+                >
+                  Chu kỳ kinh nguyệt
+                </NavigationMenuLink>
+              </NavigationMenuItem>
+            )}
           </NavigationMenuList>
         </NavigationMenu>
       </MaxWidthWrapper>
     </div>
   );
-};
-
-export default Nav;
-
+}
 const ListItem = React.forwardRef<
   React.ElementRef<"a">,
   React.ComponentPropsWithoutRef<"a">

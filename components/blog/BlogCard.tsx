@@ -62,18 +62,24 @@ const BlogCard = ({
   return (
     <div className="grid grid-cols-3 gap-3">
       <div className="col-span-1">
-        <AspectRatio ratio={16 / 10}>
-          <Image
-            src={
-              typeof thumbnail === "string"
-                ? thumbnail
-                : (thumbnail as StaticImageData)
-            }
-            alt={title}
-            fill
-            className="object-cover object-center rounded-md"
-          />
-        </AspectRatio>
+        {thumbnail ? (
+          <AspectRatio ratio={16 / 10}>
+            <Image
+              src={
+                typeof thumbnail === "string"
+                  ? thumbnail
+                  : (thumbnail as StaticImageData)
+              }
+              alt={title}
+              fill
+              className="object-cover object-center rounded-md"
+            />
+          </AspectRatio>
+        ) : (
+          <div className="w-full aspect-[16/10] bg-gray-200 rounded-md flex items-center justify-center text-xs text-gray-500">
+            Không có ảnh
+          </div>
+        )}
       </div>
 
       <div className="col-span-2">

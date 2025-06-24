@@ -1,7 +1,7 @@
 // app/(root)/coming-soon/page.tsx (hoặc bất kỳ file nào bạn muốn)
 
 import Image from "next/image";
-import ComingSoonImage from "@/public/images/coming-soon.png"; // điều chỉnh path cho đúng nếu khác
+import ComingSoonImage from "@/public/images/coming-soon.png"; 
 
 const ComingSoon = () => {
   return (
