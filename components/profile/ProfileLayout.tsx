@@ -11,7 +11,7 @@ import {
   Heart,
   Settings,
 } from "lucide-react";
-import { LogoutButton } from "@/components/LogoutButton";
+import { LogoutButton } from "@/components/login/LogoutButton";
 
 type UserType = {
   name?: string;

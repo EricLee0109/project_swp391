@@ -1,4 +1,5 @@
-import { SignUpForm } from "@/components/SignUpForm";
+
+import { SignUpFormOtp } from "@/components/login/SignUpFormOtp";
 import { GalleryVerticalEnd } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -13,7 +14,7 @@ export default function SignUpPage() {
           </div>
           <Image src="/logo.png" alt="logo" width={144} height={30} />
         </Link>
-        <SignUpForm />
+        <SignUpFormOtp />
       </div>
     </div>
   );
