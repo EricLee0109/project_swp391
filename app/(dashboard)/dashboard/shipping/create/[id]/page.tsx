@@ -12,7 +12,7 @@ import CreateShippingClient from "./CreateShippingClient";
 import { AppointmentListType } from "@/types/ServiceType/StaffRoleType";
 
 // Assume you have a list of appointments being rendered
-const YourAppointmentListComponent = ({
+const AppointmentListComponent = ({
   appointments,
 }: {
   appointments: AppointmentListType[];
@@ -69,4 +69,4 @@ const YourAppointmentListComponent = ({
   );
 };
 
-export default YourAppointmentListComponent;
+export default AppointmentListComponent;

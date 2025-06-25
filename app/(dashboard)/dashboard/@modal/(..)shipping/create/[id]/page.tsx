@@ -9,13 +9,11 @@ import {
 } from "@/components/ui/dialog";
 import CreateShippingClient from "@/app/(dashboard)/dashboard/shipping/create/[id]/CreateShippingClient"; // Your original component
 
-interface CreateShippingModalProps {
+interface PageProps {
   params: { id: string };
 }
 
-export default function CreateShippingModal({
-  params,
-}: CreateShippingModalProps) {
+export default function CreateShippingModal({ params }: PageProps) {
   const router = useRouter();
 
   // The onClose function will now just navigate the user back
