@@ -1,10 +1,12 @@
+"use client";
+
 import { Button } from "@/components/ui/button";
-import { Service, AvailableModeEnums } from "@/types/ServiceType/HealthServiceType";
+import { CustomService } from "@/types/ServiceType/CustomServiceType";
 import { Home, Hospital } from "lucide-react";
 import Link from "next/link";
 
 interface ServiceCardProps {
-  service: Service;
+  service: CustomService;
 }
 
 export const ServiceCard: React.FC<ServiceCardProps> = ({ service }) => {
@@ -12,7 +14,8 @@ export const ServiceCard: React.FC<ServiceCardProps> = ({ service }) => {
   const formattedPrice = new Intl.NumberFormat("vi-VN", {
     style: "currency",
     currency: "VND",
-  }).format(service.price);
+    maximumFractionDigits: 0,
+  }).format(parseInt(service.price, 10));
 
   return (
     <div className="bg-white rounded-2xl shadow-lg overflow-hidden transition-transform duration-300 ease-in-out hover:scale-[1.02] hover:shadow-2xl">
@@ -33,34 +36,32 @@ export const ServiceCard: React.FC<ServiceCardProps> = ({ service }) => {
         </div>
 
         <div className="flex items-center text-sm text-gray-500 mb-4">
-          <span className="font-semibold mr-2">Có thể khám:</span>
+          <span className="font-semibold mr-2">Hình thức khám:</span>
           <div className="flex gap-3">
-            {service.available_modes.includes(AvailableModeEnums.AT_HOME) && (
+            {service.available_modes.includes("AT_HOME") && (
               <div className="flex items-center gap-1 bg-teal-50 text-teal-700 px-2 py-1 rounded-full">
                 <Home size={14} />
-                <span>Khám Tại nhà</span>
+                <span>Tại nhà</span>
               </div>
             )}
-            {service.available_modes.includes(AvailableModeEnums.AT_CLINIC) && (
+            {service.available_modes.includes("AT_CLINIC") && (
               <div className="flex items-center gap-1 bg-indigo-50 text-indigo-700 px-2 py-1 rounded-full">
                 <Hospital size={14} />
-                <span>Tại bệnh viện</span>
+                <span>Tại phòng khám</span>
               </div>
             )}
           </div>
         </div>
 
         <Button
-          className="w-full bg-primary text-white font-bold py-3 px-4 rounded-lg hover:bg-primary-500 transition-colors duration-300 mt-4"
+          className="w-full bg-primary text-white font-bold py-3 px-4 rounded-lg hover:bg-primary-600 transition-colors duration-300 mt-4"
           asChild
         >
-          <Link
-            href={`/sexualHealthServices/detail?service_id=${service.service_id}`}
-          >
+          <Link href={`/sexualHealthServices/detail?service_id=${service.service_id}`}>
             Đặt lịch
           </Link>
         </Button>
       </div>
     </div>
   );
-}
+};

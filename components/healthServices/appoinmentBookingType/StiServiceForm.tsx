@@ -9,14 +9,16 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Home, Hospital } from "lucide-react";
 import { useForm } from "react-hook-form";
-import { CustomService, CreateAppointmentDto } from "@/types/ServiceType/CustomServiceType";
+import { CustomService, CreateStiAppointmentDto } from "@/types/ServiceType/CustomServiceType";
 
 export function StiTestBookingForm({
   service,
   onClose,
+  setStiAppointmentId,
 }: {
   service: CustomService;
   onClose: () => void;
+  setStiAppointmentId: (id: string) => void;
 }) {
   const form = useForm<StiFormServiceValues>({
     resolver: zodResolver(stiFormServiceSchema),
@@ -28,26 +30,32 @@ export function StiTestBookingForm({
       contact_name: undefined,
       contact_phone: undefined,
       shipping_address: undefined,
+      province: undefined,
+      district: undefined,
+      ward: undefined,
     },
   });
 
   const selectedMode = form.watch("selected_mode");
 
   async function onSubmit(data: StiFormServiceValues) {
-    const payload: CreateAppointmentDto = {
-      service_id: data.serviceId,
-      type: service.type,
+    const payload: CreateStiAppointmentDto = {
+      serviceId: data.serviceId,
+      date: formatDate(data.date),
+      session: data.session,
       location: data.selected_mode === "AT_HOME" ? "Tại nhà" : service.return_address || "Tại phòng khám",
-      related_appointment_id: null,
+      category: "STI",
+      selected_mode: data.selected_mode,
       contact_name: data.contact_name,
       contact_phone: data.contact_phone,
       shipping_address: data.shipping_address,
-      consultant_id: "default-consultant",
-      schedule_id: `${data.serviceId}-${formatDate(data.date)}-${data.session}`,
+      province: data.province,
+      district: data.district,
+      ward: data.ward,
     };
 
     try {
-      const response = await fetch("/api/appointments", {
+      const response = await fetch("/api/appointments/sti", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -55,8 +63,21 @@ export function StiTestBookingForm({
         body: JSON.stringify(payload),
       });
 
-      if (!response.ok) throw new Error("Không thể đặt lịch xét nghiệm STI");
-      notify("success", "Đặt lịch xét nghiệm STI thành công!");
+      if (!response.ok) {
+        if (response.status === 401) {
+          notify("error", "Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.");
+        }
+        throw new Error("Không thể đặt lịch xét nghiệm STI");
+      }
+
+      const responseData = await response.json();
+      const appointmentId = responseData.data?.appointment?.appointment_id;
+      if (appointmentId) {
+        setStiAppointmentId(appointmentId);
+        notify("success", `Đặt lịch xét nghiệm STI thành công! Mã lịch hẹn: ${appointmentId}`);
+      } else {
+        notify("success", "Đặt lịch xét nghiệm STI thành công!");
+      }
       onClose();
     } catch (error) {
       console.error("Lỗi khi đặt lịch xét nghiệm STI:", error);
@@ -65,7 +86,7 @@ export function StiTestBookingForm({
   }
 
   return (
-    <div className="form-container">
+    <div className="form-container mt-16">
       <div className="form-container-inner">
         <button
           onClick={onClose}
@@ -183,22 +204,70 @@ export function StiTestBookingForm({
                     </p>
                   )}
                 </div>
-              </div>
-              <div className="space-y-2">
-                <label htmlFor="shipping_address" className="font-semibold">
-                  Địa chỉ giao hàng
-                </label>
-                <input
-                  id="shipping_address"
-                  {...form.register("shipping_address")}
-                  placeholder="123 Đường Chính"
-                  className="w-full p-2 border rounded-md"
-                />
-                {form.formState.errors.shipping_address && (
-                  <p className="text-red-500 text-sm">
-                    {form.formState.errors.shipping_address.message}
-                  </p>
-                )}
+                <div className="space-y-2">
+                  <label htmlFor="province" className="font-semibold">
+                    Tỉnh/Thành phố
+                  </label>
+                  <input
+                    id="province"
+                    {...form.register("province")}
+                    placeholder="VD: TP.HCM"
+                    className="w-full p-2 border rounded-md"
+                  />
+                  {form.formState.errors.province && (
+                    <p className="text-red-500 text-sm">
+                      {form.formState.errors.province.message}
+                    </p>
+                  )}
+                </div>
+                <div className="space-y-2">
+                  <label htmlFor="district" className="font-semibold">
+                    Quận/Huyện
+                  </label>
+                  <input
+                    id="district"
+                    {...form.register("district")}
+                    placeholder="VD: Quận 1"
+                    className="w-full p-2 border rounded-md"
+                  />
+                  {form.formState.errors.district && (
+                    <p className="text-red-500 text-sm">
+                      {form.formState.errors.district.message}
+                    </p>
+                  )}
+                </div>
+                <div className="space-y-2">
+                  <label htmlFor="ward" className="font-semibold">
+                    Phường/Xã
+                  </label>
+                  <input
+                    id="ward"
+                    {...form.register("ward")}
+                    placeholder="VD: Phường 1"
+                    className="w-full p-2 border rounded-md"
+                  />
+                  {form.formState.errors.ward && (
+                    <p className="text-red-500 text-sm">
+                      {form.formState.errors.ward.message}
+                    </p>
+                  )}
+                </div>
+                <div className="space-y-2">
+                  <label htmlFor="shipping_address" className="font-semibold">
+                    Địa chỉ giao hàng
+                  </label>
+                  <input
+                    id="shipping_address"
+                    {...form.register("shipping_address")}
+                    placeholder="VD: 123 Đường Chính"
+                    className="w-full p-2 border rounded-md"
+                  />
+                  {form.formState.errors.shipping_address && (
+                    <p className="text-red-500 text-sm">
+                      {form.formState.errors.shipping_address.message}
+                    </p>
+                  )}
+                </div>
               </div>
             </div>
           )}

@@ -1,15 +1,15 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
-import { CreateAppointmentDto } from "@/types/ServiceType/CustomServiceType";
+import { CreateStiAppointmentDto } from "@/types/ServiceType/CustomServiceType";
 
 export async function POST(request: Request) {
   try {
-    const body: CreateAppointmentDto = await request.json();
+    const body: CreateStiAppointmentDto = await request.json();
 
-    // Validate required fields for Consultation
-    if (!body.service_id || (body.type === "Consultation" && (!body.consultant_id || !body.schedule_id))) {
+    // Validate required fields for STI
+    if (!body.serviceId || !body.date || !body.session || !body.selected_mode) {
       return NextResponse.json(
-        { error: "Thiếu các trường bắt buộc (service_id, consultant_id, schedule_id)" },
+        { error: "Thiếu các trường bắt buộc (serviceId, date, session, selected_mode)" },
         { status: 400 }
       );
     }
@@ -32,7 +32,7 @@ export async function POST(request: Request) {
     };
 
     // Forward request to backend API
-    const url = `${process.env.BE_BASE_URL}/appointments`;
+    const url = `${process.env.BE_BASE_URL}/appointments/sti`;
     const beRes = await fetch(url, {
       method: "POST",
       headers,
@@ -52,13 +52,13 @@ export async function POST(request: Request) {
     const responseData = await beRes.json();
 
     return NextResponse.json(
-      { message: "Đặt lịch hẹn thành công", data: responseData },
+      { message: "Đặt lịch xét nghiệm STI thành công", data: responseData },
       { status: 201 }
     );
   } catch (error) {
-    console.error("Lỗi khi tạo lịch hẹn:", error);
+    console.error("Lỗi khi tạo lịch xét nghiệm STI:", error);
     return NextResponse.json(
-      { error: "Không thể tạo lịch hẹn. Vui lòng thử lại." },
+      { error: "Không thể tạo lịch xét nghiệm STI. Vui lòng thử lại." },
       { status: 500 }
     );
   }

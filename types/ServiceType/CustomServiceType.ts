@@ -39,8 +39,23 @@ export interface CreateAppointmentDto {
   service_id: string;
   type: string;
   location: string;
-  related_appointment_id: string | null;
+  related_appointment_id?: string | null;
   contact_name?: string;
   contact_phone?: string;
   shipping_address?: string;
+}
+
+export interface CreateStiAppointmentDto {
+  serviceId: string;
+  date: string;
+  session: "morning" | "afternoon";
+  location: string;
+  category: string;
+  selected_mode: "AT_HOME" | "AT_CLINIC";
+  contact_name?: string;
+  contact_phone?: string;
+  shipping_address?: string;
+  province?: string;
+  district?: string;
+  ward?: string;
 }
