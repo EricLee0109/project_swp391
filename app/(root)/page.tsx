@@ -42,7 +42,7 @@ export default async function Home({
     let destination = "/";
     switch (role) {
       case RoleTypeEnums.Consultant:
-        destination = "/dashboard";
+        destination = "/dashboard/schedule";
         break;
       case RoleTypeEnums.Staff:
         destination = "/dashboard";

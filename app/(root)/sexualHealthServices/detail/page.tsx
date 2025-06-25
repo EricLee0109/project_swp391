@@ -1,4 +1,5 @@
 import DetailService from "@/components/healthServices/DetailService";
+import { notFound } from "next/navigation";
 
 export default async function ServiceDetailPage({
   searchParams,
@@ -9,11 +10,7 @@ export default async function ServiceDetailPage({
   const serviceId = params?.service_id;
 
   if (!serviceId) {
-    return (
-      <div className="p-10 text-center text-red-500">
-        Không tìm thấy dịch vụ. (Thiếu service_id)
-      </div>
-    );
+    return notFound();
   }
 
   return (
