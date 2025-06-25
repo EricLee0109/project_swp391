@@ -15,8 +15,13 @@ import {
 } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
-// import { useRouter } from "next/navigation";
-// Schema validate bằng zod
+
+import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+
+import { sendForgotPasswordOtp } from "@/app/api/auth/forgot-password/action"; // 👉 đường dẫn action mới
+
 const forgotPasswordSchema = z.object({
   email: z.string().email("Email không hợp lệ"),
 });
@@ -27,32 +32,47 @@ export function ForgotPasswordForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
+  
   const form = useForm<ForgotPasswordFormValues>({
     resolver: zodResolver(forgotPasswordSchema),
     defaultValues: {
       email: "",
     },
   });
-  // const router = useRouter();
-  const onSubmit = (data: ForgotPasswordFormValues) => {
-    console.log("Forgot Password data:", data);
-    // TODO: Gọi API gửi mail khôi phục mật khẩu tại đây
-    
-    // if (res.ok) {
-    //   router.push("/reset-password");
-    // } else {
-    //   alert("Có lỗi xảy ra.");
-    // }
 
+  const [isPending, startTransition] = useTransition();
+  const [message, setMessage] = useState("");
+  const router = useRouter();
+
+  const onSubmit = (data: ForgotPasswordFormValues) => {
+    setMessage("");
+
+    startTransition(async () => {
+      try {
+        await sendForgotPasswordOtp(data.email);
+        toast.success("Email khôi phục đã được gửi!");
+      
+        router.push(`/reset-password?email=${encodeURIComponent(data.email)}`);
+        form.reset();
+      } catch (error: unknown) {
+        if (error instanceof Error) {
+          toast.error(error.message);
+          setMessage(error.message);
+        } else {
+          toast.error("Có lỗi xảy ra khi gửi email.");
+    
+        }
+      }
+    });
   };
 
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card>
         <CardHeader className="text-center">
-          <CardTitle className="text-xl">Forgot Password</CardTitle>
+          <CardTitle className="text-xl">Quên mật khẩu</CardTitle>
           <CardDescription>
-            Enter your email and we&apos;ll send you a reset link.
+            Nhập email để nhận liên kết đặt lại mật khẩu.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -72,9 +92,11 @@ export function ForgotPasswordForm({
               )}
             </div>
 
-            <Button type="submit" className="w-full">
-              Send Reset Link
+            <Button type="submit" className="w-full" disabled={isPending}>
+              {isPending ? "Đang gửi..." : "Gửi liên kết đặt lại mật khẩu"}
             </Button>
+
+            {message && <p className="text-center text-green-600">{message}</p>}
           </form>
         </CardContent>
       </Card>

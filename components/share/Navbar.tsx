@@ -44,7 +44,7 @@ export default async function Navbar() {
                 <Link href={"/login"}>Sign In</Link>
               </Button>
               <button>
-                <Link href={"/signup"}> Sign up</Link>
+                <Link href={"/sign-up-otp"}> Sign up</Link>
               </button>
             </>
           )}
