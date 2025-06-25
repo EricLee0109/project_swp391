@@ -1,18 +1,26 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 
-export async function DELETE(req: Request, { params }: { params: { scheduleId: string } }) {
+interface RouteProps {
+  params: Promise<{ scheduleId: string }>;
+}
+
+export async function DELETE(req: Request, props: RouteProps) {
   const cookieStore = await cookies();
   const accessToken = cookieStore.get("accessToken")?.value;
   const headers: Record<string, string> = {};
   if (accessToken) headers["Authorization"] = `Bearer ${accessToken}`;
 
   try {
+    const params = await props.params;
     const scheduleId = params.scheduleId;
-    const beRes = await fetch(`${process.env.BE_BASE_URL}/schedules/${scheduleId}`, {
-      method: "DELETE",
-      headers,
-    });
+    const beRes = await fetch(
+      `${process.env.BE_BASE_URL}/schedules/${scheduleId}`,
+      {
+        method: "DELETE",
+        headers,
+      }
+    );
 
     if (!beRes.ok) {
       const errorData = await beRes.json();
@@ -23,14 +31,20 @@ export async function DELETE(req: Request, { params }: { params: { scheduleId: s
       );
     }
 
-    return NextResponse.json({ message: "Schedule deleted successfully" }, { status: 200 });
+    return NextResponse.json(
+      { message: "Schedule deleted successfully" },
+      { status: 200 }
+    );
   } catch (error) {
     console.error("Error in DELETE /api/schedules/:scheduleId:", error);
-    return NextResponse.json({ message: "Internal server error" }, { status: 500 });
+    return NextResponse.json(
+      { message: "Internal server error" },
+      { status: 500 }
+    );
   }
 }
 
-export async function PATCH(req: Request, { params }: { params: { scheduleId: string } }) {
+export async function PATCH(req: Request, props: RouteProps) {
   const cookieStore = await cookies();
   const accessToken = cookieStore.get("accessToken")?.value;
   const headers: Record<string, string> = {
@@ -39,6 +53,7 @@ export async function PATCH(req: Request, { params }: { params: { scheduleId: st
   if (accessToken) headers["Authorization"] = `Bearer ${accessToken}`;
 
   try {
+    const params = await props.params;
     const scheduleId = params.scheduleId;
     const body = await req.json();
     console.log("PATCH body:", body); // Debug body
@@ -46,16 +61,21 @@ export async function PATCH(req: Request, { params }: { params: { scheduleId: st
     // Validate required fields
     if (!body.start_time || !body.end_time || !body.service_id) {
       return NextResponse.json(
-        { message: "Missing required fields (start_time, end_time, service_id)" },
+        {
+          message: "Missing required fields (start_time, end_time, service_id)",
+        },
         { status: 400 }
       );
     }
 
-    const beRes = await fetch(`${process.env.BE_BASE_URL}/schedules/${scheduleId}`, {
-      method: "PATCH",
-      headers,
-      body: JSON.stringify(body),
-    });
+    const beRes = await fetch(
+      `${process.env.BE_BASE_URL}/schedules/${scheduleId}`,
+      {
+        method: "PATCH",
+        headers,
+        body: JSON.stringify(body),
+      }
+    );
 
     if (!beRes.ok) {
       const errorData = await beRes.json();
@@ -70,6 +90,9 @@ export async function PATCH(req: Request, { params }: { params: { scheduleId: st
     return NextResponse.json(data, { status: 200 });
   } catch (error) {
     console.error("Error in PATCH /api/schedules/:scheduleId:", error);
-    return NextResponse.json({ message: "Internal server error" }, { status: 500 });
+    return NextResponse.json(
+      { message: "Internal server error" },
+      { status: 500 }
+    );
   }
 }

@@ -1,4 +1,8 @@
-import { Service, ServiceTypeEnums, AvailableModeEnums } from "@/types/ServiceType/HealthServiceType";
+import {
+  Service,
+  ServiceTypeEnums,
+  AvailableModeEnums,
+} from "@/types/ServiceType/HealthServiceType";
 
 // --- DUMMY DATA ---
 export const servicesData: Service[] = [
@@ -204,7 +208,8 @@ export const servicesData: Service[] = [
   {
     service_id: "68d938ac-6b3d-4c4f-abed-805fdd4deb26",
     name: "STI Testing - Platinum",
-    description: "Xét nghiệm STI cao cấp (HIV, Syphilis, Chlamydia, HPV, Herpes)",
+    description:
+      "Xét nghiệm STI cao cấp (HIV, Syphilis, Chlamydia, HPV, Herpes)",
     price: 25000,
     category: "STI",
     is_active: true,

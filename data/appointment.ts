@@ -1,3 +1,4 @@
+import { AvailableModeEnums } from "@/types/enums/HealthServiceEnums";
 import { AppointmentListType } from "@/types/ServiceType/StaffRoleType";
 
 export const appointmentData: AppointmentListType[] = [
@@ -21,7 +22,7 @@ export const appointmentData: AppointmentListType[] = [
     free_consultation_valid_until: null,
     payment_refunded: false,
     sample_collected_date: null,
-    mode: "AT_CLINIC",
+    mode: AvailableModeEnums.AT_CLINIC,
     user: {
       user_id: "USR-101",
       full_name: "Alice Johnson",
@@ -58,7 +59,7 @@ export const appointmentData: AppointmentListType[] = [
     free_consultation_valid_until: null,
     payment_refunded: false,
     sample_collected_date: null,
-    mode: "AT_HOME",
+    mode: AvailableModeEnums.AT_HOME,
     user: {
       user_id: "USR-102",
       full_name: "Bob Williams",
@@ -95,7 +96,7 @@ export const appointmentData: AppointmentListType[] = [
     free_consultation_valid_until: null,
     payment_refunded: true,
     sample_collected_date: null,
-    mode: "AT_CLINIC",
+    mode: AvailableModeEnums.AT_CLINIC,
     user: {
       user_id: "USR-103",
       full_name: "Charlie Brown",
@@ -132,7 +133,7 @@ export const appointmentData: AppointmentListType[] = [
     free_consultation_valid_until: null,
     payment_refunded: false,
     sample_collected_date: null,
-    mode: "AT_CLINIC",
+    mode: AvailableModeEnums.AT_CLINIC,
     user: {
       user_id: "USR-104",
       full_name: "David Lee",
@@ -169,7 +170,7 @@ export const appointmentData: AppointmentListType[] = [
     free_consultation_valid_until: null,
     payment_refunded: false,
     sample_collected_date: null,
-    mode: "AT_CLINIC",
+    mode: AvailableModeEnums.AT_CLINIC,
     user: {
       user_id: "USR-105",
       full_name: "Eva Green",

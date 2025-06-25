@@ -6,7 +6,12 @@ import { auth } from "@/auth";
 import { authJWT } from "@/lib/auth";
 import ProfileMenu from "../profile/profile-menu";
 
-
+type ProfileUserType = {
+  name?: string | null;
+  fullName?: string | null;
+  email?: string | null;
+  avatar?: string | null;
+};
 
 export default async function Navbar() {
   const session = await authJWT();
@@ -17,9 +22,18 @@ export default async function Navbar() {
     user = session.user;
     type = "jwt";
   } else if (ggSession?.user) {
-    user = ggSession.user;
+    // uncommand when solve ggSession
+    // user = ggSession.user;
     type = "oauth";
   }
+
+  const profileUser: ProfileUserType = {
+    name: user?.name || "Default user",
+    fullName: user?.fullName || user?.full_name || "Default user",
+    email: user?.email || "example@gmail.com",
+    avatar: user?.avatar || "/shadcn.png",
+  };
+
   return (
     <header className="px-5 py-3 bg-white    font-work-sans">
       <nav className="flex justify-between items-center">
@@ -36,7 +50,7 @@ export default async function Navbar() {
             </Button>
           )} */}
 
-          {user && type && <ProfileMenu user={user} type={type} />}
+          {user && type && <ProfileMenu user={profileUser} type={type} />}
 
           {!user && (
             <>

@@ -4,20 +4,14 @@ import { usePathname } from "next/navigation";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
 import MaxWidthWrapper from "./MaxWidthWrapper";
-import {
-  Bell,
-  CircleUser,
-  ClipboardList,
-  Heart,
-  Settings,
-} from "lucide-react";
+import { Bell, CircleUser, ClipboardList, Heart, Settings } from "lucide-react";
 import { LogoutButton } from "@/components/login/LogoutButton";
 
 type UserType = {
-  name?: string;
-  fullName?: string;
-  email?: string;
-  avatar?: string;
+  name?: string | null;
+  fullName?: string | null;
+  email?: string | null;
+  avatar?: string | null;
 };
 
 const navItems = [

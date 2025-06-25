@@ -16,10 +16,10 @@ import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { LogoutButton } from "../login/LogoutButton";
 
 type UserType = {
-  name?: string;
-  fullname?: string;
-  email?: string;
-  avatar?: string;
+  name?: string | null;
+  fullname?: string | null;
+  email?: string | null;
+  avatar?: string | null;
 };
 
 const navItems = [
