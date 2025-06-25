@@ -45,23 +45,24 @@ export interface StiService {
 export interface User {
   user_id: string;
   email: string;
-  exp: number; // JWT expiration time
-  full_name?: string | null;
-  iat: number; // JWT issued at time
+  exp?: number; // JWT expiration time
   fullName?: string | null; // Alias for full_name
+  full_name?: string | null;
+  name?: string | null;
+  iat?: number; // JWT issued at time
   phone_number?: string | null;
   isActive?: boolean; // Indicates if the user is active
   isVerified?: boolean; // Indicates if the user is verified
   is_active?: boolean; // Alias for isActive
   is_verified?: boolean; // Alias for isVerifie
-  created_at: string;
-  updated_at: string;
+  created_at?: string;
+  updated_at?: string;
   deleted_at?: string;
-  sub: string; // JWT subject, typically the user ID
+  sub?: string; // JWT subject, typically the user ID
   // Avatar is not in the User schema, but added here for UI display purposes.
   // In a real app, this might come from a separate profile table or a CDN URL.
   avatar?: string;
-  role: RoleTypeEnum;
+  role?: RoleTypeEnum;
 }
 
 export interface Consultant {

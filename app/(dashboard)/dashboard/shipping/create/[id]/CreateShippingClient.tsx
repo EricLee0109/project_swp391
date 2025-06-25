@@ -16,10 +16,13 @@ async function getAppointmentDetailsOnClient(
   id: string
 ): Promise<AppointmentListType | null> {
   // In a real app, this would be: await fetch(`/api/appointments/${id}`)
-  // For now, we simulate it.
-  const allAppointments: AppointmentListType[] = [
-    // ... Paste your mock appointment data here ...
-  ];
+  const apppointmentData = await fetch("/api/appointments", {
+    cache: "force-cache",
+  });
+  const allAppointments: AppointmentListType[] = await apppointmentData.json();
+  // const allAppointments: AppointmentListType[] = [
+  //   // ... Paste your mock appointment data here ...
+  // ];
   const appointment = allAppointments.find((app) => app.appointment_id === id);
   return appointment || null;
 }
@@ -40,7 +43,9 @@ export default function CreateShippingClient({
       setAppointment(data);
       setIsLoading(false);
     }
-    fetchData();
+    if (appointmentId) {
+      fetchData();
+    }
   }, [appointmentId]);
 
   return (

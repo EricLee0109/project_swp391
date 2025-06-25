@@ -8,13 +8,16 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import CreateShippingClient from "@/app/(dashboard)/dashboard/shipping/create/[id]/CreateShippingClient"; // Your original component
+import { use } from "react";
 
-export default function CreateShippingModal({
-  params,
-}: {
-  params: { id: string };
-}) {
+interface PageProps {
+  params: Promise<{ id: string }>;
+}
+
+export default function CreateShippingModal(props: PageProps) {
   const router = useRouter();
+  const params = use(props.params);
+  const appointmentId = params.id;
 
   // The onClose function will now just navigate the user back
   const handleClose = () => {
@@ -27,7 +30,10 @@ export default function CreateShippingModal({
         <DialogHeader>
           <DialogTitle>Create New Shipping</DialogTitle>
         </DialogHeader>
-        <CreateShippingClient appointmentId={params.id} onClose={handleClose} />
+        <CreateShippingClient
+          appointmentId={appointmentId}
+          onClose={handleClose}
+        />
       </DialogContent>
     </Dialog>
   );
