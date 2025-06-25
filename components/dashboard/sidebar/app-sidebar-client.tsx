@@ -19,78 +19,22 @@ import Image from "next/image";
 import Link from "next/link";
 import { User } from "@/types/ServiceType/HealthServiceType";
 
-const navMain = [
-  {
-    title: "Tổng quan",
-    url: "/dashboard",
-    icon: ChartPie,
-    isActive: true,
-    items: [
-      {
-        title: "Dashboard",
-        url: "/dashboard", // same as main
-      },
-    ],
-  },
-  {
-    title: "Người dùng",
-    url: "/dashboard/user",
-    icon: CircleUserRound,
-    isActive: true,
-    items: [
-      {
-        title: "Tài khoản",
-        url: "/dashboard/user",
-      },
-      {
-        title: "Nhân viên (Quản lý cuộc hẹn)",
-        url: "/dashboard/appointment/view",
-      },
-      {
-        title: "Nhân viên (Quản lý vận chuyển)",
-        url: "/dashboard/shipping/view",
-      },
-      {
-        title: "Khách hàng",
-        url: "/dashboard/customer",
-      },
-    ],
-  },
-  {
-    title: "Đặt lịch",
-    url: "/dashboard/schedule",
-    icon: CircleUserRound,
-    isActive: true,
-    items: [
-      {
-        title: "Tư vấn viên khách hàng",
-        url: "/dashboard/schedule",
-      },
-    ],
-  },
-  {
-    title: "Khác",
-    url: "#",
-    icon: RectangleEllipsis,
-    items: [
-      {
-        title: "Blog",
-        url: "/blog",
-      },
-    ],
-  },
-];
-
 const defaultUser: User = {
-  user_id: "default-user-id",
-  email: "email@gmail.com",
-  full_name: "Default User",
-  fullName: "Default User", // Alias for full_name
-  phone_number: "09291838293",
-  // Avatar is not in the User schema, but added here for UI display purposes.
-  // In a real app, this might come from a separate profile table or a CDN URL.
+  user_id: "fbc86115-b464-41f4-8f31-5d326102d73b",
+  email: "consultant1@gmail.com",
+  exp: 1750675866,
+  fullName: "consultant1",
+  iat: 1750668666,
+  isActive: true,
+  isVerified: true,
+  role: "Consultant",
+  sub: "fbc86115-b464-41f4-8f31-5d326102d73b",
+  created_at: "2024-06-22T07:31:06.000Z",
+  updated_at: "2024-06-22T07:31:06.000Z",
   avatar: "/avatars/shadcn.jpg",
-  // role: "Admin",
+  phone_number: "0123456789",
+  is_active: true,
+  is_verified: true,
 };
 // Define the component's props
 interface AppSidebarClientProps extends React.ComponentProps<typeof Sidebar> {
@@ -100,6 +44,68 @@ interface AppSidebarClientProps extends React.ComponentProps<typeof Sidebar> {
 export function AppSidebarClient({ user, ...props }: AppSidebarClientProps) {
   const displayUser = user || defaultUser;
 
+  const navMain = [
+    {
+      title: "Tổng quan",
+      url: "/dashboard",
+      icon: ChartPie,
+      isActive: true,
+      items: [
+        {
+          title: "Dashboard",
+          url: "/dashboard", // same as main
+        },
+      ],
+    },
+    {
+      title: "Người dùng",
+      url: "/dashboard/user",
+      icon: CircleUserRound,
+      isActive: true,
+      items: [
+        {
+          title: "Tài khoản",
+          url: "/dashboard/user",
+        },
+        {
+          title: "Nhân viên (Quản lý cuộc hẹn)",
+          url: "/dashboard/appointment/view",
+        },
+        {
+          title: "Nhân viên (Quản lý vận chuyển)",
+          url: "/dashboard/shipping/view",
+        },
+        {
+          title: "Khách hàng",
+          url: "/dashboard/customer",
+        },
+      ],
+    },
+    {
+      title: "Đặt lịch",
+      url: "/dashboard/schedule",
+      icon: CircleUserRound,
+      isActive: true,
+      items: [
+        {
+          title: "Tư vấn viên khách hàng",
+          url: "/dashboard/schedule",
+        },
+      ],
+    },
+    {
+      title: "Khác",
+      url: "#",
+      icon: RectangleEllipsis,
+      items: [
+        {
+          title: "Blog",
+          url: "/blog",
+        },
+      ],
+    },
+  ];
+  console.log(user?.role, "user in sidebar");
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>

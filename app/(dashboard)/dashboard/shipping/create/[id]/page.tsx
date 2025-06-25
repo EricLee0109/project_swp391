@@ -44,7 +44,7 @@ export default function CreateShippingPage({
   }, [appointmentId]);
 
   return (
-    <div className="py-4">
+    <div className="py-4 ml-4 mr-4 mx-auto max-w-2xl">
       {isLoading ? (
         // Show a loading skeleton while fetching client name
         <div className="space-y-2 mb-6">

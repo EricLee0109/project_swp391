@@ -6,7 +6,12 @@ import { useState, useEffect } from "react";
 import { Search } from "lucide-react";
 
 // Import enums and types
-import { Service, ServiceTypeEnums, AvailableModeEnums } from "@/types/ServiceType/HealthServiceType";
+import {
+  Service,
+  ServiceTypeEnums,
+  AvailableModeEnums,
+} from "@/types/ServiceType/HealthServiceType";
+import Loading from "@/app/(root)/loading";
 
 type RawService = Omit<Service, "price"> & { price: string };
 
@@ -23,6 +28,7 @@ export function ServiceBrowser() {
         const res = await fetch("/api/services");
         if (!res.ok) throw new Error("Failed to fetch services");
         const data: RawService[] = await res.json();
+        console.log("Fetched services:", data);
         const activeServices: Service[] = data
           .filter((service) => service.is_active)
           .map((service) => ({
@@ -57,7 +63,7 @@ export function ServiceBrowser() {
     );
 
   if (loading) {
-    return <div className="text-center py-10">Đang tải...</div>;
+    return <Loading />;
   }
 
   if (error) {

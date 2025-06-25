@@ -6,7 +6,12 @@ import { formatDate } from "@/lib/utils";
 import { Home, ArrowLeft, Hospital } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
-import { CustomService, Consultant, Schedule, CreateAppointmentDto } from "@/types/ServiceType/CustomServiceType";
+import {
+  CustomService,
+  Consultant,
+  Schedule,
+  CreateAppointmentDto,
+} from "@/types/ServiceType/CustomServiceType";
 
 export function BookingModal({
   service,
@@ -20,11 +25,13 @@ export function BookingModal({
   onClose: () => void;
 }) {
   const [step, setStep] = useState(1);
-  const [appointment, setAppointment] = useState<Partial<CreateAppointmentDto>>({
-    service_id: service.service_id,
-    type: service.type,
-    related_appointment_id: null,
-  });
+  const [appointment, setAppointment] = useState<Partial<CreateAppointmentDto>>(
+    {
+      service_id: service.service_id,
+      type: service.type,
+      related_appointment_id: null,
+    }
+  );
   const [selectedTime, setSelectedTime] = useState("");
   const [selectedDate, setSelectedDate] = useState("");
 
@@ -52,8 +59,15 @@ export function BookingModal({
   };
 
   const createAppointment = async () => {
-    if (!appointment.consultant_id || !appointment.schedule_id || !appointment.location) {
-      notify("error", "Vui lòng hoàn thành tất cả các bước trước khi đặt lịch.");
+    if (
+      !appointment.consultant_id ||
+      !appointment.schedule_id ||
+      !appointment.location
+    ) {
+      notify(
+        "error",
+        "Vui lòng hoàn thành tất cả các bước trước khi đặt lịch."
+      );
       return;
     }
 
@@ -77,8 +91,10 @@ export function BookingModal({
   const selectedConsultant = consultants.find(
     (c) => c.consultant_id === appointment.consultant_id
   );
-  const consultantSchedules = schedules.filter(
-    (s) => consultants.find((c) => c.consultant_id === appointment.consultant_id)?.schedules.some((sch) => sch.schedule_id === s.schedule_id)
+  const consultantSchedules = schedules.filter((s) =>
+    consultants
+      .find((c) => c.consultant_id === appointment.consultant_id)
+      ?.schedules.some((sch) => sch.schedule_id === s.schedule_id)
   );
 
   if (service.type === "Testing") {
@@ -105,7 +121,9 @@ export function BookingModal({
 
         {step === 1 && service.available_modes.length > 1 && (
           <div>
-            <h2 className="text-2xl font-bold mb-6 text-center">Chọn địa điểm</h2>
+            <h2 className="text-2xl font-bold mb-6 text-center">
+              Chọn địa điểm
+            </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {service.available_modes.map((mode) => (
                 <div
@@ -118,16 +136,21 @@ export function BookingModal({
                   ) : (
                     <Home className="mx-auto mb-2" size={32} />
                   )}
-                  <p className="font-semibold">{mode === "AT_CLINIC" ? "Tại phòng khám" : "Tại nhà"}</p>
+                  <p className="font-semibold">
+                    {mode === "AT_CLINIC" ? "Tại phòng khám" : "Tại nhà"}
+                  </p>
                 </div>
               ))}
             </div>
           </div>
         )}
 
-        {(step === 2 || (step === 1 && service.available_modes.length <= 1)) && (
+        {(step === 2 ||
+          (step === 1 && service.available_modes.length <= 1)) && (
           <div>
-            <h2 className="text-2xl font-bold mb-6 text-center">Chọn tư vấn viên</h2>
+            <h2 className="text-2xl font-bold mb-6 text-center">
+              Chọn tư vấn viên
+            </h2>
             <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-2">
               {consultants.map((c) => (
                 <div
@@ -152,10 +175,14 @@ export function BookingModal({
           </div>
         )}
 
-     {step === 3 && selectedConsultant && (
+        {step === 3 && selectedConsultant && (
           <div>
-            <h2 className="text-2xl font-semibold mb-2 text-center">Chọn thời gian tư vấn</h2>
-            <h3 className="text-lg font-medium text-center mb-6 text-gray-600">{selectedConsultant.full_name}</h3>
+            <h2 className="text-2xl font-semibold mb-2 text-center">
+              Chọn thời gian tư vấn
+            </h2>
+            <h3 className="text-lg font-medium text-center mb-6 text-gray-600">
+              {selectedConsultant.full_name}
+            </h3>
             <div className="space-y-4 max-h-[70vh] overflow-y-auto pr-3">
               {consultantSchedules.length > 0 ? (
                 consultantSchedules.map((s) => (
@@ -183,7 +210,9 @@ export function BookingModal({
                   </div>
                 ))
               ) : (
-                <p className="text-center text-gray-500">Không có lịch hẹn nào cho tư vấn viên này.</p>
+                <p className="text-center text-gray-500">
+                  Không có lịch hẹn nào cho tư vấn viên này.
+                </p>
               )}
             </div>
           </div>
@@ -191,23 +220,39 @@ export function BookingModal({
 
         {step === 4 && selectedConsultant && (
           <div>
-            <h2 className="text-2xl font-bold mb-6 text-center">Xác nhận lịch hẹn</h2>
+            <h2 className="text-2xl font-bold mb-6 text-center">
+              Xác nhận lịch hẹn
+            </h2>
             <div className="space-y-3 text-gray-700 p-4 bg-gray-50 rounded-lg border">
               <p>
-                <span>Dịch vụ:</span> <span className="font-bold">{service.name}</span>
+                <span>Dịch vụ:</span>{" "}
+                <span className="font-bold">{service.name}</span>
               </p>
               <p>
-                <span>Địa điểm:</span> <span className="font-bold">{appointment.location || "Tại phòng khám"}</span>
+                <span>Địa điểm:</span>{" "}
+                <span className="font-bold">
+                  {appointment.location || "Tại phòng khám"}
+                </span>
               </p>
               <p>
-                <span>Tư vấn viên:</span> <span className="font-bold">{selectedConsultant.full_name}</span>
+                <span>Tư vấn viên:</span>{" "}
+                <span className="font-bold">
+                  {selectedConsultant.full_name}
+                </span>
               </p>
               <p>
-                <span>Ngày:</span> <span className="font-bold">{formatDate(new Date(selectedDate))}</span>
+                <span>Ngày:</span>{" "}
+                <span className="font-bold">
+                  {formatDate(new Date(selectedDate))}
+                </span>
               </p>
               <p>
-                <span>Giờ:</span> <span className="font-bold">
-                  {new Date(selectedTime).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                <span>Giờ:</span>{" "}
+                <span className="font-bold">
+                  {new Date(selectedTime).toLocaleTimeString([], {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
                 </span>
               </p>
             </div>

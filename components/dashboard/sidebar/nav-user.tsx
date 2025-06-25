@@ -18,24 +18,14 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { RoleTypeEnum } from "@/types/enums/HealthServiceEnums";
 import { Button } from "@/components/ui/button";
 import { signOutAuth } from "@/app/(auth)/login/actions";
+import { User } from "@/types/ServiceType/HealthServiceType";
 
 export function NavUser({
   user,
 }: {
-  user: {
-    user_id: string;
-    email: string;
-    full_name?: string | null;
-    fullName?: string | null; // Alias for full_name
-    phone_number?: string | null;
-    // Avatar is not in the User schema, but added here for UI display purposes.
-    // In a real app, this might come from a separate profile table or a CDN URL.
-    avatar?: string;
-    role?: RoleTypeEnum;
-  };
+  user: User; // User can be null if not logged in
 }) {
   const { isMobile } = useSidebar();
 
