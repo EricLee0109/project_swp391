@@ -42,7 +42,7 @@ const YourAppointmentListComponent = ({
         >
           <p>{app.user.full_name}</p>
           <Button onClick={() => handleOpenDialog(app.appointment_id)}>
-            Create Shipping
+            Create Shipping Client
           </Button>
         </div>
       ))}
