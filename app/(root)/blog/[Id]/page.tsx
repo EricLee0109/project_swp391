@@ -6,14 +6,21 @@ import MaxWidthWrapper from "@/components/profile/MaxWidthWrapper";
 import Image from "next/image";
 import { formatDate } from "@/lib/utils";
 
-export default function Page({ params }: { params: { blogId: string } }) {
-  const blogId = parseInt(params.blogId);
+//Nextjs required PageProps
+interface PageProps {
+  params: Promise<{ blogId: string }>;
+}
+
+export default async function Page(props: PageProps) {
+  // Next js required props
+  const params = await props.params;
+  const paramsBlogId = params.blogId;
+  const blogId = parseInt(paramsBlogId);
   const blog = mockBlogs.find((b) => b.id === blogId);
 
   if (!blog) return notFound();
 
   const relatedBlogs = mockBlogs.filter((b) => b.id !== blogId);
-
 
   return (
     <MaxWidthWrapper className="py-10">
