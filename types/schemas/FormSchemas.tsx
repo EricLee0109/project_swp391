@@ -4,7 +4,9 @@ export const stiFormServiceSchema = z.object({
   serviceId: z.string().min(1, "Service ID is required"),
   selected_mode: z.enum(["AT_HOME", "AT_CLINIC"]),
   date: z.date({ required_error: "Date is required" }),
-  session: z.enum(["morning", "afternoon"], { required_error: "Session is required" }),
+  session: z.enum(["morning", "afternoon"], {
+    required_error: "Session is required",
+  }),
   contact_name: z.string().optional(),
   contact_phone: z.string().optional(),
   shipping_address: z.string().optional(),
@@ -26,5 +28,26 @@ export const createShippingSchema = z.object({
   appointment_id: z.string(),
 });
 
+export const menstrualCycleSetupSchema = z
+  .object({
+    lastCycleStartDate: z.date({ message: "Last Date is required." }),
+    lastPeriodLength: z
+      .number()
+      .min(2, "Must be higher than 2")
+      .max(7, "Must be higher than 7"),
+    prevCycleStartDate: z.date({ message: "Previous Date is required." }),
+    prevPeriodLength: z
+      .number()
+      .min(2, "Must be higher than 2")
+      .max(7, "Must be higher than 7"),
+  })
+  .refine((data) => data.lastCycleStartDate > data.prevCycleStartDate, {
+    message: "Last cycle start date must be after previous cycle start date",
+    path: ["lastCycleStartDate"],
+  });
+
 export type StiFormServiceValues = z.infer<typeof stiFormServiceSchema>;
 export type ShippingFormValues = z.infer<typeof createShippingSchema>;
+export type MenstrualCycleSetupValues = z.infer<
+  typeof menstrualCycleSetupSchema
+>;
