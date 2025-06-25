@@ -1,77 +1,72 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-// Adjust import
-import { Skeleton } from "@/components/ui/skeleton";
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import CreateShippingClient from "./CreateShippingClient";
 import { AppointmentListType } from "@/types/ServiceType/StaffRoleType";
-import { CreateShippingForm } from "@/components/dashboard/shipping/CreateShippingForm";
 
-interface CreateShippingPageProps {
-  appointmentId: string;
-  onClose: () => void; // Receives a function to close the dialog
-}
+// Assume you have a list of appointments being rendered
+const YourAppointmentListComponent = ({
+  appointments,
+}: {
+  appointments: AppointmentListType[];
+}) => {
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [selectedAppointmentId, setSelectedAppointmentId] = useState<
+    string | null
+  >(null);
 
-// This is a placeholder for a client-side fetch function
-async function getAppointmentDetailsOnClient(
-  id: string
-): Promise<AppointmentListType | null> {
-  // In a real app, this would be: await fetch(`/api/appointments/${id}`)
-  // For now, we simulate it.
-  const allAppointments: AppointmentListType[] = [
-    // ... Paste your mock appointment data here ...
-  ];
-  const appointment = allAppointments.find((app) => app.appointment_id === id);
-  return appointment || null;
-}
+  const handleOpenDialog = (appointmentId: string) => {
+    setSelectedAppointmentId(appointmentId);
+    setIsDialogOpen(true);
+  };
 
-export default function CreateShippingPage({
-  appointmentId,
-  onClose,
-}: CreateShippingPageProps) {
-  const [appointment, setAppointment] = useState<AppointmentListType | null>(
-    null
-  );
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    async function fetchData() {
-      setIsLoading(true);
-      const data = await getAppointmentDetailsOnClient(appointmentId);
-      setAppointment(data);
-      setIsLoading(false);
-    }
-    fetchData();
-  }, [appointmentId]);
+  const handleCloseDialog = () => {
+    setIsDialogOpen(false);
+    setSelectedAppointmentId(null);
+  };
 
   return (
-    <div className="py-4 ml-4 mr-4 mx-auto max-w-2xl">
-      {isLoading ? (
-        // Show a loading skeleton while fetching client name
-        <div className="space-y-2 mb-6">
-          <Skeleton className="h-4 w-[150px]" />
-          <Skeleton className="h-4 w-[250px]" />
+    <div>
+      {/* This is your list of appointments */}
+      {appointments.map((app) => (
+        <div
+          key={app.appointment_id}
+          className="flex items-center justify-between p-4 border-b"
+        >
+          <p>{app.user.full_name}</p>
+          <Button onClick={() => handleOpenDialog(app.appointment_id)}>
+            Create Shipping
+          </Button>
         </div>
-      ) : (
-        // Display the fetched data
-        <div className="mb-6">
-          <p className="text-sm font-semibold">
-            Client Name:{" "}
-            <span className="font-normal">
-              {appointment?.user.full_name ?? "N/A"}
-            </span>
-          </p>
-          <p className="text-sm font-semibold">
-            Appointment ID:{" "}
-            <span className="font-normal">{appointment?.appointment_id}</span>
-          </p>
-        </div>
-      )}
+      ))}
 
-      {/* Render the form, passing the onClose function down to it */}
-      <CreateShippingForm
-        appointmentId={appointmentId}
-        onFormSubmit={onClose} // When the form submits successfully, it will call the onClose function
-      />
+      {/* The Dialog that contains your form component */}
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogContent className="sm:max-w-[625px]">
+          <DialogHeader>
+            <DialogTitle>Create New Shipping</DialogTitle>
+          </DialogHeader>
+          {/* Conditionally render the client ONLY when an ID is selected.
+            This ensures the component and its data fetching useEffect are
+            mounted only when needed.
+          */}
+          {selectedAppointmentId && (
+            <CreateShippingClient
+              appointmentId={selectedAppointmentId}
+              onClose={handleCloseDialog}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
-}
+};
+
+export default YourAppointmentListComponent;

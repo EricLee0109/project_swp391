@@ -89,7 +89,13 @@ export default function Schedule({
   useEffect(() => {
     setLoading(true);
     fetchSchedules();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [serverAccessToken, reloadFlag]);
+
+  // useEffect(() => {
+  //   setLoading(true);
+  //   fetchSchedules();
+  // }, [serverAccessToken, reloadFlag]);
 
   function isSameDay(dateStr: string, day: Date) {
     const date = new Date(dateStr);
@@ -100,9 +106,10 @@ export default function Schedule({
     );
   }
 
-  const filteredSchedules = schedules?.filter(
-    (schedule) => isSameDay(schedule.start_time, selectedDate)
-  ) ?? [];
+  const filteredSchedules =
+    schedules?.filter((schedule) =>
+      isSameDay(schedule.start_time, selectedDate)
+    ) ?? [];
 
   const handleDeleted = () => {
     setLoading(true); // Show loading while re-fetching
@@ -139,7 +146,9 @@ export default function Schedule({
           )}
 
           {!loading && filteredSchedules.length === 0 && !error && (
-            <p className="text-muted-foreground">Không có lịch nào trong ngày này.</p>
+            <p className="text-muted-foreground">
+              Không có lịch nào trong ngày này.
+            </p>
           )}
 
           {!loading &&
@@ -161,7 +170,9 @@ export default function Schedule({
                 <div className="flex flex-col items-end gap-2">
                   <div className="text-sm text-muted-foreground">
                     Trạng thái:{" "}
-                    <Badge variant={schedule.is_booked ? "destructive" : "secondary"}>
+                    <Badge
+                      variant={schedule.is_booked ? "destructive" : "secondary"}
+                    >
                       {schedule.is_booked ? "Đã đặt" : "Còn trống"}
                     </Badge>
                   </div>
