@@ -1,28 +1,41 @@
-"use client";
-
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuPortal,
-  DropdownMenuSeparator,
-  DropdownMenuSub,
-  DropdownMenuSubContent,
-  DropdownMenuSubTrigger,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { User } from "@/types/user/User";
-
 import { ColumnDef } from "@tanstack/react-table";
-import { ArrowUpDown, MoreHorizontal } from "lucide-react";
-import Link from "next/link";
+import { ArrowUpDown } from "lucide-react";
+import { ActionUser } from "./ActionUser";
 
-import { toast } from "sonner";
+// 🔸 Lưu trữ query tìm kiếm để highlight
+let currentSearchQuery = "";
+
+export function setSearchQueryForHighlight(query: string) {
+  currentSearchQuery = query.trim().toLowerCase();
+}
+
+// 🔸 Hàm highlight đơn giản
+function highlight(text: string): string {
+  if (!currentSearchQuery) return text;
+  const regex = new RegExp(`(${currentSearchQuery})`, "gi");
+  return text.replace(
+    regex,
+    `<span class="bg-yellow-200 font-semibold">$1</span>`
+  );
+}
 
 export const columns: ColumnDef<User>[] = [
+  {
+    id: "stt",
+    header: "STT",
+    cell: ({ row, table }) => {
+      const meta = table.options.meta as {
+        pageIndex: number;
+        pageSize: number;
+      };
+      const pageIndex = meta?.pageIndex ?? 0;
+      const pageSize = meta?.pageSize ?? 10;
+      return pageIndex * pageSize + row.index + 1;
+    },
+  },
   {
     accessorKey: "email",
     header: ({ column }) => (
@@ -34,6 +47,13 @@ export const columns: ColumnDef<User>[] = [
         Email
         <ArrowUpDown className="ml-2 h-4 w-4" />
       </Button>
+    ),
+    cell: ({ row }) => (
+      <div
+        dangerouslySetInnerHTML={{
+          __html: highlight(row.original.email),
+        }}
+      />
     ),
   },
   {
@@ -48,6 +68,11 @@ export const columns: ColumnDef<User>[] = [
         <ArrowUpDown className="ml-2 h-4 w-4" />
       </Button>
     ),
+    cell: ({ row }) => (
+      <div
+        dangerouslySetInnerHTML={{ __html: highlight(row.original.full_name) }}
+      />
+    ),
   },
   {
     accessorKey: "phone_number",
@@ -61,6 +86,21 @@ export const columns: ColumnDef<User>[] = [
         <ArrowUpDown className="ml-2 h-4 w-4" />
       </Button>
     ),
+    cell: ({ row }) => row.original.phone_number || "—",
+  },
+  {
+    accessorKey: "address",
+    header: ({ column }) => (
+      <Button
+        variant="ghost"
+        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        className="p-0 m-0 w-full justify-start"
+      >
+        Địa chỉ
+        <ArrowUpDown className="ml-2 h-4 w-4" />
+      </Button>
+    ),
+    cell: ({ row }) => row.original.address || "—",
   },
   {
     accessorKey: "role",
@@ -75,8 +115,8 @@ export const columns: ColumnDef<User>[] = [
       </Button>
     ),
     cell: ({ row }) => {
-      const user = row.original;
-      switch (user.role) {
+      const role = row.original.role;
+      switch (role) {
         case "Admin":
           return <Badge className="bg-blue-600 hover:bg-blue-500">Admin</Badge>;
         case "Customer":
@@ -85,14 +125,41 @@ export const columns: ColumnDef<User>[] = [
               Khách hàng
             </Badge>
           );
+        case "Consultant":
+          return (
+            <Badge className="bg-purple-600 hover:bg-purple-500">Tư vấn</Badge>
+          );
         case "Staff":
           return (
             <Badge className="bg-green-600 hover:bg-green-500">Nhân viên</Badge>
           );
+        case "Manager":
+          return (
+            <Badge className="bg-yellow-600 hover:bg-yellow-500">Quản lý</Badge>
+          );
         default:
-          return <Badge>{user.role}</Badge>;
+          return <Badge>{role}</Badge>;
       }
     },
+  },
+
+  {
+    accessorKey: "customerProfile.gender",
+    header: "Giới tính",
+    cell: ({ row }) => row.original.customerProfile?.gender || "—",
+  },
+
+  {
+    accessorKey: "created_at",
+    header: "Ngày tạo",
+    cell: ({ row }) =>
+      new Date(row.original.created_at).toLocaleDateString("vi-VN"),
+  },
+  {
+    accessorKey: "updated_at",
+    header: "Ngày cập nhật",
+    cell: ({ row }) =>
+      new Date(row.original.updated_at).toLocaleDateString("vi-VN"),
   },
   {
     accessorKey: "is_active",
@@ -106,67 +173,19 @@ export const columns: ColumnDef<User>[] = [
         <ArrowUpDown className="ml-2 h-4 w-4" />
       </Button>
     ),
-    cell: ({ row }) => {
-      const isActive = row.original.is_active;
-      return isActive ? (
-        <Badge className="text-green-500 bg-green-100 border-green-500 hover:bg-green-200">
-          Đã kích hoạt
+    cell: ({ row }) =>
+      row.original.is_active ? (
+        <Badge className="text-green-600 bg-green-200 hover:bg-green-100">
+          Đang hoạt động
         </Badge>
       ) : (
-        <Badge className="text-red-500 bg-red-100 border-red-500 hover:bg-red-200">
-          Đã hủy kích hoạt
+        <Badge className="text-red-600 bg-red-200 hover:bg-red-100">
+          Không hoạt động
         </Badge>
-      );
-    },
+      ),
   },
   {
     id: "actions",
-    cell: ({ row }) => {
-      const user = row.original;
-
-      return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Open menu</span>
-              <MoreHorizontal className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Thao tác</DropdownMenuLabel>
-            <DropdownMenuItem
-              onClick={() => {
-                navigator.clipboard.writeText(user.user_id);
-                toast("Đã sao chép ID tài khoản.");
-              }}
-            >
-              Sao chép ID tài khoản
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>
-              <Link href={`/users/${user.user_id}`}>Xem chi tiết tài khoản</Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem>
-              <Link href={`/users/${user.user_id}/edit`}>Cập nhật thông tin</Link>
-            </DropdownMenuItem>
-            <DropdownMenuSub>
-              <DropdownMenuSubTrigger>
-                Thay đổi trạng thái
-              </DropdownMenuSubTrigger>
-              <DropdownMenuPortal>
-                <DropdownMenuSubContent>
-                  <DropdownMenuItem>Kích hoạt</DropdownMenuItem>
-                  <DropdownMenuItem>Hủy kích hoạt</DropdownMenuItem>
-                </DropdownMenuSubContent>
-              </DropdownMenuPortal>
-            </DropdownMenuSub>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem className="text-red-500">
-              Xóa tài khoản
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      );
-    },
+    cell: ({ row }) => <ActionUser user={row.original} />,
   },
 ];
