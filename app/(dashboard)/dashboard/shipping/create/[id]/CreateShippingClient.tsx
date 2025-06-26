@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 // Adjust import
 import { Skeleton } from "@/components/ui/skeleton";
 import { AppointmentListType } from "@/types/ServiceType/StaffRoleType";
-import { CreateShippingForm } from "@/components/dashboard/shipping/CreateShippingForm";
+import { CreateShippingForm } from "@/components/dashboard/components/shipping/CreateShippingForm";
 
 interface CreateShippingPageProps {
   appointmentId: string;
