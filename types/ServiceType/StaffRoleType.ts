@@ -1,6 +1,8 @@
 import {
+  AvailableMode,
   AvailableModeEnums,
   PaymentStatusEnums,
+  ServiceType,
   StatusTypeEnums,
 } from "@/types/enums/HealthServiceEnums";
 
@@ -41,4 +43,31 @@ export interface AppointmentListType {
     start_time: string;
     end_time: string;
   } | null;
+}
+
+export interface ServicesListType {
+  service_id: string;
+  name: string;
+  description: string;
+  price: string;
+  category: string;
+  is_active: boolean;
+  type: ServiceType;
+  testing_hours: {
+    morning: {
+      end: string; //11:00
+      start: string; //07:00
+    };
+    afternoon: {
+      end: string;
+      start: string;
+    };
+  } | null;
+  daily_capacity: number | null;
+  return_address: string | null;
+  return_phone: string | null;
+  available_modes: AvailableMode[];
+  created_at: string;
+  updated_at: string;
+  deleted_at: string | null;
 }
