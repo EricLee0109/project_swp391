@@ -3,12 +3,14 @@ export enum AvailableModeEnums {
   AT_HOME = "AT_HOME",
   AT_CLINIC = "AT_CLINIC",
 }
+export type AvailableMode = "AT_HOME" | "AT_CLINIC";
 
 // Service Enums
 export enum ServiceTypeEnums {
   Consultation = "Consultation",
   Testing = "Testing",
 }
+export type ServiceType = "Consultation" | "Testing";
 
 // Sessesion Enums
 export type SessionTypeEnums = "morning" | "afternoon";

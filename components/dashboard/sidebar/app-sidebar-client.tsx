@@ -79,6 +79,10 @@ export function AppSidebarClient({ user, ...props }: AppSidebarClientProps) {
           title: "Khách hàng",
           url: "/dashboard/customer",
         },
+        {
+          title: "Dịch vụ sức khỏe (Services)",
+          url: "/dashboard/healthServices/view",
+        },
       ],
     },
     {

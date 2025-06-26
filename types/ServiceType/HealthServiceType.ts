@@ -17,8 +17,8 @@ export interface Service {
   category: string;
   is_active: boolean;
   type: ServiceTypeEnums;
-  testing_hours?: TestingHours | null;
-  daily_capacity?: number;
+  testing_hours: TestingHours | null;
+  daily_capacity: number | null;
   return_address: string | null;
   return_phone: string | null;
   available_modes: AvailableModeEnums[];
@@ -158,3 +158,21 @@ export interface UserAuth {
 }
 
 export { ServiceTypeEnums, AvailableModeEnums };
+
+export interface GetService {
+  service_id: string;
+  name: string;
+  description: string;
+  price: string;
+  category: string;
+  is_active: boolean;
+  type: ServiceTypeEnums;
+  testing_hours: TestingHours | null;
+  daily_capacity: number | null;
+  return_address: string | null;
+  return_phone: string | null;
+  available_modes: AvailableModeEnums[];
+  created_at: string;
+  updated_at: string;
+  deleted_at: string | null;
+}
