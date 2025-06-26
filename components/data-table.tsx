@@ -29,6 +29,24 @@ interface DataTableProps<TData, TValue> {
   data: TData[];
 }
 
+const filterConfigs = [
+  //Appointments Table
+  {
+    columnKey: "user_full_name",
+    placeholder: "Filter by customer name...",
+  },
+  //Shippings Table
+  {
+    columnKey: "user_name",
+    placeholder: "Filter by customer name...",
+  },
+  //Health Services Table
+  {
+    columnKey: "name",
+    placeholder: "Filter by service name...",
+  },
+];
+
 //Reusable DataTable component that can be used in various parts of the application
 export function DataTable<TData, TValue>({
   columns,
@@ -54,22 +72,40 @@ export function DataTable<TData, TValue>({
     },
   });
 
+  console.log(
+    filterConfigs.find((column) => table.getColumn(column.columnKey)),
+    "hello1"
+  );
+  console.log(
+    filterConfigs.filter((column) => !table.getColumn(column.columnKey)),
+    "hello"
+  );
+
+  const findFilterSearch = filterConfigs.filter(
+    (column) => !table.getColumn(column.columnKey)
+  );
+
+  for (const value of filterConfigs) {
+    console.log(value.columnKey, "hello3");
+  }
+
   return (
     <div className="ml-4 mr-4 mt-4">
       <div className="flex items-center py-4">
-        <Input
-          placeholder="Filter by client name..."
-          value={
-            (table.getColumn("user_full_name")?.getFilterValue() as string) ??
-            ""
-          }
-          onChange={(event) =>
-            table
-              .getColumn("user_full_name")
-              ?.setFilterValue(event.target.value)
-          }
-          className="max-w-sm"
-        />
+        {!findFilterSearch.map((e) => e.columnKey) &&
+          filterConfigs.map(({ columnKey, placeholder }) => {
+            const column = table.getColumn(columnKey);
+
+            return (
+              <Input
+                key={columnKey}
+                placeholder={placeholder}
+                value={(column?.getFilterValue() as string) ?? ""}
+                onChange={(event) => column?.setFilterValue(event.target.value)}
+                className="max-w-sm"
+              />
+            );
+          })}
       </div>
       <div className="rounded-md border">
         <Table>

@@ -40,16 +40,20 @@ export const menstrualCycleSetupSchema = z
     lastCycleStartDate: z.date({ message: "Last Date is required." }),
     lastPeriodLength: z
       .number()
-      .min(2, "Must be higher than 2")
-      .max(7, "Must be higher than 7"),
+      .min(2, "Nhiều hơn 2 ngày")
+      .max(7, "Ít hơn 7 ngày"),
+    // lastPeriodLength: z
+    //   .union([z.string(), z.number()])
+    //   .transform((val) => Number(val)),
+
     prevCycleStartDate: z.date({ message: "Previous Date is required." }),
     prevPeriodLength: z
       .number()
-      .min(2, "Must be higher than 2")
-      .max(7, "Must be higher than 7"),
+      .min(2, "Nhiều hơn 2 ngày")
+      .max(7, "Ít hơn 7 ngày"),
   })
   .refine((data) => data.lastCycleStartDate > data.prevCycleStartDate, {
-    message: "Last cycle start date must be after previous cycle start date",
+    message: "Chu kỳ gần nhất phải có số ngày lớn hơn chu kỳ trước đó",
     path: ["lastCycleStartDate"],
   });
 
