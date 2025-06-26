@@ -33,21 +33,22 @@ export async function POST(request: Request) {
 
     // Forward request to backend API
     const url = `${process.env.BE_BASE_URL}/appointments/sti`;
-    const beRes = await fetch(url, {
-      method: "POST",
-      headers,
-      body: JSON.stringify(body),
-    });
-
-    if (!beRes.ok) {
-      if (beRes.status === 401) {
-        return NextResponse.json(
-          { error: "Token xác thực không hợp lệ hoặc đã hết hạn. Vui lòng đăng nhập lại." },
-          { status: 401 }
-        );
-      }
-      throw new Error(`Backend trả về lỗi với mã trạng thái ${beRes.status}`);
-    }
+const beRes = await fetch(url, {
+  method: "POST",
+  headers,
+  body: JSON.stringify(body),
+});
+if (!beRes.ok) {
+  const errorBody = await beRes.text();
+  console.error("Backend error:", beRes.status, errorBody);
+  if (beRes.status === 401) {
+    return NextResponse.json(
+      { error: "Token xác thực không hợp lệ hoặc đã hết hạn. Vui lòng đăng nhập lại." },
+      { status: 401 }
+    );
+  }
+  throw new Error(`Backend trả về lỗi với mã trạng thái ${beRes.status}: ${errorBody}`);
+}
 
     const responseData = await beRes.json();
 

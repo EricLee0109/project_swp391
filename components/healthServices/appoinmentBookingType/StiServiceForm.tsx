@@ -38,52 +38,66 @@ export function StiTestBookingForm({
 
   const selectedMode = form.watch("selected_mode");
 
-  async function onSubmit(data: StiFormServiceValues) {
-    const payload: CreateStiAppointmentDto = {
-      serviceId: data.serviceId,
-      date: formatDate(data.date),
-      session: data.session,
-      location: data.selected_mode === "AT_HOME" ? "Tại nhà" : service.return_address || "Tại phòng khám",
-      category: "STI",
-      selected_mode: data.selected_mode,
-      contact_name: data.contact_name,
-      contact_phone: data.contact_phone,
-      shipping_address: data.shipping_address,
-      province: data.province,
-      district: data.district,
-      ward: data.ward,
-    };
+async function onSubmit(data: StiFormServiceValues) {
+  const payload: CreateStiAppointmentDto = {
+    serviceId: data.serviceId,
+    date: formatDate(data.date), // Đảm bảo formatDate trả về "YYYY-MM-DD" hoặc ISO 8601
+    session: data.session,
+    location: data.selected_mode === "AT_HOME" ? "Hồ Chí Minh" : service.return_address || "Hồ Chí Minh",
+    category: "STI",
+    selected_mode: data.selected_mode,
+    contact_name: data.contact_name,
+    contact_phone: data.contact_phone,
+    shipping_address: data.shipping_address,
+    province: data.province,
+    district: data.district,
+    ward: data.ward,
+  };
 
-    try {
-      const response = await fetch("/api/appointments/sti", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      });
+  try {
+    const response = await fetch("/api/appointments/sti", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    });
 
-      if (!response.ok) {
-        if (response.status === 401) {
-          notify("error", "Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.");
-        }
-        throw new Error("Không thể đặt lịch xét nghiệm STI");
+    if (!response.ok) {
+      if (response.status === 401) {
+        notify("error", "Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.");
       }
-
-      const responseData = await response.json();
-      const appointmentId = responseData.data?.appointment?.appointment_id;
-      if (appointmentId) {
-        setStiAppointmentId(appointmentId);
-        notify("success", `Đặt lịch xét nghiệm STI thành công! Mã lịch hẹn: ${appointmentId}`);
-      } else {
-        notify("success", "Đặt lịch xét nghiệm STI thành công!");
-      }
-      onClose();
-    } catch (error) {
-      console.error("Lỗi khi đặt lịch xét nghiệm STI:", error);
-      notify("error", "Không thể đặt lịch xét nghiệm STI. Vui lòng thử lại.");
+      throw new Error("Không thể đặt lịch xét nghiệm STI");
     }
+
+    const responseData = await response.json();
+    const appointmentId = responseData.data?.appointment?.appointment_id;
+    const checkoutUrl = responseData.data?.paymentLink?.checkoutUrl;
+
+    if (appointmentId) {
+      setStiAppointmentId(appointmentId);
+      notify("success", `Đặt lịch xét nghiệm STI thành công! Mã lịch hẹn: ${appointmentId}`);
+    } else {
+      notify("success", "Đặt lịch xét nghiệm STI thành công!");
+    }
+
+    // Chuyển hướng đến checkoutUrl sau 2 giây
+    if (checkoutUrl) {
+      setTimeout(() => {
+        window.location.href = checkoutUrl; // Chuyển hướng trong cùng tab
+        // Hoặc dùng window.open(checkoutUrl, "_blank") để mở tab mới
+      }, 2000);
+    } else {
+      console.error("Không tìm thấy checkoutUrl trong response");
+      notify("error", "Không thể chuyển hướng đến trang thanh toán.");
+    }
+
+    onClose();
+  } catch (error) {
+    console.error("Lỗi khi đặt lịch xét nghiệm STI:", error);
+    notify("error", "Không thể đặt lịch xét nghiệm STI. Vui lòng thử lại.");
   }
+}
 
   return (
     <div className="form-container mt-16">

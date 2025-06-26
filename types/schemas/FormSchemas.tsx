@@ -3,7 +3,7 @@ import { z } from "zod";
 export const stiFormServiceSchema = z.object({
   serviceId: z.string().min(1, "Vui lòng nhập ID dịch vụ"),
   selected_mode: z.enum(["AT_HOME", "AT_CLINIC"], { errorMap: () => ({ message: "Vui lòng chọn hình thức dịch vụ" }) }),
-  date: z.date({ required_error: "Vui lòng chọn ngày" }),
+  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Ngày phải có định dạng YYYY-MM-DD"),
   session: z.enum(["morning", "afternoon"], { errorMap: () => ({ message: "Vui lòng chọn buổi" }) }),
   contact_name: z.string().optional(),
   contact_phone: z.string().optional(),
