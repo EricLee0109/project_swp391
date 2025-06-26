@@ -117,7 +117,7 @@ export default function ProfileForm() {
   return (
     <div className="py-5">
       <div className="bg-white p-5 drop-shadow">
-        <h1 className="text-xl font-semibold">Hồ sơ của tôi</h1>
+        <h1 className="text-xl font-semibold">Hồ sơ của tôii</h1>
         <p className="text-sm text-zinc-500">Quản lý thông tin cá nhân</p>
         <hr className="my-3" />
 

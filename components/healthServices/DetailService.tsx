@@ -25,7 +25,8 @@ export default function DetailService({ serviceId }: { serviceId: string }) {
         const data = await res.json();
         setService({
           ...data.service,
-          price: parseInt(data.service.price, 10).toString(),
+          price: data.service.price,
+          daily_capacity: data.service.daily_capacity ?? 0, // Gán 0 nếu null
           available_modes: data.service.available_modes.filter((mode: string) =>
             ["AT_HOME", "AT_CLINIC"].includes(mode)
           ) as ("AT_HOME" | "AT_CLINIC")[],

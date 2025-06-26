@@ -6,7 +6,7 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function formatDate(date: string | Date): string {
-const d = new Date(date);
+  const d = new Date(date);
   return d.toISOString().split("T")[0];
 }
 
@@ -19,3 +19,13 @@ export const slugify = (text: string): string =>
     .replace(/--+/g, "-") // Replace multiple - with single -
     .replace(/^-+/, "") // Trim - from start of text
     .replace(/-+$/, ""); // Trim - from end of text
+
+export function formatDateVN(date: string | Date): string {
+  const d = new Date(date);
+  return d.toLocaleDateString("vi-VN", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    timeZone: "Asia/Ho_Chi_Minh",
+  });
+}

@@ -1,8 +1,8 @@
 import {
-  AvailableMode,
+  // AvailableMode,
   AvailableModeEnums,
   PaymentStatusEnums,
-  ServiceType,
+  // ServiceType,
   StatusTypeEnums,
 } from "@/types/enums/HealthServiceEnums";
 
@@ -46,27 +46,23 @@ export interface AppointmentListType {
 }
 
 export interface ServicesListType {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  filter(arg0: (s: any) => boolean): ServicesListType[];
   service_id: string;
   name: string;
   description: string;
   price: string;
   category: string;
   is_active: boolean;
-  type: ServiceType;
+  type: "Consultation" | "Testing";
   testing_hours: {
-    morning: {
-      end: string; //11:00
-      start: string; //07:00
-    };
-    afternoon: {
-      end: string;
-      start: string;
-    };
+    morning?: { start: string; end: string };
+    afternoon?: { start: string; end: string };
   } | null;
-  daily_capacity: number | null;
+  daily_capacity: number;
   return_address: string | null;
   return_phone: string | null;
-  available_modes: AvailableMode[];
+  available_modes: ("AT_HOME" | "AT_CLINIC")[];
   created_at: string;
   updated_at: string;
   deleted_at: string | null;

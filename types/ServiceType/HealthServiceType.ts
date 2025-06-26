@@ -1,3 +1,4 @@
+
 import {
   AvailableModeEnums,
   RoleTypeEnum,
@@ -13,7 +14,7 @@ export interface Service {
   service_id: string;
   name: string;
   description: string;
-  price: number;
+  price: string;
   category: string;
   is_active: boolean;
   type: ServiceTypeEnums;
@@ -59,8 +60,6 @@ export interface User {
   updated_at?: string;
   deleted_at?: string;
   sub?: string; // JWT subject, typically the user ID
-  // Avatar is not in the User schema, but added here for UI display purposes.
-  // In a real app, this might come from a separate profile table or a CDN URL.
   avatar?: string;
   role?: RoleTypeEnum;
 }
