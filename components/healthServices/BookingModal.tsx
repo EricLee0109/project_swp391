@@ -34,6 +34,7 @@ export function BookingModal({
   );
   const [selectedTime, setSelectedTime] = useState("");
   const [selectedDate, setSelectedDate] = useState("");
+  const [stiAppointmentId, setStiAppointmentId] = useState<string>("");
 
   const handleLocationSelect = (location: "AT_HOME" | "AT_CLINIC") => {
     setAppointment((prev) => ({
@@ -77,9 +78,18 @@ export function BookingModal({
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(appointment),
+        body: JSON.stringify({
+          ...appointment,
+          related_appointment_id:
+            stiAppointmentId || appointment.related_appointment_id,
+        }),
       });
-      if (!response.ok) throw new Error("Không thể tạo lịch hẹn");
+      if (!response.ok) {
+        if (response.status === 401) {
+          notify("error", "Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.");
+        }
+        throw new Error("Không thể tạo lịch hẹn");
+      }
       notify("success", "Đặt lịch hẹn thành công!");
       onClose();
     } catch (error) {
@@ -98,11 +108,17 @@ export function BookingModal({
   );
 
   if (service.type === "Testing") {
-    return <StiTestBookingForm service={service} onClose={onClose} />;
+    return (
+      <StiTestBookingForm
+        service={service}
+        onClose={onClose}
+        setStiAppointmentId={setStiAppointmentId}
+      />
+    );
   }
 
   return (
-    <div className="form-container">
+    <div className="form-container mt-16">
       <div className="form-container-inner">
         <button
           onClick={onClose}
@@ -177,26 +193,23 @@ export function BookingModal({
 
         {step === 3 && selectedConsultant && (
           <div>
-            <h2 className="text-2xl font-semibold mb-2 text-center">
+            <h2 className="text-2xl font-bold mb-6 text-center">
               Chọn thời gian tư vấn
             </h2>
-            <h3 className="text-lg font-medium text-center mb-6 text-gray-600">
+            <h3 className="text-lg font-semibold text-center mb-4">
               {selectedConsultant.full_name}
             </h3>
-            <div className="space-y-4 max-h-[70vh] overflow-y-auto pr-3">
+            <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-2">
               {consultantSchedules.length > 0 ? (
                 consultantSchedules.map((s) => (
-                  <div
-                    key={s.schedule_id}
-                    className="p-4 bg-white border border-gray-300 rounded-lg shadow-sm"
-                  >
-                    <p className="font-semibold text-gray-800 mb-2">
+                  <div key={s.schedule_id} className="p-4 border rounded-lg">
+                    <p className="font-bold mb-2">
                       {formatDate(new Date(s.start_time))}
                     </p>
                     <div className="flex flex-wrap gap-2">
                       <button
                         onClick={() => handleScheduleSelect(s, s.start_time)}
-                        className="px-4 py-2 bg-teal-500 text-white rounded-lg hover:bg-teal-600 transition-colors"
+                        className="px-4 py-2 bg-teal-500 text-white rounded-md hover:bg-teal-600"
                       >
                         {`${new Date(s.start_time).toLocaleTimeString([], {
                           hour: "2-digit",
@@ -249,12 +262,32 @@ export function BookingModal({
               <p>
                 <span>Giờ:</span>{" "}
                 <span className="font-bold">
-                  {new Date(selectedTime).toLocaleTimeString([], {
+                  {`${new Date(selectedTime).toLocaleTimeString([], {
                     hour: "2-digit",
                     minute: "2-digit",
-                  })}
+                  })} - ${new Date(
+                    consultantSchedules.find(
+                      (s) => s.schedule_id === appointment.schedule_id
+                    )?.end_time || ""
+                  ).toLocaleTimeString([], {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}`}
                 </span>
               </p>
+              <div className="space-y-2">
+                <label htmlFor="stiAppointmentId" className="font-semibold">
+                  Mã lịch hẹn STI (nếu muốn tư vấn miễn phí):
+                </label>
+                <input
+                  id="stiAppointmentId"
+                  type="text"
+                  value={stiAppointmentId}
+                  onChange={(e) => setStiAppointmentId(e.target.value)}
+                  placeholder="Nhập mã lịch hẹn STI (nếu có)"
+                  className="w-full p-2 border rounded-md"
+                />
+              </div>
             </div>
             <button
               onClick={createAppointment}

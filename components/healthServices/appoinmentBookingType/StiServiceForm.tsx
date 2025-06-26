@@ -9,14 +9,16 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Home, Hospital } from "lucide-react";
 import { useForm } from "react-hook-form";
-import { CustomService, CreateAppointmentDto } from "@/types/ServiceType/CustomServiceType";
+import { CustomService, CreateStiAppointmentDto } from "@/types/ServiceType/CustomServiceType";
 
 export function StiTestBookingForm({
   service,
   onClose,
+  setStiAppointmentId,
 }: {
   service: CustomService;
   onClose: () => void;
+  setStiAppointmentId: (id: string) => void;
 }) {
   const form = useForm<StiFormServiceValues>({
     resolver: zodResolver(stiFormServiceSchema),
@@ -28,44 +30,77 @@ export function StiTestBookingForm({
       contact_name: undefined,
       contact_phone: undefined,
       shipping_address: undefined,
+      province: undefined,
+      district: undefined,
+      ward: undefined,
     },
   });
 
   const selectedMode = form.watch("selected_mode");
 
-  async function onSubmit(data: StiFormServiceValues) {
-    const payload: CreateAppointmentDto = {
-      service_id: data.serviceId,
-      type: service.type,
-      location: data.selected_mode === "AT_HOME" ? "Tại nhà" : service.return_address || "Tại phòng khám",
-      related_appointment_id: null,
-      contact_name: data.contact_name,
-      contact_phone: data.contact_phone,
-      shipping_address: data.shipping_address,
-      consultant_id: "default-consultant",
-      schedule_id: `${data.serviceId}-${formatDate(data.date)}-${data.session}`,
-    };
+async function onSubmit(data: StiFormServiceValues) {
+  const payload: CreateStiAppointmentDto = {
+    serviceId: data.serviceId,
+    date: formatDate(data.date), // Đảm bảo formatDate trả về "YYYY-MM-DD" hoặc ISO 8601
+    session: data.session,
+    location: data.selected_mode === "AT_HOME" ? "Hồ Chí Minh" : service.return_address || "Hồ Chí Minh",
+    category: "STI",
+    selected_mode: data.selected_mode,
+    contact_name: data.contact_name,
+    contact_phone: data.contact_phone,
+    shipping_address: data.shipping_address,
+    province: data.province,
+    district: data.district,
+    ward: data.ward,
+  };
 
-    try {
-      const response = await fetch("/api/appointments", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      });
+  try {
+    const response = await fetch("/api/appointments/sti", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    });
 
-      if (!response.ok) throw new Error("Không thể đặt lịch xét nghiệm STI");
-      notify("success", "Đặt lịch xét nghiệm STI thành công!");
-      onClose();
-    } catch (error) {
-      console.error("Lỗi khi đặt lịch xét nghiệm STI:", error);
-      notify("error", "Không thể đặt lịch xét nghiệm STI. Vui lòng thử lại.");
+    if (!response.ok) {
+      if (response.status === 401) {
+        notify("error", "Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.");
+      }
+      throw new Error("Không thể đặt lịch xét nghiệm STI");
     }
+
+    const responseData = await response.json();
+    const appointmentId = responseData.data?.appointment?.appointment_id;
+    const checkoutUrl = responseData.data?.paymentLink?.checkoutUrl;
+
+    if (appointmentId) {
+      setStiAppointmentId(appointmentId);
+      notify("success", `Đặt lịch xét nghiệm STI thành công! Mã lịch hẹn: ${appointmentId}`);
+    } else {
+      notify("success", "Đặt lịch xét nghiệm STI thành công!");
+    }
+
+    // Chuyển hướng đến checkoutUrl sau 2 giây
+    if (checkoutUrl) {
+      setTimeout(() => {
+        window.location.href = checkoutUrl; // Chuyển hướng trong cùng tab
+        // Hoặc dùng window.open(checkoutUrl, "_blank") để mở tab mới
+      }, 2000);
+    } else {
+      console.error("Không tìm thấy checkoutUrl trong response");
+      notify("error", "Không thể chuyển hướng đến trang thanh toán.");
+    }
+
+    onClose();
+  } catch (error) {
+    console.error("Lỗi khi đặt lịch xét nghiệm STI:", error);
+    notify("error", "Không thể đặt lịch xét nghiệm STI. Vui lòng thử lại.");
   }
+}
 
   return (
-    <div className="form-container">
+    <div className="form-container mt-16">
       <div className="form-container-inner">
         <button
           onClick={onClose}
@@ -183,22 +218,70 @@ export function StiTestBookingForm({
                     </p>
                   )}
                 </div>
-              </div>
-              <div className="space-y-2">
-                <label htmlFor="shipping_address" className="font-semibold">
-                  Địa chỉ giao hàng
-                </label>
-                <input
-                  id="shipping_address"
-                  {...form.register("shipping_address")}
-                  placeholder="123 Đường Chính"
-                  className="w-full p-2 border rounded-md"
-                />
-                {form.formState.errors.shipping_address && (
-                  <p className="text-red-500 text-sm">
-                    {form.formState.errors.shipping_address.message}
-                  </p>
-                )}
+                <div className="space-y-2">
+                  <label htmlFor="province" className="font-semibold">
+                    Tỉnh/Thành phố
+                  </label>
+                  <input
+                    id="province"
+                    {...form.register("province")}
+                    placeholder="VD: TP.HCM"
+                    className="w-full p-2 border rounded-md"
+                  />
+                  {form.formState.errors.province && (
+                    <p className="text-red-500 text-sm">
+                      {form.formState.errors.province.message}
+                    </p>
+                  )}
+                </div>
+                <div className="space-y-2">
+                  <label htmlFor="district" className="font-semibold">
+                    Quận/Huyện
+                  </label>
+                  <input
+                    id="district"
+                    {...form.register("district")}
+                    placeholder="VD: Quận 1"
+                    className="w-full p-2 border rounded-md"
+                  />
+                  {form.formState.errors.district && (
+                    <p className="text-red-500 text-sm">
+                      {form.formState.errors.district.message}
+                    </p>
+                  )}
+                </div>
+                <div className="space-y-2">
+                  <label htmlFor="ward" className="font-semibold">
+                    Phường/Xã
+                  </label>
+                  <input
+                    id="ward"
+                    {...form.register("ward")}
+                    placeholder="VD: Phường 1"
+                    className="w-full p-2 border rounded-md"
+                  />
+                  {form.formState.errors.ward && (
+                    <p className="text-red-500 text-sm">
+                      {form.formState.errors.ward.message}
+                    </p>
+                  )}
+                </div>
+                <div className="space-y-2">
+                  <label htmlFor="shipping_address" className="font-semibold">
+                    Địa chỉ giao hàng
+                  </label>
+                  <input
+                    id="shipping_address"
+                    {...form.register("shipping_address")}
+                    placeholder="VD: 123 Đường Chính"
+                    className="w-full p-2 border rounded-md"
+                  />
+                  {form.formState.errors.shipping_address && (
+                    <p className="text-red-500 text-sm">
+                      {form.formState.errors.shipping_address.message}
+                    </p>
+                  )}
+                </div>
               </div>
             </div>
           )}

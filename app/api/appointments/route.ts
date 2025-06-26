@@ -1,26 +1,15 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
-
-interface CreateAppointmentDto {
-  consultant_id?: string;
-  schedule_id?: string;
-  service_id: string;
-  type: string;
-  location: string;
-  related_appointment_id: string | null;
-  contact_name?: string;
-  contact_phone?: string;
-  shipping_address?: string;
-}
+import { CreateAppointmentDto } from "@/types/ServiceType/CustomServiceType";
 
 export async function POST(request: Request) {
   try {
     const body: CreateAppointmentDto = await request.json();
 
-    // Validate required fields
-    if (!body.service_id) {
+    // Validate required fields for Consultation
+    if (!body.service_id || (body.type === "Consultation" && (!body.consultant_id || !body.schedule_id))) {
       return NextResponse.json(
-        { error: "Thiếu ID dịch vụ" },
+        { error: "Thiếu các trường bắt buộc (service_id, consultant_id, schedule_id)" },
         { status: 400 }
       );
     }

@@ -1,15 +1,22 @@
 import { z } from "zod";
 
 export const stiFormServiceSchema = z.object({
-  serviceId: z.string().min(1, "Service ID is required"),
-  selected_mode: z.enum(["AT_HOME", "AT_CLINIC"]),
-  date: z.date({ required_error: "Date is required" }),
+  serviceId: z.string().min(1, "Vui lòng nhập ID dịch vụ"),
+  selected_mode: z.enum(["AT_HOME", "AT_CLINIC"], {
+    errorMap: () => ({ message: "Vui lòng chọn hình thức dịch vụ" }),
+  }),
+  date: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/, "Ngày phải có định dạng YYYY-MM-DD"),
   session: z.enum(["morning", "afternoon"], {
-    required_error: "Session is required",
+    errorMap: () => ({ message: "Vui lòng chọn buổi" }),
   }),
   contact_name: z.string().optional(),
   contact_phone: z.string().optional(),
   shipping_address: z.string().optional(),
+  province: z.string().optional(),
+  district: z.string().optional(),
+  ward: z.string().optional(),
 });
 
 export const createShippingSchema = z.object({
