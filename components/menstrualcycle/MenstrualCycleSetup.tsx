@@ -22,6 +22,7 @@ import {
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -66,15 +67,16 @@ export default function MenstrualCycleSetup({
     // }
     setLoading(true);
     const payload = {
-      startDate: data.lastCycleStartDate,
+      startDate: data.lastCycleStartDate.toLocaleDateString(),
       periodLength: Number(data.lastPeriodLength),
       previousCycles: [
         {
-          startDate: data.prevCycleStartDate,
+          startDate: data.prevCycleStartDate.toLocaleDateString(),
           periodLength: Number(data.prevPeriodLength),
         },
       ],
     };
+    console.log(payload, "payload");
     try {
       const res = await fetch("/api/cycles/setup", {
         method: "POST",
@@ -95,23 +97,23 @@ export default function MenstrualCycleSetup({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 px-2">
-      <Card className="w-full max-w-lg rounded-2xl shadow-2xl animate-fadeIn border-none bg-white">
-        <CardHeader className="bg-gradient-to-r from-pink-400 via-fuchsia-500 to-violet-500 rounded-t-2xl py-6 px-8 flex items-center gap-3">
-          <CalendarCheck2 className="w-7 h-7 text-white drop-shadow" />
-          <CardTitle className="text-white font-bold text-xl drop-shadow">
-            Thiết lập chu kỳ kinh nguyệt
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="py-6 px-8 space-y-5">
-          <CardDescription className="mb-2 text-base text-gray-700">
-            Nhập thông tin về{" "}
-            <span className="text-pink-500 font-semibold">
-              2 kỳ kinh gần nhất
-            </span>{" "}
-            để hệ thống dự đoán chu kỳ chính xác cho bạn.
-          </CardDescription>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <Card className="w-full max-w-lg rounded-2xl shadow-2xl animate-fadeIn border-none bg-white">
+            <CardHeader className="bg-gradient-to-r from-pink-400 via-fuchsia-500 to-violet-500 rounded-t-2xl py-2 px-8 flex items-center gap-3">
+              <CalendarCheck2 className="w-7 h-7 text-white drop-shadow" />
+              <CardTitle className="text-white font-bold text-xl drop-shadow">
+                Thiết lập chu kỳ kinh nguyệt
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="py-6 px-8 space-y-5">
+              <CardDescription className="mb-2 text-base text-gray-700">
+                Nhập thông tin về{" "}
+                <span className="text-pink-500 font-semibold">
+                  2 kỳ kinh gần nhất
+                </span>{" "}
+                để hệ thống dự đoán chu kỳ chính xác cho bạn.
+              </CardDescription>
               {/* Kỳ gần nhất (The first menstrual cycle) */}
               <div className="rounded-xl border bg-gray-50/80 dark:bg-gray-900/50 p-4 space-y-3 border-pink-100">
                 <div className="font-semibold mb-2 flex gap-2 items-center text-pink-600">
@@ -120,12 +122,27 @@ export default function MenstrualCycleSetup({
                 </div>
                 <div className="grid gap-2">
                   <FormField
+                    control={form.control}
                     name="lastCycleStartDate"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Ngày bắt đầu</FormLabel>
                         <FormControl>
-                          <Input placeholder="Last Cycle Date" {...field} />
+                          <Input
+                            type="date"
+                            placeholder="Last Cycle Date"
+                            {...field}
+                            onChange={(e) =>
+                              field.onChange(
+                                e.target.value ? new Date(e.target.value) : null
+                              )
+                            }
+                            value={
+                              field.value
+                                ? field.value.toISOString().split("T")[0]
+                                : ""
+                            }
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -141,13 +158,23 @@ export default function MenstrualCycleSetup({
                 </div>
                 <div className="grid gap-2">
                   <FormField
-                    name="lastCycleStartDate"
+                    control={form.control}
+                    name="lastPeriodLength"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Số ngày hành kinh</FormLabel>
                         <FormControl>
-                          <Input placeholder="lastPeriodLength" {...field} />
+                          <Input
+                            type="number"
+                            placeholder="2-7 days"
+                            {...field}
+                            value={Number(field.value)}
+                            onChange={(e) =>
+                              field.onChange(Number(e.target.value))
+                            }
+                          />
                         </FormControl>
+                        <FormDescription>2-7 days</FormDescription>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -174,12 +201,29 @@ export default function MenstrualCycleSetup({
                 </div>
                 <div className="grid gap-2">
                   <FormField
+                    control={form.control}
                     name="prevCycleStartDate"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Ngày bắt đầu</FormLabel>
                         <FormControl>
-                          <Input placeholder="prevCycleStartDate" {...field} />
+                          <Input
+                            type="date"
+                            placeholder="prevCycleStartDate"
+                            {...field}
+                            value={
+                              field.value
+                                ? field.value.toISOString().split("T")[0]
+                                : ""
+                            }
+                            onChange={(event) =>
+                              field.onChange(
+                                event.target.value
+                                  ? new Date(event.target.value)
+                                  : null
+                              )
+                            }
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -195,13 +239,22 @@ export default function MenstrualCycleSetup({
                 </div>
                 <div className="grid gap-2">
                   <FormField
+                    control={form.control}
                     name="prevPeriodLength"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Số ngày hành kinh</FormLabel>
                         <FormControl>
-                          <Input placeholder="prevPeriodLength" {...field} />
+                          <Input
+                            placeholder="2-7 days"
+                            {...field}
+                            value={Number(field.value)}
+                            onChange={(e) =>
+                              field.onChange(Number(e.target.value))
+                            }
+                          />
                         </FormControl>
+                        <FormDescription>2-7 days</FormDescription>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -220,23 +273,23 @@ export default function MenstrualCycleSetup({
                   /> */}
                 </div>
               </div>
-            </form>
-          </Form>
-        </CardContent>
-        <CardFooter className="flex gap-3 justify-end bg-gray-50 px-8 py-4 rounded-b-2xl">
-          <Button variant="outline" onClick={() => onClose(false)}>
-            Hủy
-          </Button>
-          <Button
-            // onClick={handleSave}
-            type="submit"
-            className="bg-pink-500 hover:bg-pink-600 text-white font-bold rounded-lg px-8"
-            disabled={loading}
-          >
-            {loading ? "Đang lưu..." : "Lưu thiết lập"}
-          </Button>
-        </CardFooter>
-      </Card>
+            </CardContent>
+            <CardFooter className="flex gap-3 justify-end bg-gray-50 px-8 py-4 rounded-b-2xl">
+              <Button variant="outline" onClick={() => onClose(false)}>
+                Hủy
+              </Button>
+              <Button
+                // onClick={handleSave}
+                type="submit"
+                className="bg-pink-500 hover:bg-pink-600 text-white font-bold rounded-lg px-8"
+                disabled={loading}
+              >
+                {loading ? "Đang lưu..." : "Lưu thiết lập"}
+              </Button>
+            </CardFooter>
+          </Card>
+        </form>
+      </Form>
     </div>
   );
 }

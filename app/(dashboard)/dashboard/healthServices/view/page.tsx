@@ -1,5 +1,5 @@
 import { DataTable } from "@/components/data-table";
-import { columns } from "@/components/dashboard/healthServices/columns";
+import { columns } from "@/components/dashboard/components/healthServices/columns";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { authJWT } from "@/lib/auth";
 import Header from "@/components/dashboard/header";
@@ -30,7 +30,7 @@ export default async function HealthServicesListPage() {
 
           <Card>
             <CardHeader>
-              <CardTitle>Các cuộc hẹn</CardTitle>
+              <CardTitle>Danh sách các dịch vụ sức khỏe</CardTitle>
             </CardHeader>
             <CardContent>
               {/* Note: I'm reusing the AppointmentDataTable. You might want to rename it to just "DataTable" to reflect its generic nature. */}

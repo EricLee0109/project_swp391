@@ -32,6 +32,8 @@ export default async function Home({
   const userSession = await authJWT();
   const role = userSession?.user?.role; // Safely get the role
 
+  if (!userSession) redirect("/login");
+
   if (
     role &&
     (role === RoleTypeEnums.Consultant ||
