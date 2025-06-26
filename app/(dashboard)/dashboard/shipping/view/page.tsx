@@ -1,5 +1,5 @@
 import { DataTable } from "@/components/data-table";
-import { columns } from "@/components/dashboard/shipping/columns";
+import { columns } from "@/components/dashboard/components/shipping/columns";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { shippingData } from "@/data/shippings";
 import { authJWT } from "@/lib/auth";

@@ -67,6 +67,7 @@ export function ResetPasswordForm({
         toast.success("Đặt lại mật khẩu thành công!");
          router.push("/login");
         form.reset();
+        
       } catch  {
         toast.error( "Đặt lại mật khẩu thất bại");
       }
