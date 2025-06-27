@@ -70,6 +70,7 @@ export function DataTable<TData, TValue>({
       sorting,
       columnFilters,
     },
+    meta: {},
   });
 
   console.log(
