@@ -92,7 +92,7 @@ export default function ProfileViewer() {
     <div className="py-5">
       <Card className="p-6">
         <CardHeader>
-          <CardTitle className="text-xl">Hồ sơ của tôi</CardTitle>
+          <CardTitle className="text-xl">Hồ sơ của tôii</CardTitle>
           <p className="text-sm text-muted-foreground">Thông tin cá nhân</p>
         </CardHeader>
 

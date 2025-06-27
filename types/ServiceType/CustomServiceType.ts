@@ -8,7 +8,7 @@ export interface CustomService {
   type: string;
   available_modes: ("AT_HOME" | "AT_CLINIC")[];
   testing_hours: { morning?: { start: string; end: string }; afternoon?: { start: string; end: string } } | null;
-  daily_capacity: number;
+  daily_capacity: number | null; // Đổi thành number | null
   return_address: string | null;
   return_phone: string | null;
   created_at: string;

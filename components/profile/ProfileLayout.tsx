@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 import MaxWidthWrapper from "./MaxWidthWrapper";
 import { Bell, CircleUser, ClipboardList, Heart, Settings } from "lucide-react";
 import { LogoutButton } from "@/components/login/LogoutButton";
+import Link from "next/link";
 
 type UserType = {
   name?: string | null;
@@ -15,31 +16,11 @@ type UserType = {
 };
 
 const navItems = [
-  {
-    title: "Hồ sơ",
-    icon: CircleUser,
-    href: "/profile",
-  },
-  {
-    title: "Danh sách ",
-    icon: Heart,
-    href: "/profile/favourite",
-  },
-  {
-    title: "Lịch sử ",
-    icon: ClipboardList,
-    href: "/profile/order",
-  },
-  {
-    title: "Thông báo",
-    icon: Bell,
-    href: "/profile/notification",
-  },
-  {
-    title: "Cài đặt",
-    icon: Settings,
-    href: "/profile/settings",
-  },
+  { title: "Hồ sơ", icon: CircleUser, href: "/profile" },
+  { title: "Danh sách", icon: Heart, href: "/profile/favourite" },
+  { title: "Lịch sử", icon: ClipboardList, href: "/profile/order" },
+  { title: "Thông báo", icon: Bell, href: "/profile/notification" },
+  { title: "Cài đặt", icon: Settings, href: "/profile/settings" },
 ];
 
 export default function ProfileLayout({
@@ -76,7 +57,8 @@ export default function ProfileLayout({
           <ul className="flex flex-col">
             {navItems.map((item, index) => (
               <li key={index}>
-                <button
+                <Link
+                  href={item.href}
                   className={cn(
                     "flex gap-3 p-3 w-full hover:bg-zinc-200 active:bg-zinc-300",
                     pathname === item.href &&
@@ -85,7 +67,7 @@ export default function ProfileLayout({
                 >
                   <item.icon className="w-5 h-5" />
                   {item.title}
-                </button>
+                </Link>
               </li>
             ))}
           </ul>

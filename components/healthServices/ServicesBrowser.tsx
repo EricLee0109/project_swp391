@@ -1,3 +1,4 @@
+
 "use client";
 
 import { FilterPill } from "@/components/healthServices/FilterPill";
@@ -33,9 +34,10 @@ export function ServiceBrowser() {
           .filter((service) => service.is_active)
           .map((service) => ({
             ...service,
-            price: parseInt(service.price, 10),
-            type: service.type as ServiceTypeEnums, // Cast type to ServiceTypeEnums
-            available_modes: service.available_modes as AvailableModeEnums[], // Cast available_modes to AvailableModeEnums
+            price: service.price,
+            type: service.type as ServiceTypeEnums,
+            available_modes: service.available_modes as AvailableModeEnums[],
+            daily_capacity: service.daily_capacity ?? 0, // Gán 0 nếu null
           }));
         setServices(activeServices);
         setError(null);
@@ -102,7 +104,13 @@ export function ServiceBrowser() {
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
         {filteredServices.length > 0 ? (
           filteredServices.map((service) => (
-            <ServiceCard key={service.service_id} service={service} />
+            <ServiceCard
+              key={service.service_id}
+              service={{
+                ...service,
+                type: service.type as string, // Chuyển type để khớp với CustomService
+              }}
+            />
           ))
         ) : (
           <div className="col-span-full text-center py-16">
