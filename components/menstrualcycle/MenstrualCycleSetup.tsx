@@ -69,17 +69,22 @@ export default function MenstrualCycleSetup({
     //   return;
     // }
     setLoading(true);
-    const payload = {
-      startDate: data.lastCycleStartDate.toLocaleDateString(),
-      periodLength: Number(data.lastPeriodLength),
-      previousCycles: [
-        {
-          startDate: data.prevCycleStartDate.toLocaleDateString(),
-          periodLength: Number(data.prevPeriodLength),
-        },
-      ],
-    };
-    console.log(payload, "payload");
+const toIsoDateString = (date: Date | null) => {
+  if (!date) return "";
+  return date.toISOString().split("T")[0]; // "2025-01-05"
+};
+
+const payload = {
+  startDate: toIsoDateString(data.lastCycleStartDate), // ĐÚNG
+  periodLength: Number(data.lastPeriodLength),
+  previousCycles: [
+    {
+      startDate: toIsoDateString(data.prevCycleStartDate), // ĐÚNG
+      periodLength: Number(data.prevPeriodLength),
+    },
+  ],
+};
+
     try {
       const res = await fetch("/api/cycles/setup", {
         method: "POST",
@@ -147,6 +152,7 @@ export default function MenstrualCycleSetup({
                             }
                           />
                         </FormControl>
+                        
                         <FormMessage />
                       </FormItem>
                     )}

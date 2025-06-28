@@ -8,7 +8,7 @@ export default function Layout({
       <div className="sticky top-0 z-50 w-full border-b bg-background ">
         <Navbar />
       </div>
-      <div>{children}</div>
+      <div className="h-screen">{children}</div>
     </main>
   );
 }
