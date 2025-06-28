@@ -16,12 +16,14 @@ import Link from "next/link";
 import { toast } from "sonner";
 import { User } from "@/types/user/User";
 import { changeUserRole } from "@/app/api/dashboard/chang-role/action";
+import { notify } from "@/lib/toastNotify";
 
 interface ActionUserProps {
   user: User;
+  onRoleChanged?: () => void; // ✅ thêm prop
 }
 
-export function ActionUser({ user }: ActionUserProps) {
+export function ActionUser({ user, onRoleChanged }: ActionUserProps) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -54,9 +56,10 @@ export function ActionUser({ user }: ActionUserProps) {
                     userId: user.user_id,
                     newRole: "Customer",
                   });
-                  toast(res.message, {
-                    description: `Vai trò mới: Khách hàng`,
-                  });
+                  notify("success", "Vai trò mới: Khách hàng");
+                  if (res.success && onRoleChanged) {
+                    onRoleChanged(); // ✅ gọi lại để load lại danh sách
+                  }
                 }}
               >
                 Khách hàng
@@ -68,7 +71,10 @@ export function ActionUser({ user }: ActionUserProps) {
                     userId: user.user_id,
                     newRole: "Staff",
                   });
-                  toast(res.message, { description: `Vai trò mới: Nhân viên` });
+                  notify("success", "Vai trò mới: Nhân viên");
+                  if (res.success && onRoleChanged) {
+                    onRoleChanged(); 
+                  }
                 }}
               >
                 Nhân viên
@@ -80,7 +86,11 @@ export function ActionUser({ user }: ActionUserProps) {
                     userId: user.user_id,
                     newRole: "Admin",
                   });
-                  toast(res.message, { description: `Vai trò mới: Admin` });
+
+                  notify("success", "Vai trò mới: Admin");
+                  if (res.success && onRoleChanged) {
+                    onRoleChanged(); 
+                  }
                 }}
               >
                 Admin
@@ -92,9 +102,10 @@ export function ActionUser({ user }: ActionUserProps) {
                     userId: user.user_id,
                     newRole: "Consultant",
                   });
-                  toast(res.message, {
-                    description: `Vai trò mới: Tư vấn viên`,
-                  });
+                  notify("success", "Vai trò mới: Tư vấn viên");
+                  if (res.success && onRoleChanged) {
+                    onRoleChanged(); 
+                  }
                 }}
               >
                 Tư vấn viên
@@ -106,7 +117,11 @@ export function ActionUser({ user }: ActionUserProps) {
                     userId: user.user_id,
                     newRole: "Manager",
                   });
-                  toast(res.message, { description: `Vai trò mới: Quản lý` });
+
+                  notify("success", "Vai trò mới: Quản lý");
+                  if (res.success && onRoleChanged) {
+                    onRoleChanged(); 
+                  }
                 }}
               >
                 Quản lý

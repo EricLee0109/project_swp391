@@ -22,7 +22,7 @@ function highlight(text: string): string {
   );
 }
 
-export const columns: ColumnDef<User>[] = [
+export const columns = (onRoleChanged: () => void): ColumnDef<User>[] => [
   {
     id: "stt",
     header: "STT",
@@ -118,24 +118,24 @@ export const columns: ColumnDef<User>[] = [
       const role = row.original.role;
       switch (role) {
         case "Admin":
-          return <Badge className="bg-blue-600 hover:bg-blue-500">Admin</Badge>;
+          return <Badge className="bg-blue-500 hover:bg-blue-400">Admin</Badge>;
         case "Customer":
           return (
-            <Badge className="bg-orange-600 hover:bg-orange-500">
+            <Badge className="bg-orange-500 hover:bg-orange-400">
               Khách hàng
             </Badge>
           );
         case "Consultant":
           return (
-            <Badge className="bg-purple-600 hover:bg-purple-500">Tư vấn</Badge>
+            <Badge className="bg-purple-500 hover:bg-purple-400">Tư vấn</Badge>
           );
         case "Staff":
           return (
-            <Badge className="bg-green-600 hover:bg-green-500">Nhân viên</Badge>
+            <Badge className="bg-green-500 hover:bg-green-400">Nhân viên</Badge>
           );
         case "Manager":
           return (
-            <Badge className="bg-yellow-600 hover:bg-yellow-500">Quản lý</Badge>
+            <Badge className="bg-yellow-500 hover:bg-yellow-400">Quản lý</Badge>
           );
         default:
           return <Badge>{role}</Badge>;
@@ -186,6 +186,6 @@ export const columns: ColumnDef<User>[] = [
   },
   {
     id: "actions",
-    cell: ({ row }) => <ActionUser user={row.original} />,
+    cell: ({ row }) => <ActionUser user={row.original} onRoleChanged={onRoleChanged} />,
   },
 ];
