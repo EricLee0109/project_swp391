@@ -73,15 +73,6 @@ export function DataTable<TData, TValue>({
     meta: {},
   });
 
-  console.log(
-    filterConfigs.find((column) => table.getColumn(column.columnKey)),
-    "hello1"
-  );
-  console.log(
-    filterConfigs.filter((column) => !table.getColumn(column.columnKey)),
-    "hello"
-  );
-
   const findFilterSearch = filterConfigs.filter(
     (column) => !table.getColumn(column.columnKey)
   );

@@ -63,3 +63,24 @@ export async function POST(request: Request) {
     );
   }
 }
+
+export async function GET() {
+  const cookieStore = cookies();
+  const accessToken = (await cookieStore).get("accessToken")?.value;
+  const headers: Record<string, string> = {};
+  if (accessToken) headers["Authorization"] = `Bearer ${accessToken}`;
+
+  try {
+    const beRes = await fetch(`${process.env.BE_BASE_URL}/appointments`, {
+      method: "GET",
+      headers,
+    });
+    if (!beRes.ok) {
+      return NextResponse.json({ error: "Failed to fetch appointments" }, { status: beRes.status });
+    }
+    const data = await beRes.json();
+    return NextResponse.json(data, { status: 200 });
+  } catch {
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+  }
+}
