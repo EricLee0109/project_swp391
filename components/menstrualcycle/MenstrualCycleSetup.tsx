@@ -28,6 +28,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { useRouter } from "next/navigation";
 
 export interface MenstrualCycleSetupProps {
   onClose: (cycleCreated?: boolean) => void; // truyền true nếu đã setup xong
@@ -36,6 +37,8 @@ export interface MenstrualCycleSetupProps {
 export default function MenstrualCycleSetup({
   onClose,
 }: MenstrualCycleSetupProps) {
+  const router = useRouter();
+
   const form = useForm<MenstrualCycleSetupValues>({
     resolver: zodResolver(menstrualCycleSetupSchema),
     defaultValues: {
@@ -275,7 +278,7 @@ export default function MenstrualCycleSetup({
               </div>
             </CardContent>
             <CardFooter className="flex gap-3 justify-end bg-gray-50 px-8 py-4 rounded-b-2xl">
-              <Button variant="outline" onClick={() => onClose(false)}>
+              <Button variant="outline" onClick={() => router.back()}>
                 Hủy
               </Button>
               <Button

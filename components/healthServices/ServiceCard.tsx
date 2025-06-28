@@ -1,4 +1,3 @@
-
 "use client";
 
 import { Button } from "@/components/ui/button";
@@ -38,15 +37,15 @@ export const ServiceCard: React.FC<ServiceCardProps> = ({ service }) => {
 
         <div className="flex items-center text-sm text-gray-500 mb-4">
           <span className="font-semibold mr-2">Hình thức khám:</span>
-          <div className="flex gap-3">
+          <div className="flex gap-2">
             {service.available_modes.includes("AT_HOME") && (
-              <div className="flex items-center gap-1 bg-teal-50 text-teal-700 px-2 py-1 rounded-full">
+              <div className="flex items-center gap-1 bg-teal-50 text-teal-700 px-2 py-1 rounded-full text-xs">
                 <Home size={14} />
                 <span>Tại nhà</span>
               </div>
             )}
             {service.available_modes.includes("AT_CLINIC") && (
-              <div className="flex items-center gap-1 bg-indigo-50 text-indigo-700 px-2 py-1 rounded-full">
+              <div className="flex items-center gap-1 bg-indigo-50 text-indigo-700 px-2 py-1 rounded-full text-xs">
                 <Hospital size={14} />
                 <span>Tại phòng khám</span>
               </div>
@@ -58,7 +57,9 @@ export const ServiceCard: React.FC<ServiceCardProps> = ({ service }) => {
           className="w-full bg-primary text-white font-bold py-3 px-4 rounded-lg hover:bg-primary-600 transition-colors duration-300 mt-4"
           asChild
         >
-          <Link href={`/sexualHealthServices/detail?service_id=${service.service_id}`}>
+          <Link
+            href={`/sexualHealthServices/detail?service_id=${service.service_id}`}
+          >
             Đặt lịch
           </Link>
         </Button>
