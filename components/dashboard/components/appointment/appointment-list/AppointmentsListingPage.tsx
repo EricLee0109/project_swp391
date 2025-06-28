@@ -3,9 +3,8 @@
 import { useEffect, useState } from "react";
 import ToolsPanel from "./tools-panel";
 import { DataTable } from "./data-table";
-import { columns } from "./columns";
+import { columns } from "../columns";
 import { PaginationDashboard } from "@/components/dashboard/PaginationDashboard";
-import { setSearchQueryForHighlight } from "./columns";
 import { getAllAppointment } from "@/app/api/dashboard/appointment/action";
 import { AppointmentListType } from "@/types/ServiceType/StaffRoleType";
 import Loading from "@/app/(root)/loading";
@@ -43,7 +42,6 @@ const AppointmentListingPage = () => {
 
   // Lọc theo search + Type mỗi khi searchQuery hoặc selectedType thay đổi
   useEffect(() => {
-    setSearchQueryForHighlight(searchQuery);
     const lowerQuery = searchQuery.toLowerCase();
     const filtered = allAppointment.filter((appointment) => {
       const matchType =
@@ -58,6 +56,10 @@ const AppointmentListingPage = () => {
   }, [searchQuery, selectedType, allAppointment]);
 
   // const totalPages = Math.ceil(filteredAppointment.length / itemsPerPage);
+
+  const handleDeleted = (id: string) => {
+    setAllAppointment((prev) => prev.filter((a) => a.appointment_id !== id));
+  };
 
   const currentData = filteredAppointment.slice(
     (currentPage - 1) * itemsPerPage,
@@ -74,7 +76,7 @@ const AppointmentListingPage = () => {
           onTypeChange={(type) => setSelectedType(type)}
         />
         <DataTable
-          columns={columns}
+          columns={columns({ onDeleted: handleDeleted })}
           data={currentData}
           pageIndex={currentPage - 1}
           pageSize={itemsPerPage}
