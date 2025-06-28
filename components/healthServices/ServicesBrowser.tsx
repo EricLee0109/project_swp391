@@ -1,4 +1,3 @@
-
 "use client";
 
 import { FilterPill } from "@/components/healthServices/FilterPill";
@@ -22,7 +21,6 @@ export function ServiceBrowser() {
   const [activeFilter, setActiveFilter] = useState<string>("All");
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-
   useEffect(() => {
     const fetchServices = async () => {
       try {
@@ -115,7 +113,7 @@ export function ServiceBrowser() {
         ) : (
           <div className="col-span-full text-center py-16">
             <p className="text-gray-500 text-lg">
-              No services found. Try adjusting your search or filters.
+              Không có kết quả nào được tìm thấy!
             </p>
           </div>
         )}

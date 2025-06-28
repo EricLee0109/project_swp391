@@ -10,6 +10,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { notify } from "@/lib/toastNotify";
 import HealthServicesForm from "@/components/dashboard/components/healthServices/HealthServicesForm";
 import HealthServicesTable from "@/components/dashboard/components/healthServices/HealthServicesTable";
+import MaxWidthWrapper from "@/components/profile/MaxWidthWrapper";
 
 export default function HealthServicesView() {
   const [services, setServices] = useState<ServicesListType[]>([]);
@@ -84,33 +85,35 @@ export default function HealthServicesView() {
   }
 
   return (
-    <div className="py-5">
-      <Card>
-        <CardContent className="p-6">
-          <div className="flex justify-end mb-4">
-            <HealthServicesForm
-              isOpen={isCreateDialogOpen}
-              onClose={() => {
-                setIsCreateDialogOpen(false);
-                setServiceToEdit(undefined);
-              }}
-              onSave={handleUpdateServices}
-              services={services}
-              setIsOpen={setIsCreateDialogOpen}
-              serviceToEdit={serviceToEdit}
+    <MaxWidthWrapper>
+      <div className="py-5">
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex justify-end mb-4">
+              <HealthServicesForm
+                isOpen={isCreateDialogOpen}
+                onClose={() => {
+                  setIsCreateDialogOpen(false);
+                  setServiceToEdit(undefined);
+                }}
+                onSave={handleUpdateServices}
+                services={services}
+                setIsOpen={setIsCreateDialogOpen}
+                serviceToEdit={serviceToEdit}
+              />
+            </div>
+            <HealthServicesTable
+              services={paginatedServices}
+              totalPages={totalPages}
+              currentPage={currentPage}
+              onPageChange={handlePageChange}
+              onUpdateServices={handleUpdateServices}
+              setIsCreateDialogOpen={setIsCreateDialogOpen}
+              setServiceToEdit={setServiceToEdit}
             />
-          </div>
-          <HealthServicesTable
-            services={paginatedServices}
-            totalPages={totalPages}
-            currentPage={currentPage}
-            onPageChange={handlePageChange}
-            onUpdateServices={handleUpdateServices}
-            setIsCreateDialogOpen={setIsCreateDialogOpen}
-            setServiceToEdit={setServiceToEdit}
-          />
-        </CardContent>
-      </Card>
-    </div>
+          </CardContent>
+        </Card>
+      </div>
+    </MaxWidthWrapper>
   );
 }

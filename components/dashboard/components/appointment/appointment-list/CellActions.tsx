@@ -1,10 +1,5 @@
-"use client";
-import { ColumnDef, Row } from "@tanstack/react-table";
-import { format } from "date-fns";
-import { CheckCircle, MoreHorizontal, TestTube2 } from "lucide-react";
-
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Dialog } from "@/components/ui/dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,45 +8,15 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-
-// Adjust this import path to where you have defined your types
-import { StatusTypeEnums } from "@/types/enums/HealthServiceEnums";
+import { notify } from "@/lib/toastNotify";
 import { AppointmentListType } from "@/types/ServiceType/StaffRoleType";
-import { useRouter } from "next/navigation";
-import { Dialog } from "@radix-ui/react-dialog";
-import { useState } from "react";
+import { Row } from "@tanstack/react-table";
+import { CheckCircle, MoreHorizontal, TestTube2 } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
-// Helper function for status badges
-const getStatusBadgeVariant = (status: StatusTypeEnums) => {
-  switch (status) {
-    case "Confirmed":
-      return "default";
-    case "SampleCollected":
-      return "secondary";
-    case "Completed":
-      return "secondary";
-    case "Cancelled":
-      return "destructive";
-    case "Pending":
-      return "outline";
-    default:
-      return "default";
-  }
-};
-
-const getTypeBadgeVariant = (type: "Consultation" | "Testing") => {
-  switch (type) {
-    case "Consultation":
-      return "bg-blue-100 text-blue-800";
-    case "Testing":
-      return "bg-green-100 text-green-800";
-    default:
-      return "default";
-  }
-};
-
-const CellActions = ({ row }: { row: Row<AppointmentListType> }) => {
+export const CellActions = ({ row }: { row: Row<AppointmentListType> }) => {
   const appointment = row.original;
   const router = useRouter();
 
@@ -81,14 +46,13 @@ const CellActions = ({ row }: { row: Row<AppointmentListType> }) => {
         );
       }
 
-      alert("Appointment verified successfully!");
+      notify("success", "Appointment verified successfully!");
       router.refresh();
     } catch (error) {
       console.error("Verification failed:", error);
-      alert((error as Error).message);
+      notify("error", (error as Error).message);
     }
   };
-
   return (
     <Dialog open={isShippingDialogOpen} onOpenChange={setShippingDialogOpen}>
       <DropdownMenu>
@@ -98,7 +62,7 @@ const CellActions = ({ row }: { row: Row<AppointmentListType> }) => {
             <MoreHorizontal className="h-4 w-4" />
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
+        <DropdownMenuContent align="end" className="bg-white">
           <DropdownMenuLabel>Actions</DropdownMenuLabel>
 
           {/* --- "Create Shipping" OPTION --- */}
@@ -160,54 +124,3 @@ const CellActions = ({ row }: { row: Row<AppointmentListType> }) => {
     </Dialog>
   );
 };
-// 2. The exported columns definition is now cleaner
-export const columns: ColumnDef<AppointmentListType>[] = [
-  {
-    accessorKey: "user.full_name",
-    header: "Client Name",
-    cell: ({ row }) => <div>{row.original.user.full_name}</div>,
-  },
-  {
-    accessorKey: "service.name",
-    header: "Service",
-  },
-  {
-    accessorKey: "start_time",
-    header: "Appointment Time",
-    cell: ({ row }) =>
-      format(new Date(row.original.start_time), "dd/MM/yyyy, hh:mm a"),
-  },
-  {
-    accessorKey: "type",
-    header: "Type",
-    cell: ({ row }) => {
-      const type = row.original.type;
-      return <Badge className={getTypeBadgeVariant(type)}>{type}</Badge>;
-    },
-  },
-  {
-    accessorKey: "status",
-    header: "Status",
-    cell: ({ row }) => {
-      const status = row.original.status;
-      return <Badge variant={getStatusBadgeVariant(status)}>{status}</Badge>;
-    },
-  },
-  {
-    accessorKey: "mode",
-    header: "Mode",
-    cell: ({ row }) => {
-      const mode = row.original.mode;
-      return (
-        <Badge variant={mode === "AT_HOME" ? "default" : "secondary"}>
-          {mode}
-        </Badge>
-      );
-    },
-  },
-  {
-    id: "actions",
-    // 3. The cell now just renders our new CellActions component
-    cell: ({ row }) => <CellActions row={row} />,
-  },
-];
