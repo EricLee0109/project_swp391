@@ -90,7 +90,14 @@ export function BookingModal({
         }
         throw new Error("Không thể tạo lịch hẹn");
       }
+            const responseData = await response.json();
+
       notify("success", "Đặt lịch hẹn thành công!");
+         const checkoutUrl = responseData.data?.paymentLink?.checkoutUrl;
+      if (checkoutUrl) {
+      window.location.href = checkoutUrl;
+      return; 
+    }
       onClose();
     } catch (error) {
       console.error("Lỗi khi tạo lịch hẹn:", error);

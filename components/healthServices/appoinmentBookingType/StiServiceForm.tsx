@@ -78,6 +78,11 @@ export function StiTestBookingForm({
       } else {
         notify("success", "Đặt lịch xét nghiệm STI thành công!");
       }
+      const checkoutUrl = responseData.data?.paymentLink?.checkoutUrl;
+      if (checkoutUrl) {
+      window.location.href = checkoutUrl;
+      return; 
+    }
       onClose();
     } catch (error) {
       console.error("Lỗi khi đặt lịch xét nghiệm STI:", error);
