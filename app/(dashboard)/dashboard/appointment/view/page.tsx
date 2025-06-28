@@ -1,5 +1,4 @@
 "use client";
-
 import { useEffect, useState } from "react";
 import { DataTable } from "@/components/data-table";
 import { columns } from "@/components/dashboard/components/appointment/columns";
@@ -37,7 +36,11 @@ export default function AppointmentListPage() {
     fetchAppointments();
   }, []);
 
-  // Loading state (có thể custom skeleton)
+  // Callback xoá appointment khỏi state
+  const handleDeleted = (id: string) => {
+    setAppointments(prev => prev.filter(a => a.appointment_id !== id));
+  };
+
   if (loading) {
     return (
       <div className="py-5">
@@ -50,7 +53,6 @@ export default function AppointmentListPage() {
     );
   }
 
-  // Error state
   if (error) {
     return (
       <div className="py-5">
@@ -60,9 +62,6 @@ export default function AppointmentListPage() {
       </div>
     );
   }
-
-  // Lấy user fullName nếu muốn (bằng context hoặc prop, tuỳ project)
-  const fullName = ""; // TODO: Lấy fullName nếu cần
 
   return (
     <div>
@@ -78,16 +77,18 @@ export default function AppointmentListPage() {
               Theo dõi cuộc hẹn
             </h1>
             <p className="text-muted-foreground">
-              Được giám sát bởi - {fullName || "Quản trị viên"}
+              Được giám sát bởi - Quản trị viên
             </p>
           </div>
-
           <Card>
             <CardHeader>
               <CardTitle>Các cuộc hẹn</CardTitle>
             </CardHeader>
             <CardContent>
-              <DataTable columns={columns} data={appointments} />
+              <DataTable
+                columns={columns({ onDeleted: handleDeleted })}
+                data={appointments}
+              />
             </CardContent>
           </Card>
         </div>
