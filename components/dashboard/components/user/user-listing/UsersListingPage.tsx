@@ -8,6 +8,7 @@ import { columns } from "./columns";
 import { getAllUsers } from "@/app/api/dashboard/user/action";
 import { PaginationDashboard } from "@/components/dashboard/PaginationDashboard";
 import { setSearchQueryForHighlight } from "./columns";
+
 const UsersListingPage = () => {
   const [allUsers, setAllUsers] = useState<User[]>([]);
   const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
@@ -16,31 +17,44 @@ const UsersListingPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
-  useEffect(() => {
-    getAllUsers()
-      .then((data) => {
-        setAllUsers(data);
-        setFilteredUsers(data);
-      })
-      .catch((err) => console.error("Lỗi khi tải dữ liệu người dùng", err));
-  }, []);
-
-  // Lọc theo search + role mỗi khi searchQuery hoặc selectedRole thay đổi
-  useEffect(() => {
-    setSearchQueryForHighlight(searchQuery);
-    const lowerQuery = searchQuery.toLowerCase();
-    const filtered = allUsers.filter((user) => {
-      const matchRole = selectedRole === "*" || user.role === selectedRole;
+  // ✅ Gộp logic lọc lại cho dễ tái sử dụng
+  const filterUsers = (users: User[], query: string, role: string) => {
+    const lowerQuery = query.toLowerCase();
+    return users.filter((user) => {
+      const matchRole = role === "*" || user.role === role;
       const matchQuery =
         user.email.toLowerCase().includes(lowerQuery) ||
         user.full_name.toLowerCase().includes(lowerQuery);
       return matchRole && matchQuery;
     });
-    setFilteredUsers(filtered);
-    setCurrentPage(1); // reset về trang đầu
-  }, [searchQuery, selectedRole, allUsers]);
+  };
 
-  // const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
+  const refreshUsers = async () => {
+    try {
+      const data = await getAllUsers();
+      setAllUsers(data);
+    } catch (err) {
+      console.error("Lỗi khi làm mới danh sách người dùng", err);
+    }
+  };
+
+  useEffect(() => {
+    refreshUsers(); // load lần đầu
+  }, []);
+
+  // ✅ Khi search hoặc filter role → reset về trang đầu
+  useEffect(() => {
+    setSearchQueryForHighlight(searchQuery);
+    const result = filterUsers(allUsers, searchQuery, selectedRole);
+    setFilteredUsers(result);
+    setCurrentPage(1);
+  }, [searchQuery, selectedRole]);
+
+  // ✅ Khi allUsers thay đổi → lọc lại theo filter hiện tại, nhưng không reset page
+  useEffect(() => {
+    const result = filterUsers(allUsers, searchQuery, selectedRole);
+    setFilteredUsers(result);
+  }, [allUsers]);
 
   const currentData = filteredUsers.slice(
     (currentPage - 1) * itemsPerPage,
@@ -55,7 +69,7 @@ const UsersListingPage = () => {
           onRoleChange={(role) => setSelectedRole(role)}
         />
         <DataTable
-          columns={columns}
+          columns={columns(refreshUsers)}
           data={currentData}
           pageIndex={currentPage - 1}
           pageSize={itemsPerPage}

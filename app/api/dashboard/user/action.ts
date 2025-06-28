@@ -20,7 +20,8 @@ export async function getAllUsers(): Promise<User[]> {
     },
     cache: "no-store",
   });
-
+  // console.log("BE", res);
+  
   if (!res.ok) {
     const error = await res.json();
     throw new Error(error?.message || "Lỗi khi lấy danh sách người dùng");
