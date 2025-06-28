@@ -3,10 +3,32 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "@/components/ui/badge";
 import { ServicesListType } from "@/types/ServiceType/StaffRoleType";
-import { Home, Hospital, Trash2, Edit } from "lucide-react";
+import { Home, Hospital, Trash2, Edit, ArrowUpDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 // import { toast } from "sonner";
 import { notify } from "@/lib/toastNotify";
+
+// 🔸 Lưu trữ query tìm kiếm để highlight
+let currentSearchQuery = "";
+
+export function setSearchQueryForHighlight(query: string) {
+  currentSearchQuery = query.trim().toLowerCase();
+}
+
+function highlight(text: string): React.ReactNode {
+  if (!currentSearchQuery) return text;
+  const regex = new RegExp(`(${currentSearchQuery})`, "gi");
+  const parts = text.split(regex);
+  return parts.map((part, index) =>
+    regex.test(part) ? (
+      <span key={index} className="bg-yellow-200 font-semibold">
+        {part}
+      </span>
+    ) : (
+      part
+    )
+  );
+}
 
 const getTypeBadgeVariant = (type: string) => {
   switch (type) {
@@ -22,17 +44,44 @@ const getTypeBadgeVariant = (type: string) => {
 export const columns: ColumnDef<ServicesListType>[] = [
   {
     accessorKey: "name",
-    header: "Tên dịch vụ",
-    cell: ({ row }) => <div>{row.original.name || "Không có"}</div>,
+    header: ({ column }) => (
+      <Button
+        variant="ghost"
+        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        className="p-0 m-0 w-full justify-start"
+      >
+        Tên dịch vụ
+        <ArrowUpDown className="ml-2 h-4 w-4" />
+      </Button>
+    ),
+    cell: ({ row }) => <div>{highlight(row.original.name)}</div>,
   },
   {
     accessorKey: "description",
-    header: "Mô tả dịch vụ",
+    header: ({ column }) => (
+      <Button
+        variant="ghost"
+        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        className="p-0 m-0 w-full justify-start"
+      >
+        Mô tả dịch vụ
+        <ArrowUpDown className="ml-2 h-4 w-4" />
+      </Button>
+    ),
     cell: ({ row }) => <div>{row.original.description || "Không có"}</div>,
   },
   {
     accessorKey: "price",
-    header: "Giá dịch vụ",
+    header: ({ column }) => (
+      <Button
+        variant="ghost"
+        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        className="p-0 m-0 w-full justify-start"
+      >
+        Giá dịch vụ
+        <ArrowUpDown className="ml-2 h-4 w-4" />
+      </Button>
+    ),
     cell: ({ row }) => (
       <div>
         {row.original.price
@@ -47,12 +96,32 @@ export const columns: ColumnDef<ServicesListType>[] = [
   },
   {
     accessorKey: "category",
-    header: "Danh mục dịch vụ",
-    cell: ({ row }) => <div>{row.original.category || "Không có"}</div>,
+    header: ({ column }) => (
+      <Button
+        variant="ghost"
+        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        className="p-0 m-0 w-full justify-start"
+      >
+        Danh mục dịch vụ
+        <ArrowUpDown className="ml-2 h-4 w-4" />
+      </Button>
+    ),
+    cell: ({ row }) => (
+      <div>{highlight(row.original.category) || "Không có"}</div>
+    ),
   },
   {
     accessorKey: "type",
-    header: "Loại dịch vụ",
+    header: ({ column }) => (
+      <Button
+        variant="ghost"
+        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        className="p-0 m-0 w-full justify-start"
+      >
+        Loại dịch vụ
+        <ArrowUpDown className="ml-2 h-4 w-4" />
+      </Button>
+    ),
     cell: ({ row }) => {
       const type = row.original.type || "Không xác định";
       return (
@@ -68,12 +137,30 @@ export const columns: ColumnDef<ServicesListType>[] = [
   },
   {
     accessorKey: "daily_capacity",
-    header: "Số lượng tối đa mỗi ngày",
+    header: ({ column }) => (
+      <Button
+        variant="ghost"
+        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        className="p-0 m-0 w-full justify-start"
+      >
+        Số lượng tối đa mỗi ngày
+        <ArrowUpDown className="ml-2 h-4 w-4" />
+      </Button>
+    ),
     cell: ({ row }) => <div>{row.original.daily_capacity ?? "Không có"}</div>,
   },
   {
     accessorKey: "available_modes",
-    header: "Hình thức dịch vụ",
+    header: ({ column }) => (
+      <Button
+        variant="ghost"
+        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        className="p-0 m-0 w-full justify-start"
+      >
+        Hình thức dịch vụ
+        <ArrowUpDown className="ml-2 h-4 w-4" />
+      </Button>
+    ),
     size: 250,
     cell: ({ row }) => {
       const available_modes = Array.isArray(row.original.available_modes)
@@ -117,17 +204,16 @@ export const columns: ColumnDef<ServicesListType>[] = [
               credentials: "include",
             });
             if (res.ok) {
-              notify("success","Dịch vụ đã được xóa thành công!");
+              notify("success", "Dịch vụ đã được xóa thành công!");
               const updated = table.options.data.filter(
                 (s) => s.service_id !== service.service_id
               );
               meta?.onUpdateServices?.(updated);
             } else {
-              // const errorData = await res.json();
               notify("error", "Không thể xóa dịch vụ.");
             }
           } catch {
-            notify("error","Lỗi mạng. Vui lòng thử lại.");
+            notify("error", "Lỗi mạng. Vui lòng thử lại.");
           }
         }
       };
