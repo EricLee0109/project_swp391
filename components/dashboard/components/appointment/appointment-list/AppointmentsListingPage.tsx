@@ -61,6 +61,15 @@ const AppointmentListingPage = () => {
     setAllAppointment((prev) => prev.filter((a) => a.appointment_id !== id));
   };
 
+  const handleUpdated = (updated: AppointmentListType) => {
+  setAllAppointment((prev) =>
+    prev.map((item) =>
+      item.appointment_id === updated.appointment_id ? { ...item, ...updated } : item
+    )
+  );
+};
+
+
   const currentData = filteredAppointment.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
@@ -76,7 +85,7 @@ const AppointmentListingPage = () => {
           onTypeChange={(type) => setSelectedType(type)}
         />
         <DataTable
-          columns={columns({ onDeleted: handleDeleted })}
+          columns={columns({ onDeleted: handleDeleted, onUpdated: handleUpdated })}
           data={currentData}
           pageIndex={currentPage - 1}
           pageSize={itemsPerPage}

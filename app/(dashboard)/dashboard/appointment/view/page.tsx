@@ -41,6 +41,15 @@ export default function AppointmentListPage() {
     setAppointments((prev) => prev.filter((a) => a.appointment_id !== id));
   };
 
+  const handleUpdated = (updated: AppointmentListType) => {
+    setAppointments((prev) =>
+      prev.map((item) =>
+        item.appointment_id === updated.appointment_id ? { ...item, ...updated } : item
+      )
+    );
+  };
+
+
   if (loading) {
     return (
       <div className="py-5">
@@ -86,7 +95,7 @@ export default function AppointmentListPage() {
             </CardHeader>
             <CardContent>
               <DataTable
-                columns={columns({ onDeleted: handleDeleted })}
+                columns={columns({ onDeleted: handleDeleted, onUpdated: handleUpdated })}
                 data={appointments}
               />
             </CardContent>

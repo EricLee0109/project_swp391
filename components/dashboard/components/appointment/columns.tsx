@@ -2,19 +2,13 @@ import { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
 import { Badge } from "@/components/ui/badge";
 import { AppointmentListType } from "@/types/ServiceType/StaffRoleType";
-import {
-  getStatusBadgeVariant,
-  getTypeBadgeVariant,
-  statusMap,
-} from "./helpers";
+import { getStatusBadgeVariant, getStatusPaymentBadgeVariant, getTypeBadgeVariant, statusMap, statusPaymentMap } from "./helpers";
 import CellActions from "./CellActions";
 
 // Định nghĩa function columns nhận props
-export function columns({
-  onDeleted,
-}: {
-  onDeleted: (id: string) => void;
-}): ColumnDef<AppointmentListType>[] {
+export function columns({ onDeleted, onUpdated }: { 
+  onDeleted: (id: string) => void ,  
+  onUpdated: (appointment: AppointmentListType) => void}): ColumnDef<AppointmentListType>[] {
   return [
     {
       accessorKey: "user.full_name",
@@ -27,8 +21,7 @@ export function columns({
     {
       accessorKey: "start_time",
       header: "Thời gian hẹn",
-      cell: ({ row }) =>
-        format(new Date(row.original.start_time), "dd/MM/yyyy, HH:mm"),
+      cell: ({ row }) => format(new Date(row.original.start_time), "dd/MM/yyyy, HH:mm"),
     },
     {
       accessorKey: "type",
@@ -48,13 +41,20 @@ export function columns({
         </Badge>
       ),
     },
+        {
+      accessorKey: "payment_status",
+      header: "Thanh toán",
+      cell: ({ row }) => (
+        <Badge variant={getStatusPaymentBadgeVariant(row.original.payment_status)}>
+          {statusPaymentMap[row.original.payment_status]}
+        </Badge>
+      ),
+    },
     {
       accessorKey: "mode",
       header: "Hình thức",
       cell: ({ row }) => (
-        <Badge
-          variant={row.original.mode === "AT_HOME" ? "default" : "secondary"}
-        >
+        <Badge variant={row.original.mode === "AT_HOME" ? "default" : "secondary"}>
           {row.original.mode === "AT_HOME" ? "Tại nhà" : "Tại phòng khám"}
         </Badge>
       ),
@@ -62,9 +62,7 @@ export function columns({
     {
       id: "actions",
       header: "Thao tác",
-      cell: ({ row }) => (
-        <CellActions appointment={row.original} onDeleted={onDeleted} />
-      ),
+      cell: ({ row }) => <CellActions appointment={row.original} onDeleted={onDeleted}   onUpdated={onUpdated}/>,
     },
   ];
 }
