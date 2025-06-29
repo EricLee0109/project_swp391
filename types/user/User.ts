@@ -43,4 +43,13 @@ export interface ConsultantProfile {
   created_at: string;
   updated_at: string;
   deleted_at: string | null;
+  user: ConsultantUser;
+}
+export interface ConsultantUser { 
+  user_id: string;
+  email: string;
+  full_name: string;
+  role: string;
+  is_verified: boolean;
+  is_active: boolean;
 }
