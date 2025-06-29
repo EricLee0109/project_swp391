@@ -69,7 +69,7 @@ export default async function Nav() {
                 Bài đăng
               </NavigationMenuLink>
             </NavigationMenuItem>
-
+           
             <NavigationMenuItem>
               <NavigationMenuLink
                 href="/sexualHealthServices"
@@ -81,7 +81,17 @@ export default async function Nav() {
                 Dịch vụ y tế
               </NavigationMenuLink>
             </NavigationMenuItem>
-
+              <NavigationMenuItem>
+              <NavigationMenuLink
+                href="/consultant"
+                className={cn(
+                  navigationMenuTriggerStyle(),
+                  "bg-transparent text-white hover:text-white hover:bg-white/20 rounded-none uppercase font-bold"
+                )}
+              >
+                Tư vấn viên 
+              </NavigationMenuLink>
+            </NavigationMenuItem>
             {user && type && (
               <NavigationMenuItem>
                 <NavigationMenuLink
