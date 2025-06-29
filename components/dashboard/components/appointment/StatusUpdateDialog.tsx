@@ -20,6 +20,7 @@ export default function StatusUpdateDialog({
   const [notes, setNotes] = useState('');
   const [loading, setLoading] = useState(false);
 
+  // hàm handleSubmit đã sửa đúng chuẩn
   const handleSubmit = async () => {
     setLoading(true);
     try {
@@ -30,16 +31,20 @@ export default function StatusUpdateDialog({
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data?.error || 'Cập nhật trạng thái thất bại');
+
       notify('success', 'Cập nhật trạng thái thành công');
       setOpen(false);
-      onSuccess?.(data.appointment);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
+      // Callback đúng appointment mới nhất
+      onSuccess?.(data.appointment || { ...appointment, status: selectedStatus });
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       notify('error', err.message);
     } finally {
       setLoading(false);
     }
   };
+
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>

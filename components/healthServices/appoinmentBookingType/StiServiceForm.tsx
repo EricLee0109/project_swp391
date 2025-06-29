@@ -78,7 +78,7 @@ export function StiTestBookingForm({
       } else {
         notify("success", "Đặt lịch xét nghiệm STI thành công!");
       }
-      const checkoutUrl = responseData.data?.paymentLink?.checkoutUrl;
+      const checkoutUrl = responseData.data?.paymentLink;
       if (checkoutUrl) {
       window.location.href = checkoutUrl;
       return; 

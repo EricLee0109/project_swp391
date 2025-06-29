@@ -1,14 +1,81 @@
+"use client";
+import { useEffect, useState } from "react";
 import { DataTable } from "@/components/data-table";
 import { columns } from "@/components/dashboard/components/shipping/columns";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { shippingData } from "@/data/shippings";
-import { authJWT } from "@/lib/auth";
 import Header from "@/components/dashboard/header";
+import { Skeleton } from "@/components/ui/skeleton";
+import { notify } from "@/lib/toastNotify";
+import { AppointmentListType } from "@/types/ServiceType/StaffRoleType";
 
-export default async function ShippingTrackingPage() {
-  const data = shippingData;
-  const userSession = await authJWT();
-  const { fullName } = userSession?.user || {};
+export default function ShippingTrackingPage() {
+  const [appointments, setAppointments] = useState<AppointmentListType[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function fetchAppointments() {
+      try {
+        const res = await fetch("/api/appointments", {
+          credentials: "include",
+        });
+        const apiRes = await res.json();
+        console.log("API response:", apiRes); // Log để kiểm tra dữ liệu
+        if (res.ok) {
+          setAppointments(apiRes.appointments || apiRes.data || []);
+        } else {
+          setError(apiRes?.error || "Không thể tải danh sách cuộc hẹn.");
+          notify("error", apiRes?.error || "Không thể tải danh sách cuộc hẹn.");
+        }
+      } catch (err) {
+        console.error("Fetch error:", err);
+        setError("Lỗi mạng. Vui lòng thử lại.");
+        notify("error", "Lỗi mạng. Vui lòng thử lại.");
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchAppointments();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="py-5">
+        <Card className="p-6">
+          <Skeleton className="h-6 w-1/3 mb-4" />
+          <Skeleton className="h-4 w-full mb-2" />
+          <Skeleton className="h-4 w-full" />
+        </Card>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="py-5">
+        <Card className="p-6">
+          <p className="text-center text-destructive">{error}</p>
+        </Card>
+      </div>
+    );
+  }
+
+  async function handleCreateShipping(appointmentId: string) {
+    try {
+      const res = await fetch(`/api/shipping/appointments/${appointmentId}`, {
+        credentials: "include",
+      });
+      const apiRes = await res.json();
+      console.log("Shipping info:", apiRes); // Log để kiểm tra
+      if (res.ok) {
+        notify("success", "Lấy thông tin vận chuyển thành công.");
+      } else {
+        notify("error", apiRes?.error || "Không thể lấy thông tin vận chuyển.");
+      }
+    } catch {
+      notify("error", "Lỗi mạng. Vui lòng thử lại.");
+    }
+  }
 
   return (
     <div>
@@ -17,24 +84,25 @@ export default async function ShippingTrackingPage() {
         href="/dashboard/shipping/view"
         currentPage="Theo dõi đơn vận chuyển"
       />
-      <div className="container mx-auto py-10">
+      <div className="container mx-auto p-6">
         <div className="ml-4">
           <div className="mb-8">
             <h1 className="text-3xl font-bold tracking-tight">
               Theo dõi đơn vận chuyển
             </h1>
             <p className="text-muted-foreground">
-              Được giám sát bởi - {fullName}.
+              Được giám sát bởi - Quản trị viên
             </p>
           </div>
-
           <Card>
             <CardHeader>
-              <CardTitle>Các đơn vận chuyển</CardTitle>
+              <CardTitle>Các cuộc hẹn liên quan</CardTitle>
             </CardHeader>
             <CardContent>
-              {/* Note: I'm reusing the AppointmentDataTable. You might want to rename it to just "DataTable" to reflect its generic nature. */}
-              <DataTable columns={columns} data={data} />
+              <DataTable
+                columns={columns({ onCreateShipping: handleCreateShipping })}
+                data={appointments}
+              />
             </CardContent>
           </Card>
         </div>
