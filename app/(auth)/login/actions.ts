@@ -18,7 +18,7 @@ export async function githubSignIn() {
 // Sign out function
 export async function signOutAuth() {
   // Use the signOut function from next-auth to log out
-  await signOut({ redirectTo: `${DEFAULT_LOGIN_REDIRECT}login` }); // Redirect to home after sign out
+  await signOut({ redirectTo: DEFAULT_LOGIN_REDIRECT }); // Redirect to home after sign out
 }
 
 // Credentials Login (Email/Password)

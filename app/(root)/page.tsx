@@ -32,32 +32,40 @@ export default async function Home({
 }) {
   const query = (await searchParams).query;
   const userSession = await authJWT();
-  const role = userSession?.user?.role; // Safely get the role
+  const role = userSession?.user.role; // Safely get the role
 
-  if (!userSession) redirect("/login");
+  if (userSession && role !== "Customer") redirect("/dashboard");
 
-  if (
-    role &&
-    (role === RoleTypeEnums.Consultant ||
-      role === RoleTypeEnums.Staff ||
-      role === RoleTypeEnums.Admin)
-  ) {
-    // Define the destination based on the role
-    let destination = "/";
-    switch (role) {
-      case RoleTypeEnums.Consultant:
-        destination = "/dashboard/schedule";
-        break;
-      case RoleTypeEnums.Staff:
-        destination = "/dashboard";
-        break;
-      case RoleTypeEnums.Admin:
-        destination = "/dashboard";
-        break;
-    }
+  // if (
+  //   role &&
+  //   (role === RoleTypeEnums.Consultant ||
+  //     role === RoleTypeEnums.Staff ||
+  //     role === RoleTypeEnums.Admin ||
+  //     role === RoleTypeEnums.Customer ||
+  //     role === RoleTypeEnums.Manager)
+  // ) {
+  //   // Define the destination based on the role
+  //   let destination = "/";
+  //   switch (role) {
+  //     case RoleTypeEnums.Consultant:
+  //       destination = "/consultant/dashboard/schedule";
+  //       break;
+  //     case RoleTypeEnums.Staff:
+  //       destination = "/staff/dashboard";
+  //       break;
+  //     case RoleTypeEnums.Admin:
+  //       destination = "/admin/dashboard";
+  //       break;
+  //     case RoleTypeEnums.Manager:
+  //       destination = "/manager/dashboard";
+  //       break;
+  //     case RoleTypeEnums.Customer:
+  //       destination = "/";
+  //       break;
+  //   }
 
-    redirect(destination);
-  }
+  //   redirect(destination);
+  // }
 
   const posts = [
     {

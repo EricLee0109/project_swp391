@@ -1,7 +1,6 @@
 "use client";
 
 import { useTransition } from "react";
-import { logout } from "@/app/api/auth/actions/logout";
 import { signOut } from "next-auth/react";
 import { notify } from "@/lib/toastNotify";
 import { cn } from "@/lib/utils"; // Nếu dùng Tailwind để hợp nhất className
@@ -21,7 +20,8 @@ export function LogoutButton({
         notify("success", "Đăng xuất thành công!");
 
         if (type === "jwt") {
-          await logout();
+          // await logout();
+          await signOut();
           setTimeout(() => {
             window.location.href = "/";
           }, 1000);
