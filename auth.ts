@@ -41,11 +41,11 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             throw new Error(data.message || "Authentication failed");
           }
 
-          // Return user object that will be stored in the session
+          // Return user object that will be stored in the session (base on data return from back-end api)
           return {
             id: data.user.id,
             email: data.user.email,
-            name: data.user.name,
+            name: data.user.full_name,
             role: data.user.role,
             accessToken: data.accessToken,
             refreshToken: data.refreshToken,
