@@ -9,7 +9,14 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Bell, CircleUser, ClipboardList, DoorOpen, Heart, Settings } from "lucide-react";
+import {
+  Bell,
+  CircleUser,
+  ClipboardList,
+  DoorOpen,
+  Heart,
+  Settings,
+} from "lucide-react";
 import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { LogoutButton } from "../login/LogoutButton";
@@ -19,6 +26,7 @@ type UserType = {
   fullName?: string | null;
   email?: string | null;
   avatar?: string | null;
+  full_name?: string | null;
 };
 
 const navItems = [
@@ -36,7 +44,7 @@ export default function ProfileMenu({
   user: UserType;
   type: "jwt" | "oauth";
 }) {
-  const displayName = user?.fullName || user?.name || "User";
+  const displayName = user?.fullName || user?.name || user.full_name || "User";
   const displayEmail = user?.email || "user@example.com";
   const avatarUrl =
     user?.avatar || `https://ui-avatars.com/api/?name=${displayName}`;
@@ -62,7 +70,10 @@ export default function ProfileMenu({
         <DropdownMenuGroup>
           {navItems.map((item, index) => (
             <DropdownMenuItem key={index} asChild>
-              <Link href={item.href} className="cursor-pointer gap-2 flex items-center">
+              <Link
+                href={item.href}
+                className="cursor-pointer gap-2 flex items-center"
+              >
                 <item.icon className="h-4 w-4" />
                 {item.title}
               </Link>
