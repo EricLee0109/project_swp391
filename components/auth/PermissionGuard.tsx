@@ -43,6 +43,7 @@ const PermissionGuard = ({
     if (session.user.role !== requiredRole) {
       if (session.user.role === "Customer") {
         router.push("/");
+        return;
       }
       const redirectPath =
         fallbackPath || `/${session.user.role.toLowerCase()}/dashboard`;
