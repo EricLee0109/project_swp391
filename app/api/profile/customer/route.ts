@@ -1,20 +1,22 @@
-import { cookies } from "next/headers";
 import jwt from "jsonwebtoken";
 import { NextResponse } from "next/server";
+import { auth } from "@/auth";
 
 const JWT_SECRET = process.env.JWT_SECRET!;
 
 export async function GET() {
-  const cookieStore = await cookies();
-  const token = cookieStore.get("accessToken")?.value;
+  const session = await auth();
 
-  if (!token) {
+  // const cookieStore = await cookies();
+  // const token = cookieStore.get("accessToken")?.value;
+
+  if (!session?.accessToken) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
-  console.log("Token từ cookie:", token);
-  
+  console.log("Token từ cookie:", session.accessToken);
+
   try {
-    const decoded = jwt.verify(token, JWT_SECRET) as {
+    const decoded = jwt.verify(session.accessToken, JWT_SECRET) as {
       user_id: string;
     };
     console.log("User ID từ token:", decoded.user_id);
@@ -22,7 +24,7 @@ export async function GET() {
       `${process.env.BE_BASE_URL}/auth/profile/customer`,
       {
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${session.accessToken}`,
         },
       }
     );

@@ -1,15 +1,16 @@
 "use server";
 
-import { cookies } from "next/headers"; // nếu bạn dùng Next.js app router
 import { BE_BASE_URL } from "@/lib/config";
 import { AppointmentListType } from "@/types/ServiceType/StaffRoleType";
 import { redirect } from "next/navigation";
+import { auth } from "@/auth";
 
 export async function getAllAppointment(): Promise<AppointmentListType[]> {
-  const cookieStore = await cookies();
-  const token = cookieStore.get("accessToken")?.value;
+  const session = await auth();
+  // const cookieStore = await cookies();
+  // const token = cookieStore.get("accessToken")?.value;
 
-  if (!token) {
+  if (!session?.accessToken) {
     redirect("/login");
     // throw new Error("Không tìm thấy token, bạn chưa đăng nhập?");
   }
@@ -18,7 +19,7 @@ export async function getAllAppointment(): Promise<AppointmentListType[]> {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
+      Authorization: `Bearer ${session.accessToken}`,
     },
     cache: "no-store",
   });

@@ -1,11 +1,14 @@
 import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
+import { auth } from "@/auth";
 
 export async function GET() {
-  const cookieStore = await cookies();
-  const accessToken = cookieStore.get("accessToken")?.value;
+  const session = await auth();
+
+  // const cookieStore = await cookies();
+  // const accessToken = cookieStore.get("accessToken")?.value;
   const headers: Record<string, string> = {};
-  if (accessToken) headers["Authorization"] = `Bearer ${accessToken}`;
+  if (session?.accessToken)
+    headers["Authorization"] = `Bearer ${session.accessToken}`;
 
   try {
     const beRes = await fetch(`${process.env.BE_BASE_URL}/schedules`, {
@@ -15,24 +18,33 @@ export async function GET() {
 
     if (!beRes.ok) {
       console.error("Backend response error:", await beRes.text()); // Debug lỗi từ backend
-      return NextResponse.json({ message: "Failed to fetch schedules" }, { status: beRes.status });
+      return NextResponse.json(
+        { message: "Failed to fetch schedules" },
+        { status: beRes.status }
+      );
     }
 
     const data = await beRes.json();
     return NextResponse.json(data, { status: 200 });
   } catch (error) {
     console.error("Fetch error:", error);
-    return NextResponse.json({ message: "Internal server error" }, { status: 500 });
+    return NextResponse.json(
+      { message: "Internal server error" },
+      { status: 500 }
+    );
   }
 }
 
 export async function POST(req: Request) {
-  const cookieStore = await cookies();
-  const accessToken = cookieStore.get("accessToken")?.value;
+  const session = await auth();
+
+  // const cookieStore = await cookies();
+  // const accessToken = cookieStore.get("accessToken")?.value;
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
   };
-  if (accessToken) headers["Authorization"] = `Bearer ${accessToken}`;
+  if (session?.accessToken)
+    headers["Authorization"] = `Bearer ${session.accessToken}`;
 
   try {
     const body = await req.json();
@@ -41,7 +53,9 @@ export async function POST(req: Request) {
     // Validate required fields
     if (!body.start_time || !body.end_time || !body.service_id) {
       return NextResponse.json(
-        { message: "Missing required fields (start_time, end_time, service_id)" },
+        {
+          message: "Missing required fields (start_time, end_time, service_id)",
+        },
         { status: 400 }
       );
     }

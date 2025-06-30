@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
+import { auth } from "@/auth";
 
 export async function PATCH(
   request: Request,
@@ -17,10 +17,12 @@ export async function PATCH(
     }
 
     const body = await request.json();
-    const cookieStore = cookies();
-    const accessToken = (await cookieStore).get("accessToken")?.value;
+    const session = await auth();
 
-    if (!accessToken) {
+    // const cookieStore = cookies();
+    // const accessToken = (await cookieStore).get("accessToken")?.value;
+
+    if (!session?.accessToken) {
       return NextResponse.json(
         { error: "Không tìm thấy token xác thực. Vui lòng đăng nhập lại." },
         { status: 401 }
@@ -29,7 +31,7 @@ export async function PATCH(
 
     const headers: Record<string, string> = {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${accessToken}`,
+      Authorization: `Bearer ${session.accessToken}`,
     };
 
     const beRes = await fetch(

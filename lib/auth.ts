@@ -1,12 +1,14 @@
-import { cookies } from "next/headers";
 import jwt from "jsonwebtoken";
 import { User } from "@/types/ServiceType/HealthServiceType";
+import { auth } from "@/auth";
 
 const JWT_SECRET = process.env.JWT_SECRET!;
 
 export async function authJWT() {
-  const cookieStore = await cookies();
-  const token = cookieStore.get("accessToken")?.value;
+  const authReq = await auth();
+  const token = authReq?.accessToken;
+  // const cookieStore = await cookies();
+  // const token = cookieStore.get("accessToken")?.value;
 
   if (!token) return null;
 

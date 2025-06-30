@@ -17,11 +17,12 @@ import { cn } from "@/lib/utils";
 import { useState, useTransition } from "react";
 import { githubSignIn, googleSignIn } from "@/app/(auth)/login/actions";
 import { useRouter } from "next/navigation";
-import { notify } from "@/lib/toastNotify";
 const loginSchema = z.object({
   email: z.string().email("Email không hợp lệ"),
   password: z.string().min(6, "Mật khẩu ít nhất 6 ký tự"),
 });
+
+import { signIn } from "next-auth/react";
 
 type LoginFormValues = z.infer<typeof loginSchema>;
 
@@ -43,42 +44,68 @@ export function LoginForm({
   const [message, setMessage] = useState("");
   const router = useRouter();
 
-  const handleSubmit = (data: LoginFormValues) => {
+  // const handleSubmit = (data: LoginFormValues) => {
+  //   setMessage("");
+  //   startTransition(async () => {
+  //     try {
+  //       if (loginType === "custom") {
+  //         const res = await fetch("/api/auth/login", {
+  //           method: "POST",
+  //           headers: { "Content-Type": "application/json" },
+  //           body: JSON.stringify(data),
+  //         });
+  //         if (!res.ok) {
+  //           let message = "Đăng nhập thất bại!";
+  //           try {
+  //             const errorData = await res.json();
+  //             message = errorData.message || message;
+  //           } catch (jsonError) {
+  //             // JSON parse failed (res might be 204 or HTML)
+  //             console.log("user 1", data);
+
+  //             console.error(
+  //               "Không parse được JSON từ response lỗi:",
+  //               jsonError
+  //             );
+  //           }
+  //           throw new Error(message);
+  //         }
+  //         notify("success", "Đăng nhập thành công!");
+  //         router.refresh(); // Gọi lại Server Component (Navbar)
+  //         router.push("/"); // Chuyển hướng đến trang dashboard
+  //       }
+  //       // Google & GitHub vẫn giữ nguyên
+  //     } catch (error: unknown) {
+  //       if (error instanceof Error) {
+  //         notify("error", error.message);
+  //       } else {
+  //         notify("error", "Đăng nhập thất bại");
+  //       }
+  //     }
+  //   });
+  // };
+
+  const handleSubmit = async (data: LoginFormValues) => {
+    const { email, password } = data;
     setMessage("");
     startTransition(async () => {
-      try {
-        if (loginType === "custom") {
-          const res = await fetch("/api/auth/login", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(data),
+      if (loginType === "custom") {
+        try {
+          const result = await signIn("credentials", {
+            email,
+            password,
+            redirect: false,
           });
-          if (!res.ok) {
-            let message = "Đăng nhập thất bại!";
-            try {
-              const errorData = await res.json();
-              message = errorData.message || message;
-            } catch (jsonError) {
-              // JSON parse failed (res might be 204 or HTML)
-              console.log("user 1", data);
-
-              console.error(
-                "Không parse được JSON từ response lỗi:",
-                jsonError
-              );
-            }
-            throw new Error(message);
+          if (result?.error) {
+            setMessage("Invalid email or password");
+          } else if (result?.ok) {
+            // Successful login - redirect to dashboard or appropriate page
+            router.push("/dashboard");
+            router.refresh();
           }
-          notify("success", "Đăng nhập thành công!");
-          router.refresh(); // Gọi lại Server Component (Navbar)
-          router.push("/"); // Chuyển hướng đến trang dashboard
-        }
-        // Google & GitHub vẫn giữ nguyên
-      } catch (error: unknown) {
-        if (error instanceof Error) {
-          notify("error", error.message);
-        } else {
-          notify("error", "Đăng nhập thất bại");
+        } catch (error) {
+          console.error("Login error:", error);
+          setMessage("An unexpected error occurred");
         }
       }
     });
@@ -210,7 +237,10 @@ export function LoginForm({
               </div>
               <div className="text-center text-sm">
                 Don&apos;t have an account?{" "}
-                <Link href="/sign-up-otp" className="underline underline-offset-4">
+                <Link
+                  href="/sign-up-otp"
+                  className="underline underline-offset-4"
+                >
                   Sign up
                 </Link>
               </div>

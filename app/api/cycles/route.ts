@@ -1,13 +1,15 @@
 import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
+import { auth } from "@/auth";
 
 export async function GET() {
-  const cookieStore = await cookies();
-  const accessToken = cookieStore.get("accessToken")?.value;
+  const session = await auth();
+
+  // const cookieStore = await cookies();
+  // const accessToken = cookieStore.get("accessToken")?.value;
 
   const headers: Record<string, string> = {};
-  if (accessToken) {
-    headers["Authorization"] = `Bearer ${accessToken}`;
+  if (session?.accessToken) {
+    headers["Authorization"] = `Bearer ${session.accessToken}`;
   }
 
   const beRes = await fetch(`${process.env.BE_BASE_URL}/cycles`, {
@@ -20,14 +22,16 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
-  const cookieStore = await cookies();
-  const accessToken = cookieStore.get("accessToken")?.value;
+  const session = await auth();
+
+  // const cookieStore = await cookies();
+  // const accessToken = cookieStore.get("accessToken")?.value;
 
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
   };
-  if (accessToken) {
-    headers["Authorization"] = `Bearer ${accessToken}`;
+  if (session?.accessToken) {
+    headers["Authorization"] = `Bearer ${session.accessToken}`;
   }
 
   // Đọc body từ FE

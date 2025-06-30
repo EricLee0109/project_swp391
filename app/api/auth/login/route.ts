@@ -29,7 +29,7 @@ export async function POST(req: Request) {
     sameSite: "strict",
     path: "/",
   });
-console.log("Secure cookie:", process.env.NODE_ENV === "production");
+  console.log("Secure cookie:", process.env.NODE_ENV === "production");
 
   response.cookies.set("refreshToken", data.refreshToken, {
     httpOnly: true,

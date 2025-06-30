@@ -1,12 +1,15 @@
 import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
 import { ServicesListType } from "@/types/ServiceType/StaffRoleType";
+import { auth } from "@/auth";
 
 export async function GET() {
-  const cookieStore = await cookies();
-  const accessToken = cookieStore.get("accessToken")?.value;
+  const session = await auth();
+
+  // const cookieStore = await cookies();
+  // const accessToken = cookieStore.get("accessToken")?.value;
   const headers: Record<string, string> = {};
-  if (accessToken) headers["Authorization"] = `Bearer ${accessToken}`;
+  if (session?.accessToken)
+    headers["Authorization"] = `Bearer ${session.accessToken}`;
 
   const beRes = await fetch(`${process.env.BE_BASE_URL}/services`, {
     method: "GET",
@@ -19,9 +22,11 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
-    const cookieStore = await cookies();
-    const accessToken = cookieStore.get("accessToken")?.value;
-    if (!accessToken) {
+    const session = await auth();
+
+    // const cookieStore = await cookies();
+    // const accessToken = cookieStore.get("accessToken")?.value;
+    if (!session?.accessToken) {
       return NextResponse.json(
         { error: "Không tìm thấy token xác thực. Vui lòng đăng nhập lại." },
         { status: 401 }
@@ -48,7 +53,7 @@ export async function POST(request: Request) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars
       filter: function (arg0: (s: any) => boolean): ServicesListType[] {
         throw new Error("Function not implemented.");
-      }
+      },
     };
 
     // Gửi request đến backend
@@ -57,7 +62,7 @@ export async function POST(request: Request) {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${accessToken}`,
+        Authorization: `Bearer ${session.accessToken}`,
       },
       body: JSON.stringify(newService),
     });
