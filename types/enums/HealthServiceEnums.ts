@@ -21,6 +21,7 @@ export enum RoleTypeEnums {
   Consultant = "Consultant",
   Staff = "Staff",
   Admin = "Admin",
+  Manager = "Manager",
 }
 
 export type RoleTypeEnum = keyof typeof RoleTypeEnums;

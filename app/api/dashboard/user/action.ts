@@ -1,14 +1,16 @@
-'use server';
+"use server";
 
-import { cookies } from "next/headers"; // nếu bạn dùng Next.js app router
 import { BE_BASE_URL } from "@/lib/config";
 import { User } from "@/types/user/User";
+import { auth } from "@/auth";
 
 export async function getAllUsers(): Promise<User[]> {
-  const cookieStore = await cookies();
-  const token = cookieStore.get("accessToken")?.value;
-  
-  if (!token) {
+  const session = await auth();
+
+  // const cookieStore = await cookies();
+  // const token = cookieStore.get("accessToken")?.value;
+
+  if (!session?.accessToken) {
     throw new Error("Không tìm thấy token, bạn chưa đăng nhập?");
   }
 
@@ -16,12 +18,12 @@ export async function getAllUsers(): Promise<User[]> {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
+      Authorization: `Bearer ${session.accessToken}`,
     },
     cache: "no-store",
   });
   // console.log("BE", res);
-  
+
   if (!res.ok) {
     const error = await res.json();
     throw new Error(error?.message || "Lỗi khi lấy danh sách người dùng");

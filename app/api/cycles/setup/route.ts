@@ -1,7 +1,7 @@
 // app/api/cycles/setup/route.ts
 
 import { NextResponse } from "next/server";
-import { cookies } from "next/headers"; // Để đọc cookie ở API route
+import { auth } from "@/auth";
 
 export async function POST(req: Request) {
   try {
@@ -9,15 +9,17 @@ export async function POST(req: Request) {
     const data = await req.json();
 
     // 2. Lấy accessToken từ cookie
-    const cookieStore = await cookies();
-    const accessToken = cookieStore.get("accessToken")?.value;
+    const session = await auth();
+
+    // const cookieStore = await cookies();
+    // const accessToken = cookieStore.get("accessToken")?.value;
 
     // 3. Chuẩn bị headers
     const headers: Record<string, string> = {
       "Content-Type": "application/json",
     };
-    if (accessToken) {
-      headers["Authorization"] = `Bearer ${accessToken}`;
+    if (session?.accessToken) {
+      headers["Authorization"] = `Bearer ${session.accessToken}`;
     }
 
     // 4. Gửi request đến backend

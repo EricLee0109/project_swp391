@@ -1,10 +1,12 @@
 // app/api/auth/actions/logout.ts
-"use server"
+"use server";
 
-import { cookies } from "next/headers"
+import { signOut } from "@/auth";
 
 export async function logout() {
-  const cookieStore = await cookies()
-  cookieStore.delete("accessToken")
-  cookieStore.delete("refreshToken")
+  // const cookieStore = await cookies();
+
+  // cookieStore.delete("accessToken");
+  // cookieStore.delete("refreshToken");
+  signOut({ redirectTo: "/" });
 }

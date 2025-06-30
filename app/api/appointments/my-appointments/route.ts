@@ -1,15 +1,16 @@
 import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
-import { authJWT } from "@/lib/auth";
+import { auth } from "@/auth";
 
 export async function GET() {
   try {
     // Get accessToken from cookies
-    const cookieStore = await cookies();
-    const accessToken = cookieStore.get("accessToken")?.value;
+    const session = await auth();
+
+    // const cookieStore = await cookies();
+    // const accessToken = cookieStore.get("accessToken")?.value;
 
     // Check if accessToken is present
-    if (!accessToken) {
+    if (!session?.accessToken) {
       return NextResponse.json(
         { error: "Không tìm thấy token xác thực. Vui lòng đăng nhập lại." },
         { status: 401 }
@@ -17,10 +18,12 @@ export async function GET() {
     }
 
     // Kiểm tra xác thực bằng authJWT
-    const session = await authJWT();
+    // const session = await authJWT();
     if (!session?.user) {
       return NextResponse.json(
-        { error: "Không tìm thấy thông tin người dùng. Vui lòng đăng nhập lại." },
+        {
+          error: "Không tìm thấy thông tin người dùng. Vui lòng đăng nhập lại.",
+        },
         { status: 401 }
       );
     }
@@ -31,25 +34,33 @@ export async function GET() {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${accessToken}`,
+        Authorization: `Bearer ${session.accessToken}`,
       },
     });
 
     if (!beRes.ok) {
       if (beRes.status === 401) {
         return NextResponse.json(
-          { error: "Token xác thực không hợp lệ hoặc đã hết hạn. Vui lòng đăng nhập lại." },
+          {
+            error:
+              "Token xác thực không hợp lệ hoặc đã hết hạn. Vui lòng đăng nhập lại.",
+          },
           { status: 401 }
         );
       }
       const errorBody = await beRes.text();
-      throw new Error(`Backend trả về lỗi với mã trạng thái ${beRes.status}: ${errorBody}`);
+      throw new Error(
+        `Backend trả về lỗi với mã trạng thái ${beRes.status}: ${errorBody}`
+      );
     }
 
     const responseData = await beRes.json();
 
     return NextResponse.json(
-      { message: "Lấy danh sách lịch hẹn thành công", appointments: responseData.appointments },
+      {
+        message: "Lấy danh sách lịch hẹn thành công",
+        appointments: responseData.appointments,
+      },
       { status: 200 }
     );
   } catch (error) {

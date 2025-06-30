@@ -1,7 +1,7 @@
 "use server";
 
-import { cookies } from "next/headers";
 import { BE_BASE_URL } from "@/lib/config";
+import { auth } from "@/auth";
 
 interface ChangeUserRolePayload {
   userId: string;
@@ -13,10 +13,11 @@ export async function changeUserRole({
   newRole,
 }: ChangeUserRolePayload): Promise<{ success: boolean; message: string }> {
   try {
-    const cookieStore = await cookies();
-    const token = cookieStore.get("accessToken")?.value;
+    const session = await auth();
+    // const cookieStore = await cookies();
+    // const token = cookieStore.get("accessToken")?.value;
 
-    if (!token) {
+    if (!session?.accessToken) {
       return { success: false, message: "Không tìm thấy access token" };
     }
 
@@ -24,7 +25,7 @@ export async function changeUserRole({
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`, // ✅ THÊM TOKEN VÀO ĐÂY
+        Authorization: `Bearer ${session.accessToken}`, // ✅ THÊM TOKEN VÀO ĐÂY
       },
       body: JSON.stringify({ userId, newRole }),
       cache: "no-store",
@@ -33,7 +34,10 @@ export async function changeUserRole({
     const data = await response.json();
 
     if (!response.ok) {
-      return { success: false, message: data.message || "Đổi vai trò thất bại" };
+      return {
+        success: false,
+        message: data.message || "Đổi vai trò thất bại",
+      };
     }
 
     return { success: true, message: data.message || "Đổi vai trò thành công" };

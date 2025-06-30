@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
+import { auth } from "@/auth";
 
 export async function DELETE(
   request: Request,
@@ -15,10 +15,11 @@ export async function DELETE(
         { status: 400 }
       );
     }
+    const session = await auth();
 
-    const cookieStore = cookies();
-    const accessToken = (await cookieStore).get("accessToken")?.value;
-    if (!accessToken) {
+    // const cookieStore = cookies();
+    // const accessToken = (await cookieStore).get("accessToken")?.value;
+    if (!session?.accessToken) {
       return NextResponse.json(
         { error: "Không tìm thấy token xác thực. Vui lòng đăng nhập lại." },
         { status: 401 }
@@ -30,7 +31,7 @@ export async function DELETE(
       {
         method: "DELETE",
         headers: {
-          Authorization: `Bearer ${accessToken}`,
+          Authorization: `Bearer ${session.accessToken}`,
         },
       }
     );

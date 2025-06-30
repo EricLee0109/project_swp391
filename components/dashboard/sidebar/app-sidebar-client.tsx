@@ -1,7 +1,14 @@
 "use client";
 
 import * as React from "react";
-import { ChartPie, CircleUserRound, RectangleEllipsis } from "lucide-react";
+import {
+  ChartPie,
+  LucideHospital,
+  LucideIcon,
+  ShipIcon,
+  TimerIcon,
+  Users,
+} from "lucide-react";
 
 import { NavMain } from "./nav-main";
 
@@ -31,7 +38,8 @@ const defaultUser: User = {
   sub: "fbc86115-b464-41f4-8f31-5d326102d73b",
   created_at: "2024-06-22T07:31:06.000Z",
   updated_at: "2024-06-22T07:31:06.000Z",
-  avatar: "/avatars/shadcn.jpg",
+  avatar:
+    "https://plus.unsplash.com/premium_photo-1681426472026-60d4bf7b69a1?q=80&w=880&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
   phone_number: "0123456789",
   is_active: true,
   is_verified: true,
@@ -41,75 +49,200 @@ interface AppSidebarClientProps extends React.ComponentProps<typeof Sidebar> {
   user: User | null; // User can be null if not logged in
 }
 
+interface SubNavItem {
+  title: string;
+  url: string;
+}
+
+interface NavItem {
+  title: string;
+  url: string;
+  icon?: LucideIcon;
+  isActive?: boolean;
+  items?: SubNavItem[]; // Made optional, but ensure it's explicitly defined or handled where used
+}
+
 export function AppSidebarClient({ user, ...props }: AppSidebarClientProps) {
   const displayUser = user || defaultUser;
 
-  const navMain = [
-    {
-      title: "Tổng quan",
-      url: "/dashboard",
-      icon: ChartPie,
-      isActive: true,
-      items: [
-        {
-          title: "Dashboard",
-          url: "/dashboard", // same as main
-        },
-      ],
-    },
-    {
-      title: "Người dùng",
-      url: "/dashboard/user",
-      icon: CircleUserRound,
-      isActive: true,
-      items: [
-        {
-          title: "Tài khoản",
-          url: "/dashboard/user",
-        },
-        {
-          title: "Nhân viên (Quản lý cuộc hẹn)",
-          url: "/dashboard/appointment/view",
-        },
-        {
-          title: "Nhân viên (Quản lý vận chuyển)",
-          url: "/dashboard/shipping/view",
-        },
-        {
-          title: "Khách hàng",
-          url: "/dashboard/customer",
-        },
-        {
-          title: "Dịch vụ sức khỏe (Services)",
-          url: "/dashboard/healthServices/view",
-        },
-      ],
-    },
-    {
-      title: "Đặt lịch",
-      url: "/dashboard/schedule",
-      icon: CircleUserRound,
-      isActive: true,
-      items: [
-        {
-          title: "Tư vấn viên khách hàng",
-          url: "/dashboard/schedule",
-        },
-      ],
-    },
-    {
-      title: "Khác",
-      url: "#",
-      icon: RectangleEllipsis,
-      items: [
-        {
-          title: "Blog",
-          url: "/blog",
-        },
-      ],
-    },
-  ];
-  console.log(user?.role, "user in sidebar");
+  // Define navigation items for each role
+  const getNavigationByRole = (role: string): NavItem[] => {
+    const baseNavigation: NavItem[] = [
+      {
+        title: "Tổng quan",
+        url: `/${role.toLowerCase()}/dashboard`,
+        icon: ChartPie,
+        isActive: true,
+        items: [
+          {
+            title: "Dashboard",
+            url: `/${role.toLowerCase()}/dashboard`,
+          },
+        ],
+      },
+    ];
+
+    switch (role) {
+      case "Admin":
+        return [
+          ...baseNavigation,
+          {
+            title: "Quản lý người dùng",
+            url: "/admin/dashboard/user",
+            icon: Users,
+            isActive: true,
+            items: [
+              {
+                title: "Danh sách người dùng",
+                url: "/admin/dashboard/user",
+              },
+            ],
+          },
+        ];
+
+      case "Manager":
+        return [
+          ...baseNavigation,
+          {
+            title: "Quản lý nhân viên",
+            url: "/manager/dashboard/healthServices",
+            icon: LucideHospital,
+            isActive: true,
+            items: [
+              {
+                title: "Danh sách các dịch vụ",
+                url: "/manager/dashboard/healthServices/view",
+              },
+            ],
+          },
+        ];
+
+      case "Consultant":
+        return [
+          ...baseNavigation,
+          {
+            title: "Lịch hẹn của tư vấn viên",
+            url: "/consultant/dashboard/schedule",
+            icon: Users,
+            isActive: true,
+            items: [
+              {
+                title: "Lịch hẹn",
+                url: "/consultant/dashboard/schedule",
+              },
+            ],
+          },
+        ];
+
+      case "Staff":
+        return [
+          ...baseNavigation,
+          {
+            title: "Quản lý các cuộc hẹn",
+            url: "/staff/dashboard/appointment",
+            icon: TimerIcon,
+            isActive: true,
+            items: [
+              {
+                title: "Danh sách các cuộc hẹn",
+                url: "/staff/dashboard/appointment/view",
+              },
+            ],
+          },
+          {
+            title: "Quản lý các đơn của khách hàng",
+            url: "/staff/dashboard/shipping",
+            icon: ShipIcon,
+            isActive: true,
+            items: [
+              {
+                title: "Danh sách các đơn của khách hàng",
+                url: "/staff/dashboard/shipping/view",
+              },
+            ],
+          },
+        ];
+      default:
+        return baseNavigation;
+    }
+  };
+
+  // Get navigation items based on user role
+  const navMain = React.useMemo(() => {
+    if (!user || !user.role) {
+      return getNavigationByRole("default");
+    }
+    return getNavigationByRole(user.role);
+  }, [user?.role]);
+
+  console.log("User role in sidebar:", user?.role);
+  console.log("Navigation items:", navMain);
+
+  // const navMain = [
+  //   {
+  //     title: "Tổng quan",
+  //     url: "/dashboard",
+  //     icon: ChartPie,
+  //     isActive: true,
+  //     items: [
+  //       {
+  //         title: "Dashboard",
+  //         url: "/dashboard", // same as main
+  //       },
+  //     ],
+  //   },
+  //   {
+  //     title: "Người dùng",
+  //     url: "/dashboard/user",
+  //     icon: CircleUserRound,
+  //     isActive: true,
+  //     items: [
+  //       {
+  //         title: "Tài khoản",
+  //         url: "/dashboard/user",
+  //       },
+  //       {
+  //         title: "Nhân viên (Quản lý cuộc hẹn)",
+  //         url: "/dashboard/appointment/view",
+  //       },
+  //       {
+  //         title: "Nhân viên (Quản lý vận chuyển)",
+  //         url: "/dashboard/shipping/view",
+  //       },
+  //       {
+  //         title: "Khách hàng",
+  //         url: "/dashboard/customer",
+  //       },
+  //       {
+  //         title: "Dịch vụ sức khỏe (Services)",
+  //         url: "/dashboard/healthServices/view",
+  //       },
+  //     ],
+  //   },
+  //   {
+  //     title: "Đặt lịch",
+  //     url: "/dashboard/schedule",
+  //     icon: CircleUserRound,
+  //     isActive: true,
+  //     items: [
+  //       {
+  //         title: "Tư vấn viên khách hàng",
+  //         url: "/dashboard/schedule",
+  //       },
+  //     ],
+  //   },
+  //   {
+  //     title: "Khác",
+  //     url: "#",
+  //     icon: RectangleEllipsis,
+  //     items: [
+  //       {
+  //         title: "Blog",
+  //         url: "/blog",
+  //       },
+  //     ],
+  //   },
+  // ];
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>

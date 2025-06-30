@@ -1,14 +1,20 @@
 import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
 import { ServicesListType } from "@/types/ServiceType/StaffRoleType";
+import { auth } from "@/auth";
 
-export async function GET(request: Request, context: { params: Promise<{ serviceId: string }> }) {
+export async function GET(
+  request: Request,
+  context: { params: Promise<{ serviceId: string }> }
+) {
   const params = await context.params; // Await params
   const { serviceId } = params;
-  const cookieStore = await cookies();
-  const accessToken = cookieStore.get("accessToken")?.value;
+  const session = await auth();
+
+  // const cookieStore = await cookies();
+  // const accessToken = cookieStore.get("accessToken")?.value;
   const headers: Record<string, string> = {};
-  if (accessToken) headers["Authorization"] = `Bearer ${accessToken}`;
+  if (session?.accessToken)
+    headers["Authorization"] = `Bearer ${session.accessToken}`;
 
   const url = `${process.env.BE_BASE_URL}/services/${serviceId}`;
   const beRes = await fetch(url, {
@@ -26,13 +32,18 @@ export async function GET(request: Request, context: { params: Promise<{ service
   return NextResponse.json(data, { status: beRes.status });
 }
 
-export async function DELETE(request: Request, context: { params: Promise<{ serviceId: string }> }) {
+export async function DELETE(
+  request: Request,
+  context: { params: Promise<{ serviceId: string }> }
+) {
   try {
     const params = await context.params; // Await params
     const { serviceId } = params;
-    const cookieStore = await cookies();
-    const accessToken = cookieStore.get("accessToken")?.value;
-    if (!accessToken) {
+    const session = await auth();
+
+    // const cookieStore = await cookies();
+    // const accessToken = cookieStore.get("accessToken")?.value;
+    if (!session?.accessToken) {
       return NextResponse.json(
         { error: "Không tìm thấy token xác thực. Vui lòng đăng nhập lại." },
         { status: 401 }
@@ -50,7 +61,7 @@ export async function DELETE(request: Request, context: { params: Promise<{ serv
     const beRes = await fetch(beUrl, {
       method: "DELETE",
       headers: {
-        Authorization: `Bearer ${accessToken}`,
+        Authorization: `Bearer ${session.accessToken}`,
       },
     });
 
@@ -71,13 +82,18 @@ export async function DELETE(request: Request, context: { params: Promise<{ serv
   }
 }
 
-export async function PATCH(request: Request, context: { params: Promise<{ serviceId: string }> }) {
+export async function PATCH(
+  request: Request,
+  context: { params: Promise<{ serviceId: string }> }
+) {
   try {
     const params = await context.params; // Await params
     const { serviceId } = params;
-    const cookieStore = await cookies();
-    const accessToken = cookieStore.get("accessToken")?.value;
-    if (!accessToken) {
+    const session = await auth();
+
+    // const cookieStore = await cookies();
+    // const accessToken = cookieStore.get("accessToken")?.value;
+    if (!session?.accessToken) {
       return NextResponse.json(
         { error: "Không tìm thấy token xác thực. Vui lòng đăng nhập lại." },
         { status: 401 }
@@ -102,7 +118,7 @@ export async function PATCH(request: Request, context: { params: Promise<{ servi
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${accessToken}`,
+        Authorization: `Bearer ${session.accessToken}`,
       },
       body: JSON.stringify(updatedService),
     });

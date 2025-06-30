@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
+import { SessionProvider } from "next-auth/react";
 
 const workSans = localFont({
   src: [
@@ -67,7 +68,7 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <body className={workSans.variable}>
-        {children}
+        <SessionProvider>{children}</SessionProvider>
         <Toaster />
       </body>
     </html>
