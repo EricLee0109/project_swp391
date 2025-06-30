@@ -5,10 +5,10 @@ import Hero from "@/components/home/Hero";
 import MaxWidthWrapper from "@/components/profile/MaxWidthWrapper";
 import SearchForm from "@/components/SearchForm";
 import Footer from "@/components/share/Footer";
-import Nav from "@/components/share/Nav";
+
 import StartupCard from "@/components/StartupCard";
 import { authJWT } from "@/lib/auth";
-import { RoleTypeEnums } from "@/types/enums/HealthServiceEnums";
+
 import { redirect } from "next/navigation";
 
 type StartupCardType = {
@@ -97,11 +97,6 @@ export default async function Home({
 
         <SearchForm query={query} />
       </section>
-
-      <div className="sticky top-0 z-50 w-full border-b bg-background ">
-        <Nav />
-      </div>
-
       <MaxWidthWrapper>
         <section className="section_container">
           <p className="text-30-semibold">

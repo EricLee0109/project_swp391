@@ -85,31 +85,47 @@ export function LoginForm({
   //   });
   // };
 
-  const handleSubmit = async (data: LoginFormValues) => {
-    const { email, password } = data;
-    setMessage("");
-    startTransition(async () => {
-      if (loginType === "custom") {
-        try {
-          const result = await signIn("credentials", {
-            email,
-            password,
-            redirect: false,
-          });
-          if (result?.error) {
-            setMessage("Invalid email or password");
-          } else if (result?.ok) {
-            // Successful login - redirect to dashboard or appropriate page
-            router.push("/dashboard");
-            router.refresh();
+const handleSubmit = async (data: LoginFormValues) => {
+  const { email, password } = data;
+  setMessage("");
+  startTransition(async () => {
+    if (loginType === "custom") {
+      try {
+        const result = await signIn("credentials", {
+          email,
+          password,
+          redirect: false,
+        });
+
+        if (result?.error) {
+          setMessage("Invalid email or password");
+        } else if (result?.ok) {
+          // Gọi session để lấy role
+          const res = await fetch("/api/auth/session");
+          const session = await res.json();
+          const role = session?.user?.role;
+
+          if (!role) {
+            setMessage("Không xác định được vai trò người dùng.");
+            return;
           }
-        } catch (error) {
-          console.error("Login error:", error);
-          setMessage("An unexpected error occurred");
+
+          if (role === "Customer") {
+            router.push("/");
+          } else {
+            router.push("/dashboard");
+          }
+
+          router.refresh(); // Cập nhật dữ liệu layout
         }
+      } catch (error) {
+        console.error("Login error:", error);
+        setMessage("An unexpected error occurred");
       }
-    });
-  };
+    }
+  });
+};
+
 
   const handleGoogleLogin = () => {
     setPendingProvider("google");
