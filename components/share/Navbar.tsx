@@ -28,7 +28,7 @@ export default async function Navbar() {
   }
 
   const profileUser: ProfileUserType = {
-    name: user?.name || "Default user",
+    name: user?.name || "User",
     fullName: user?.fullName || user?.full_name || "Default user",
     email: user?.email || "example@gmail.com",
     avatar: user?.avatar || "/shadcn.png",

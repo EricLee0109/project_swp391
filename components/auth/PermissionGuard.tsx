@@ -41,6 +41,9 @@ const PermissionGuard = ({
 
     // If user doesn't have the required role, redirect to their dashboard
     if (session.user.role !== requiredRole) {
+      if (session.user.role === "Customer") {
+        router.push("/");
+      }
       const redirectPath =
         fallbackPath || `/${session.user.role.toLowerCase()}/dashboard`;
       console.log("Redirecting to:", redirectPath);
