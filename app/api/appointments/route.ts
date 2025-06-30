@@ -21,10 +21,8 @@ export async function POST(request: Request) {
       );
     }
 
-    // Get accessToken from cookies
     const session = await auth();
-    // const cookieStore = await cookies();
-    // const accessToken = cookieStore.get("accessToken")?.value;
+
 
     // Check if accessToken is present
     if (!session?.accessToken) {

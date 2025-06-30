@@ -1,7 +1,8 @@
 "use client";
+
 import { useEffect, useState } from "react";
 import { DataTable } from "@/components/data-table";
-import { columns } from "@/components/dashboard/components/shipping/columns";
+import { columns } from "@/components/dashboard/components/shipping/columns"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Header from "@/components/dashboard/header";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -12,24 +13,22 @@ export default function ShippingTrackingPage() {
   const [appointments, setAppointments] = useState<AppointmentListType[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
+console.log("ShippingTrackingPage render");
   useEffect(() => {
+    console.log("useEffect ShippingTrackingPage called");
     async function fetchAppointments() {
       try {
         const res = await fetch("/api/appointments", {
           credentials: "include",
         });
         const apiRes = await res.json();
-        console.log("API response:", apiRes); // Log để kiểm tra dữ liệu
         if (res.ok) {
           setAppointments(apiRes.appointments || apiRes.data || []);
         } else {
           setError(apiRes?.error || "Không thể tải danh sách cuộc hẹn.");
           notify("error", apiRes?.error || "Không thể tải danh sách cuộc hẹn.");
         }
-      } catch (err) {
-        console.error("Fetch error:", err);
-        setError("Lỗi mạng. Vui lòng thử lại.");
+      } catch {
         notify("error", "Lỗi mạng. Vui lòng thử lại.");
       } finally {
         setLoading(false);
@@ -37,6 +36,30 @@ export default function ShippingTrackingPage() {
     }
     fetchAppointments();
   }, []);
+
+  async function handleCreateShipping(appointmentId: string) {
+    try {
+      const res = await fetch(`/api/shipping/appointments/${appointmentId}`, {
+        credentials: "include",
+      });
+      const apiRes = await res.json();
+      if (res.ok) {
+        notify("success", "Lấy thông tin vận chuyển thành công.");
+      } else {
+        notify("error", apiRes?.error || "Không thể lấy thông tin vận chuyển.");
+      }
+    } catch {
+      notify("error", "Lỗi mạng. Vui lòng thử lại.");
+    }
+  }
+
+  // GỌI HÀM columns để lấy mảng trước khi truyền
+const cols = columns({ onCreateShipping: handleCreateShipping });
+
+console.log("Columns:", cols);
+console.log("Is Array?", Array.isArray(cols));
+
+  console.log("Columns type:", typeof cols, Array.isArray(cols));
 
   if (loading) {
     return (
@@ -60,23 +83,6 @@ export default function ShippingTrackingPage() {
     );
   }
 
-  async function handleCreateShipping(appointmentId: string) {
-    try {
-      const res = await fetch(`/api/shipping/appointments/${appointmentId}`, {
-        credentials: "include",
-      });
-      const apiRes = await res.json();
-      console.log("Shipping info:", apiRes); // Log để kiểm tra
-      if (res.ok) {
-        notify("success", "Lấy thông tin vận chuyển thành công.");
-      } else {
-        notify("error", apiRes?.error || "Không thể lấy thông tin vận chuyển.");
-      }
-    } catch {
-      notify("error", "Lỗi mạng. Vui lòng thử lại.");
-    }
-  }
-
   return (
     <div>
       <Header
@@ -87,22 +93,16 @@ export default function ShippingTrackingPage() {
       <div className="container mx-auto p-6">
         <div className="ml-4">
           <div className="mb-8">
-            <h1 className="text-3xl font-bold tracking-tight">
-              Theo dõi đơn vận chuyển
-            </h1>
-            <p className="text-muted-foreground">
-              Được giám sát bởi - Quản trị viên
-            </p>
+            <h1 className="text-3xl font-bold tracking-tight">Theo dõi đơn vận chuyển</h1>
+            <p className="text-muted-foreground">Được giám sát bởi - Quản trị viên</p>
           </div>
           <Card>
             <CardHeader>
               <CardTitle>Các cuộc hẹn liên quan</CardTitle>
             </CardHeader>
             <CardContent>
-              <DataTable
-                columns={columns({ onCreateShipping: handleCreateShipping })}
-                data={appointments}
-              />
+           <DataTable columns={cols} data={appointments} />
+
             </CardContent>
           </Card>
         </div>
