@@ -173,7 +173,7 @@ export function AppSidebarClient({ user, ...props }: AppSidebarClientProps) {
       return getNavigationByRole("default");
     }
     return getNavigationByRole(user.role);
-  }, [user?.role]);
+  }, [user]);
 
   console.log("User role in sidebar:", user?.role);
   console.log("Navigation items:", navMain);

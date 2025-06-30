@@ -7,9 +7,14 @@ import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 
-export default async function DetailPage({ params }: { params: { id: string } }) {
+interface DetailPageProps {
+  params: Promise<{ id: string }>;
+}
+
+export default async function DetailPage({ params }: DetailPageProps) {
+  const consultantId = (await params).id;
   const consultant: ConsultantProfile | undefined = mockConsultants.find(
-    (c) => c.consultant_id === params.id
+    (c) => c.consultant_id === consultantId
   );
 
   if (!consultant) return notFound();
@@ -31,7 +36,9 @@ export default async function DetailPage({ params }: { params: { id: string } })
           {/* RIGHT: Info */}
           <Card className="rounded-none md:rounded-r-xl p-6 flex flex-col justify-between shadow-none border-l md:border-l">
             <div className="space-y-3">
-              <h2 className="text-2xl font-semibold">{consultant.user.full_name}</h2>
+              <h2 className="text-2xl font-semibold">
+                {consultant.user.full_name}
+              </h2>
 
               <div className="flex flex-wrap gap-2">
                 <span className="font-medium">Chuyên môn:</span>
@@ -49,12 +56,15 @@ export default async function DetailPage({ params }: { params: { id: string } })
                 </p>
                 <p>
                   Trạng thái:{" "}
-                  {consultant.is_verified ? "✅ Đã xác minh" : "⚠️ Chưa xác minh"}
+                  {consultant.is_verified
+                    ? "✅ Đã xác minh"
+                    : "⚠️ Chưa xác minh"}
                 </p>
               </div>
 
               <div className="border-t border-gray-700 mt-4 pt-4 text-sm text-muted-foreground">
-                Mô tả về tư vấn viên này. Bạn có thể đặt lịch tư vấn bằng nút bên dưới.
+                Mô tả về tư vấn viên này. Bạn có thể đặt lịch tư vấn bằng nút
+                bên dưới.
               </div>
             </div>
 
