@@ -1,4 +1,3 @@
-import { cookies } from "next/headers";
 import SchuldesPageClient from "./SchuldesPageClient";
 import { auth } from "@/auth";
 
