@@ -1,4 +1,3 @@
-
 import ConsultantPage from "@/components/consultant-page/ConsultantPage";
 import MaxWidthWrapper from "@/components/profile/MaxWidthWrapper";
 

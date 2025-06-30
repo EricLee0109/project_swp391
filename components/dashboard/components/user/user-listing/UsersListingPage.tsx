@@ -48,13 +48,13 @@ const UsersListingPage = () => {
     const result = filterUsers(allUsers, searchQuery, selectedRole);
     setFilteredUsers(result);
     setCurrentPage(1);
-  }, [searchQuery, selectedRole]);
+  }, [allUsers, searchQuery, selectedRole]);
 
   // ✅ Khi allUsers thay đổi → lọc lại theo filter hiện tại, nhưng không reset page
   useEffect(() => {
     const result = filterUsers(allUsers, searchQuery, selectedRole);
     setFilteredUsers(result);
-  }, [allUsers]);
+  }, [allUsers, searchQuery, selectedRole]);
 
   const currentData = filteredUsers.slice(
     (currentPage - 1) * itemsPerPage,
