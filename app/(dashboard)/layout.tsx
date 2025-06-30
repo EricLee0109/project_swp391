@@ -1,6 +1,6 @@
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { Toaster } from "@/components/ui/sonner";
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 import { AppSidebar } from "@/components/dashboard/sidebar/app-sidebar";
 import { auth } from "@/auth";
 
