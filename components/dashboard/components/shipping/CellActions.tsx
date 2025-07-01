@@ -1,4 +1,5 @@
 "use client";
+
 import { useState, useEffect } from "react";
 import { MoreHorizontal, TestTube2, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -14,14 +15,15 @@ import { ShippingDetailDialog } from "./ShippingDetailDialog";
 import { AppointmentListType } from "@/types/ServiceType/StaffRoleType";
 import { notify } from "@/lib/toastNotify";
 
+// Export enum và interface để các file khác import được
 export enum ShippingStatus {
-  Pending = "Pending",                  // Chưa tạo đơn GHN
-  Shipped = "Shipped",                  // Đã gửi đơn GHN
-  DeliveredToCustomer = "DeliveredToCustomer", // Đã giao cho khách
-  PickupRequested = "PickupRequested",  // Yêu cầu lấy hàng
-  SampleInTransit = "SampleInTransit",  // Mẫu đang gửi về lab
-  ReturnedToLab = "ReturnedToLab",      // Mẫu đã về lab
-  Failed = "Failed",                    // Thất bại / hủy đơn
+  Pending = "Pending",
+  Shipped = "Shipped",
+  DeliveredToCustomer = "DeliveredToCustomer",
+  PickupRequested = "PickupRequested",
+  SampleInTransit = "SampleInTransit",
+  ReturnedToLab = "ReturnedToLab",
+  Failed = "Failed",
 }
 
 export interface ShippingInfoType {
@@ -56,9 +58,10 @@ export default function CellActions({
   useEffect(() => {
     const fetchShippingDetails = async () => {
       try {
-        const res = await fetch(`/api/shipping/appointments/${appointment.appointment_id}`, {
-          credentials: "include",
-        });
+        const res = await fetch(
+          `/api/shipping/appointments/${appointment.appointment_id}`,
+          { credentials: "include" }
+        );
 
         if (res.ok) {
           const apiRes = await res.json();
@@ -78,16 +81,14 @@ export default function CellActions({
         } else {
           setShippingInfo(null);
         }
-      } catch (error) {
-        console.error("Fetch shipping details error:", error);
+      } catch  {
         notify("error", "Lỗi mạng. Vui lòng thử lại.");
       }
     };
-
     fetchShippingDetails();
   }, [appointment.appointment_id]);
 
-  const shouldShowOptions = appointment.type === "Testing"; // Chỉ hiển thị khi là "Testing"
+  const shouldShowOptions = appointment.type === "Testing";
 
   return (
     <>

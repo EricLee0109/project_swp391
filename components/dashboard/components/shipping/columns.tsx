@@ -1,9 +1,14 @@
 import { ColumnDef } from "@tanstack/react-table";
+import { format } from "date-fns";
 import { Badge } from "@/components/ui/badge";
 import { AppointmentListType } from "@/types/ServiceType/StaffRoleType";
 import CellActions from "./CellActions";
 
-export function columns({ onCreateShipping }: { onCreateShipping: (id: string) => void }): ColumnDef<AppointmentListType>[] {
+export function columns({
+  onCreateShipping,
+}: {
+  onCreateShipping: (id: string) => void;
+}): ColumnDef<AppointmentListType>[] {
   return [
     {
       accessorKey: "user.full_name",
@@ -16,13 +21,19 @@ export function columns({ onCreateShipping }: { onCreateShipping: (id: string) =
     {
       accessorKey: "start_time",
       header: "Thời gian hẹn",
-      cell: ({ row }) => new Date(row.original.start_time).toLocaleString(),
+      cell: ({ row }) => format(new Date(row.original.start_time), "dd/MM/yyyy, HH:mm"),
     },
     {
       accessorKey: "type",
       header: "Loại hẹn",
       cell: ({ row }) => (
-        <Badge className={row.original.type === "Testing" ? "bg-green-100 text-green-800" : "bg-blue-100 text-blue-800"}>
+        <Badge
+          className={
+            row.original.type === "Testing"
+              ? "bg-green-100 text-green-800"
+              : "bg-blue-100 text-blue-800"
+          }
+        >
           {row.original.type === "Testing" ? "Xét nghiệm" : "Tư vấn"}
         </Badge>
       ),
@@ -39,7 +50,9 @@ export function columns({ onCreateShipping }: { onCreateShipping: (id: string) =
     {
       id: "actions",
       header: "Thao tác",
-      cell: ({ row }) => <CellActions appointment={row.original} onCreateShipping={onCreateShipping} />,
+      cell: ({ row }) => (
+        <CellActions appointment={row.original} onCreateShipping={onCreateShipping} />
+      ),
     },
   ];
 }
