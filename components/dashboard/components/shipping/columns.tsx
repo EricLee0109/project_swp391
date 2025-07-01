@@ -2,6 +2,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
 import { Badge } from "@/components/ui/badge";
 import { AppointmentListType } from "@/types/ServiceType/StaffRoleType";
+import { getStatusBadgeVariant, statusMap } from "./helpers";
 import CellActions from "./CellActions";
 
 export function columns({
@@ -42,8 +43,8 @@ export function columns({
       accessorKey: "status",
       header: "Trạng thái",
       cell: ({ row }) => (
-        <Badge variant={row.original.status === "Pending" ? "outline" : "default"}>
-          {row.original.status}
+        <Badge variant={getStatusBadgeVariant(row.original.status)}>
+          {statusMap[row.original.status]}
         </Badge>
       ),
     },

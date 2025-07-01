@@ -98,7 +98,7 @@ export default function CellActions({
             <MoreHorizontal className="h-4 w-4" />
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
+        <DropdownMenuContent align="end" className="bg-white">
           <DropdownMenuLabel>Thao tác</DropdownMenuLabel>
           {shouldShowOptions && (
             <>
