@@ -7,69 +7,48 @@ import Header from "@/components/dashboard/header";
 import { Skeleton } from "@/components/ui/skeleton";
 import { notify } from "@/lib/toastNotify";
 import { AppointmentListType } from "@/types/ServiceType/StaffRoleType";
-import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
 
 export default function AppointmentListPage() {
-  const { data: session, status } = useSession();
-  const router = useRouter();
   const [appointments, setAppointments] = useState<AppointmentListType[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Only fetch if session is loaded and user is authenticated
-    if (status === "authenticated" && session?.accessToken) {
-      async function fetchAppointments() {
-        setLoading(true);
-        setError(null); // Clear previous errors
-        try {
-          // Send the access token in the Authorization header
-          const res = await fetch("/api/appointments", {
-            method: "GET", // Specify method for clarity
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${session?.accessToken}`,
-            },
-            // You typically don't need credentials: "include" for your own API routes when using Authorization header
-            // credentials: "include", // Can remove if not needed for other reasons
-          });
-
-          console.log(session?.accessToken, "res");
-          const apiRes = await res.json();
-
-          if (res.ok) {
-            setAppointments(apiRes.appointments || apiRes.data || []);
-          } else {
-            setError(apiRes?.error || "Không thể tải danh sách cuộc hẹn.");
-            notify(
-              "error",
-              apiRes?.error || "Không thể tải danh sách cuộc hẹn."
-            );
-          }
-        } catch (err) {
-          console.error("Fetch error:", err);
-          setError("Lỗi mạng. Vui lòng thử lại.");
-          notify("error", "Lỗi mạng. Vui lòng thử lại.");
-        } finally {
-          setLoading(false);
+    async function fetchAppointments() {
+      try {
+        const res = await fetch("/api/appointments", {
+          credentials: "include",
+        });
+        const apiRes = await res.json();
+        if (res.ok) {
+          setAppointments(apiRes.appointments || apiRes.data || []);
+        } else {
+          setError(apiRes?.error || "Không thể tải danh sách cuộc hẹn.");
+          notify("error", apiRes?.error || "Không thể tải danh sách cuộc hẹn.");
         }
+      } catch {
+        setError("Lỗi mạng. Vui lòng thử lại.");
+        notify("error", "Lỗi mạng. Vui lòng thử lại.");
+      } finally {
+        setLoading(false);
       }
-      fetchAppointments();
-    } else if (status === "unauthenticated") {
-      setLoading(false);
-      setError("Bạn chưa đăng nhập hoặc phiên đã hết hạn.");
-      notify("error", "Bạn chưa đăng nhập hoặc phiên đã hết hạn.");
-      router.push("/login");
-      // Optionally redirect to login page
-      // router.push("/login");
     }
-    // No need to fetch if status is "loading" - wait for it to be authenticated or unauthenticated
-  }, [status, session?.accessToken, router]);
+    fetchAppointments();
+  }, []);
 
   // Callback xoá appointment khỏi state
   const handleDeleted = (id: string) => {
     setAppointments((prev) => prev.filter((a) => a.appointment_id !== id));
+  };
+
+  const handleUpdated = (updated: AppointmentListType) => {
+    setAppointments((prev) =>
+      prev.map((item) =>
+        item.appointment_id === updated.appointment_id
+          ? { ...item, ...updated }
+          : item
+      )
+    );
   };
 
   if (loading) {
@@ -117,7 +96,10 @@ export default function AppointmentListPage() {
             </CardHeader>
             <CardContent>
               <DataTable
-                columns={columns({ onDeleted: handleDeleted })}
+                columns={columns({
+                  onDeleted: handleDeleted,
+                  onUpdated: handleUpdated,
+                })}
                 data={appointments}
               />
             </CardContent>
