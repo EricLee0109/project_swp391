@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { MoreHorizontal, TestTube2, Info } from "lucide-react";
+import { useState, useEffect, useCallback } from "react";
+import { MoreHorizontal, TestTube2, Info, Edit } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -12,10 +12,10 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { CreateShippingFormDialog } from "./CreateShippingFormDialog";
 import { ShippingDetailDialog } from "./ShippingDetailDialog";
+import { UpdateShippingDialog } from "./UpdateShippingDialog";
 import { AppointmentListType } from "@/types/ServiceType/StaffRoleType";
 import { notify } from "@/lib/toastNotify";
 
-// Export enum và interface để các file khác import được
 export enum ShippingStatus {
   Pending = "Pending",
   Shipped = "Shipped",
@@ -47,46 +47,51 @@ export interface ShippingInfoType {
 export default function CellActions({
   appointment,
   onCreateShipping,
+  onShippingUpdated,
 }: {
   appointment: AppointmentListType;
   onCreateShipping: (id: string) => void;
+  onShippingUpdated: () => void;
 }) {
   const [openCreateDialog, setOpenCreateDialog] = useState(false);
   const [openDetailDialog, setOpenDetailDialog] = useState(false);
+  const [openUpdateDialog, setOpenUpdateDialog] = useState(false);
   const [shippingInfo, setShippingInfo] = useState<ShippingInfoType | null>(null);
 
-  useEffect(() => {
-    const fetchShippingDetails = async () => {
-      try {
-        const res = await fetch(
-          `/api/shipping/appointments/${appointment.appointment_id}`,
-          { credentials: "include" }
-        );
+  const fetchShippingDetails = useCallback(async () => {
+    try {
+      const res = await fetch(
+        `/api/shipping/appointments/${appointment.appointment_id}`,
+        { credentials: "include", cache: "no-store" }
+      );
 
-        if (res.ok) {
-          const apiRes = await res.json();
-          if (apiRes.outbound && apiRes.outbound.id) {
-            const detailRes = await fetch(`/api/shipping/${apiRes.outbound.id}`, {
-              credentials: "include",
-            });
-            const shippingDetail = await detailRes.json();
-            if (detailRes.ok) {
-              setShippingInfo(shippingDetail);
-            } else {
-              setShippingInfo(null);
-            }
+      if (res.ok) {
+        const apiRes = await res.json();
+        if (apiRes.outbound && apiRes.outbound.id) {
+          const detailRes = await fetch(`/api/shipping/${apiRes.outbound.id}`, {
+            credentials: "include",
+            cache: "no-store",
+          });
+          const shippingDetail = await detailRes.json();
+          if (detailRes.ok) {
+            setShippingInfo(shippingDetail);
           } else {
             setShippingInfo(null);
           }
         } else {
           setShippingInfo(null);
         }
-      } catch  {
-        notify("error", "Lỗi mạng. Vui lòng thử lại.");
+      } else {
+        setShippingInfo(null);
       }
-    };
-    fetchShippingDetails();
+    } catch {
+      notify("error", "Lỗi mạng. Vui lòng thử lại.");
+    }
   }, [appointment.appointment_id]);
+
+  useEffect(() => {
+    fetchShippingDetails();
+  }, [fetchShippingDetails]);
 
   const shouldShowOptions = appointment.type === "Testing";
 
@@ -108,6 +113,11 @@ export default function CellActions({
               <DropdownMenuItem onSelect={() => setOpenDetailDialog(true)}>
                 <Info className="mr-2 h-4 w-4" /> Xem chi tiết
               </DropdownMenuItem>
+              {shippingInfo && (
+                <DropdownMenuItem onSelect={() => setOpenUpdateDialog(true)}>
+                  <Edit className="mr-2 h-4 w-4" /> Cập nhật
+                </DropdownMenuItem>
+              )}
             </>
           )}
         </DropdownMenuContent>
@@ -117,7 +127,10 @@ export default function CellActions({
         appointment={appointment}
         open={openCreateDialog}
         setOpen={setOpenCreateDialog}
-        onSuccess={() => onCreateShipping(appointment.appointment_id)}
+        onSuccess={() => {
+          onCreateShipping(appointment.appointment_id);
+          fetchShippingDetails();
+        }}
         shippingInfo={shippingInfo}
       />
 
@@ -125,6 +138,18 @@ export default function CellActions({
         shippingInfo={shippingInfo}
         open={openDetailDialog}
         setOpen={setOpenDetailDialog}
+      />
+
+      <UpdateShippingDialog
+        shippingInfo={shippingInfo}
+        appointmentId={appointment.appointment_id}
+        open={openUpdateDialog}
+        setOpen={setOpenUpdateDialog}
+        onUpdateSuccess={() => {
+          fetchShippingDetails();
+          setOpenUpdateDialog(false);
+          onShippingUpdated();
+        }}
       />
     </>
   );

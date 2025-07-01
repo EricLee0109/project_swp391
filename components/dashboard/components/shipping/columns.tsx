@@ -7,8 +7,10 @@ import CellActions from "./CellActions";
 
 export function columns({
   onCreateShipping,
+  onShippingUpdated,
 }: {
   onCreateShipping: (id: string) => void;
+  onShippingUpdated: () => void;
 }): ColumnDef<AppointmentListType>[] {
   return [
     {
@@ -52,7 +54,11 @@ export function columns({
       id: "actions",
       header: "Thao tác",
       cell: ({ row }) => (
-        <CellActions appointment={row.original} onCreateShipping={onCreateShipping} />
+        <CellActions
+          appointment={row.original}
+          onCreateShipping={onCreateShipping}
+          onShippingUpdated={onShippingUpdated}
+        />
       ),
     },
   ];
