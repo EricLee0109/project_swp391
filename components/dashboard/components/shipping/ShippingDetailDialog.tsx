@@ -67,7 +67,7 @@ export function ShippingDetailDialog({
       icon: "✅",
     },
     [ShippingStatus.PickupRequested]: {
-      label: "Yêu cầu lấy hàng",
+      label: "Yêu cầu trả mẫu",
       color: "bg-purple-100 text-purple-800",
       icon: "📦",
     },

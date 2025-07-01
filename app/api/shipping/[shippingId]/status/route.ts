@@ -3,10 +3,11 @@ import { auth } from "@/auth";
 
 export async function PATCH(
   request: Request,
-  context: { params: { shippingId: string } } // Lấy param tên shippingId đúng với tên folder
+  context: { params: Promise<{ shippingId: string }> }
 ) {
   try {
-    const { shippingId } = context.params;
+    const params = await context.params;
+    const { shippingId } = params;
 
     if (!shippingId) {
       return NextResponse.json({ error: "Thiếu shippingId." }, { status: 400 });
