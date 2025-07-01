@@ -44,12 +44,11 @@ export default function AppointmentListPage() {
   const handleUpdated = (updated: AppointmentListType) => {
     setAppointments((prev) =>
       prev.map((item) =>
-        item.appointment_id === updated.appointment_id
-          ? { ...item, ...updated }
-          : item
+        item.appointment_id === updated.appointment_id ? { ...item, ...updated } : item
       )
     );
   };
+
 
   if (loading) {
     return (
@@ -96,10 +95,7 @@ export default function AppointmentListPage() {
             </CardHeader>
             <CardContent>
               <DataTable
-                columns={columns({
-                  onDeleted: handleDeleted,
-                  onUpdated: handleUpdated,
-                })}
+                columns={columns({ onDeleted: handleDeleted, onUpdated: handleUpdated })}
                 data={appointments}
               />
             </CardContent>
