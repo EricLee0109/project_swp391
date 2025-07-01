@@ -8,6 +8,7 @@ import { CalendarIcon, Home, Hospital, MapPin } from "lucide-react";
 import { formatDateVN } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { shippingStatusMap, paymentStatusMap } from "./helper";
+import { notify } from "@/lib/toastNotify";
 
 interface ApiAppointment {
   appointment_id: string;
@@ -106,16 +107,19 @@ export default function OrderHistory() {
         method: "POST",
         credentials: "include",
       });
-      const data = await res.json();
+      // const data = await res.json();
       if (res.ok) {
         setRequestSuccess(appointmentId);
-        alert("Yêu cầu trả mẫu đã được gửi thành công.");
+        notify("success", "Yêu cầu trả mẫu đã được gửi thành công.")
+        // alert("Yêu cầu trả mẫu đã được gửi thành công.");
         // Có thể reload data hoặc cập nhật trạng thái ở đây nếu cần
       } else {
-        alert(data.error || "Gửi yêu cầu thất bại.");
+        notify("error", "Gửi yêu cầu thất bại.")
+        // alert(data.error || "Gửi yêu cầu thất bại.");
       }
     } catch {
-      alert("Lỗi mạng, vui lòng thử lại.");
+      notify("error", "Lỗi mạng, vui lòng thử lại")
+      // alert("Lỗi mạng, vui lòng thử lại.");
     } finally {
       setRequestLoading(null);
     }

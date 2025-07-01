@@ -77,6 +77,7 @@ export function UpdateShippingDialog({
               Chọn trạng thái
             </option>
             <option value="DeliveredToCustomer">Đã giao cho khách</option>
+            {/* <option value="Shipped">Đang giao</option> */}
             <option value="Failed">Thất bại / hủy đơn</option>
           </select>
         </div>
