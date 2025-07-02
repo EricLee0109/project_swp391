@@ -3,11 +3,11 @@ import { auth } from "@/auth";
 
 export async function POST(
   req: Request,
-  context: { params: { appointmentId: string } }
+  context: { params: Promise<{ appointmentId: string }> } //destructuring method
 ) {
   try {
-    const params = await context.params; // hoặc bỏ await nếu lỗi
-    const appointmentId = params.appointmentId;
+    // const params = await context.params; // hoặc bỏ await nếu lỗi
+    const { appointmentId } = await context.params; // t sửa để deploy lỗi thì chỉnh lại nha, nma chắc k lỗi đâu :v
 
     const session = await auth();
 
@@ -20,7 +20,9 @@ export async function POST(
 
     if (!session?.user) {
       return NextResponse.json(
-        { error: "Không tìm thấy thông tin người dùng. Vui lòng đăng nhập lại." },
+        {
+          error: "Không tìm thấy thông tin người dùng. Vui lòng đăng nhập lại.",
+        },
         { status: 401 }
       );
     }

@@ -3,7 +3,7 @@ import { auth } from "@/auth";
 
 export async function GET(
   req: Request,
-  { params }: { params: { returnId: string } }
+  context: { params: Promise<{ returnId: string }> }
 ) {
   try {
     const session = await auth();
@@ -17,12 +17,14 @@ export async function GET(
 
     if (!session?.user) {
       return NextResponse.json(
-        { error: "Không tìm thấy thông tin người dùng. Vui lòng đăng nhập lại." },
+        {
+          error: "Không tìm thấy thông tin người dùng. Vui lòng đăng nhập lại.",
+        },
         { status: 401 }
       );
     }
 
-    const returnId = params.returnId;
+    const returnId = await context.params;
 
     // Gọi backend lấy chi tiết đơn chiều về
     const url = `${process.env.BE_BASE_URL}/shipping/return/${returnId}`;
