@@ -1,9 +1,8 @@
-"use client";
-
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -14,7 +13,13 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { AppointmentListType } from "@/types/ServiceType/StaffRoleType";
 import { notify } from "@/lib/toastNotify";
 import { createShippingSchema } from "@/types/schemas/FormSchemas";
@@ -27,7 +32,7 @@ interface CreateShippingFormDialogProps {
   open: boolean;
   setOpen: (open: boolean) => void;
   onSuccess: () => void;
-  shippingInfo: ShippingInfoType | null; // Thêm shippingInfo
+  shippingInfo: ShippingInfoType | null; // Thông tin outbound lấy từ API
 }
 
 export function CreateShippingFormDialog({
@@ -42,25 +47,44 @@ export function CreateShippingFormDialog({
   const form = useForm<ShippingFormValues>({
     resolver: zodResolver(createShippingSchema),
     defaultValues: {
-      provider: shippingInfo?.provider || "GHN",
-      contact_name: shippingInfo?.contact_name || appointment.user.full_name || "",
-      contact_phone: shippingInfo?.contact_phone || "",
-      shipping_address: shippingInfo?.shipping_address || "",
-      province: shippingInfo?.province || "",
-      district: shippingInfo?.district || "",
-      ward: shippingInfo?.ward || "",
+      provider: "GHN",
+      contact_name: appointment.user.full_name || "",
+      contact_phone: "",
+      shipping_address: "",
+      province: "",
+      district: "",
+      ward: "",
       appointment_id: appointment.appointment_id,
     },
   });
 
+  // Cập nhật giá trị form khi shippingInfo thay đổi
+  useEffect(() => {
+    if (shippingInfo) {
+      form.reset({
+        provider: shippingInfo.provider || "GHN",
+        contact_name: shippingInfo.contact_name || appointment.user.full_name || "",
+        contact_phone: shippingInfo.contact_phone || "",
+        shipping_address: shippingInfo.shipping_address || "",
+        province: shippingInfo.province || "",
+        district: shippingInfo.district || "",
+        ward: shippingInfo.ward || "",
+        appointment_id: appointment.appointment_id,
+      });
+    }
+  }, [shippingInfo, appointment.appointment_id, appointment.user.full_name, form]);
+
   async function onSubmit(data: ShippingFormValues) {
     try {
-      const response = await fetch(`/api/shipping/appointments/${data.appointment_id}/order-ghn`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({}),
-        credentials: "include",
-      });
+      const response = await fetch(
+        `/api/shipping/appointments/${data.appointment_id}/order-ghn`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({}),
+          credentials: "include",
+        }
+      );
 
       const apiRes = await response.json();
       if (!response.ok) {
@@ -91,7 +115,7 @@ export function CreateShippingFormDialog({
                   <FormItem>
                     <FormLabel>Đơn vị vận chuyển</FormLabel>
                     <FormControl>
-                      <Input placeholder="Giao Hàng Nhanh" {...field} value={field.value || ""} />
+                      <Input {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -103,7 +127,7 @@ export function CreateShippingFormDialog({
                   <FormItem>
                     <FormLabel>Tên người nhận</FormLabel>
                     <FormControl>
-                      <Input placeholder="Nguyen Van A" {...field} value={field.value || ""} />
+                      <Input {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -115,7 +139,7 @@ export function CreateShippingFormDialog({
                   <FormItem>
                     <FormLabel>Số điện thoại</FormLabel>
                     <FormControl>
-                      <Input placeholder="09xxxxxxxx" {...field} value={field.value || ""} />
+                      <Input {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -127,7 +151,7 @@ export function CreateShippingFormDialog({
                   <FormItem>
                     <FormLabel>Địa chỉ giao hàng</FormLabel>
                     <FormControl>
-                      <Input placeholder="123 Đường ABC" {...field} value={field.value || ""} />
+                      <Input {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -139,7 +163,7 @@ export function CreateShippingFormDialog({
                   <FormItem>
                     <FormLabel>Tỉnh/Thành phố</FormLabel>
                     <FormControl>
-                      <Input placeholder="TP. Hồ Chí Minh" {...field} value={field.value || ""} />
+                      <Input {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -151,7 +175,7 @@ export function CreateShippingFormDialog({
                   <FormItem>
                     <FormLabel>Quận/Huyện</FormLabel>
                     <FormControl>
-                      <Input placeholder="Quận 1" {...field} value={field.value || ""} />
+                      <Input {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -163,7 +187,7 @@ export function CreateShippingFormDialog({
                   <FormItem>
                     <FormLabel>Phường/Xã</FormLabel>
                     <FormControl>
-                      <Input placeholder="Phường Bến Nghé" {...field} value={field.value || ""} />
+                      <Input {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -171,7 +195,9 @@ export function CreateShippingFormDialog({
               />
             </div>
             <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => setOpen(false)}>Hủy</Button>
+              <Button type="button" variant="outline" onClick={() => setOpen(false)}>
+                Hủy
+              </Button>
               <Button type="submit">Tạo đơn vận chuyển</Button>
             </DialogFooter>
           </form>
