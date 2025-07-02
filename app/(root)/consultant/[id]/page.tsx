@@ -1,29 +1,33 @@
 import { notFound } from "next/navigation";
 import MaxWidthWrapper from "@/components/profile/MaxWidthWrapper";
-import { mockConsultants } from "@/data/consultants";
 import { Badge } from "@/components/ui/badge";
-import { ConsultantProfile } from "@/types/user/User";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { getAllConsultantProfiles } from "@/app/api/consultant/action";
+import { ConsultantProfile } from "@/types/user/User";
 
 interface DetailPageProps {
-  params: Promise<{ id: string }>;
+  params: { id: string };
 }
 
 export default async function DetailPage({ params }: DetailPageProps) {
-  const consultantId = (await params).id;
-  const consultant: ConsultantProfile | undefined = mockConsultants.find(
+  const consultantId = params.id;
+
+  // ✅ Gọi toàn bộ consultants
+  const consultants = await getAllConsultantProfiles();
+
+  // ✅ Tìm người có id phù hợp
+  const consultant: ConsultantProfile | undefined = consultants?.find(
     (c) => c.consultant_id === consultantId
   );
 
   if (!consultant) return notFound();
 
   return (
-    <main>
+    <main className="h-screen  py-6">
       <MaxWidthWrapper>
         <section className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-background rounded-xl">
-          {/* LEFT: Image */}
           <div className="relative w-full h-[400px]">
             <Image
               src={"/white-placeholder.png"}
@@ -33,7 +37,6 @@ export default async function DetailPage({ params }: DetailPageProps) {
             />
           </div>
 
-          {/* RIGHT: Info */}
           <Card className="rounded-none md:rounded-r-xl p-6 flex flex-col justify-between shadow-none border-l md:border-l">
             <div className="space-y-3">
               <h2 className="text-2xl font-semibold">
@@ -63,8 +66,7 @@ export default async function DetailPage({ params }: DetailPageProps) {
               </div>
 
               <div className="border-t border-gray-700 mt-4 pt-4 text-sm text-muted-foreground">
-                Mô tả về tư vấn viên này. Bạn có thể đặt lịch tư vấn bằng nút
-                bên dưới.
+                Mô tả về tư vấn viên này. Bạn có thể đặt lịch tư vấn bằng nút bên dưới.
               </div>
             </div>
 
