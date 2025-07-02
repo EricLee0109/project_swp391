@@ -1,9 +1,23 @@
 import Blogs from "@/components/blog/Blogs";
 import MaxWidthWrapper from "@/components/profile/MaxWidthWrapper";
 import Breadcrumb from "@/components/share/Breadcrumb";
+import { GETBlog } from "@/types/blog/blog";
 
+async function getBlogs() {
+  const res = await fetch(`${process.env.BE_BASE_URL}/blogs/public`, {
+    method: "GET",
+    next: { revalidate: 3600 }, //caching 1 hour
+  });
+  return res.json();
+}
 
-export default function BlogsPage() {
+export default async function BlogsPage() {
+  const blogsData = await getBlogs();
+  const blogs: GETBlog[] = blogsData.blogs;
+
+  // const blog = Promise.resolve(blogData);
+  console.log(blogs, "blogdataaa");
+
   return (
     <div>
       <Breadcrumb
@@ -12,12 +26,12 @@ export default function BlogsPage() {
           { label: "Bài đăng", href: "/blog" },
         ]}
       />
-       <MaxWidthWrapper>
+      <MaxWidthWrapper>
         <h1 className="text-3xl font-extrabold uppercase text-center py-5">
           Bài đăng
         </h1>
-        <Blogs />
+        <Blogs blogs={blogs} />
       </MaxWidthWrapper>
     </div>
-  )
+  );
 }

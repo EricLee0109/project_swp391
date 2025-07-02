@@ -15,7 +15,7 @@ export async function authJWT() {
   try {
     const decoded = jwt.verify(token, JWT_SECRET) as User;
 
-    return { user: decoded };
+    return { user: decoded || null };
   } catch (err) {
     console.error("❌ Invalid token:", err);
     return null;

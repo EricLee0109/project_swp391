@@ -56,9 +56,14 @@ export const menstrualCycleSetupSchema = z
     message: "Chu kỳ gần nhất phải có số ngày lớn hơn chu kỳ trước đó",
     path: ["lastCycleStartDate"],
   });
+export const commentSchema = z.object({
+  content: z.string().min(1, "Nội dung không được để trống"),
+  parent_id: z.string().optional(),
+});
 
 export type StiFormServiceValues = z.infer<typeof stiFormServiceSchema>;
 export type ShippingFormValues = z.infer<typeof createShippingSchema>;
 export type MenstrualCycleSetupValues = z.infer<
   typeof menstrualCycleSetupSchema
 >;
+export type CommentFormValues = z.infer<typeof commentSchema>;

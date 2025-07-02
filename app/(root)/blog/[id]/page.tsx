@@ -1,77 +1,74 @@
 import { notFound } from "next/navigation";
-import { mockBlogs } from "@/data/mock-blog";
-import TiptapView from "@/components/tiptap/TiptapView";
-import BlogCard from "@/components/blog/BlogCard";
 import MaxWidthWrapper from "@/components/profile/MaxWidthWrapper";
-import Image from "next/image";
-import { formatDate } from "@/lib/utils";
+import { GETBlog, GETBlogComment } from "@/types/blog/blog";
+import BlogDetailClient from "@/app/(root)/blog/[id]/BlogDetailClient";
+import BlogCommentClient from "@/app/(root)/blog-comments/[id]/BlogCommentClient";
 
 //Nextjs required PageProps
-interface PageProps {
-  params: Promise<{ blogId: string }>;
+interface BlogDetailPageProps {
+  params: Promise<{ id: string }>;
 }
 
-export default async function Page(props: PageProps) {
+async function getBlogDetail(blogId: string) {
+  const res = await fetch(`${process.env.BE_BASE_URL}/blogs/public/${blogId}`, {
+    method: "GET",
+  });
+  return res.json();
+}
+
+async function getBlogComment(blogId: string) {
+  const res = await fetch(
+    `${process.env.BE_BASE_URL}/blog-comments/${blogId}`,
+    {
+      method: "GET",
+      cache: "no-cache",
+    }
+  );
+  return res.json();
+}
+
+export default async function BlogDetailPage({ params }: BlogDetailPageProps) {
   // Next js required props
-  const params = await props.params;
-  const paramsBlogId = params.blogId;
-  const blogId = parseInt(paramsBlogId);
-  const blog = mockBlogs.find((b) => b.id === blogId);
+  const { id } = await params;
 
+  const [blogData, blogCmtData] = await Promise.all([
+    getBlogDetail(id),
+    getBlogComment(id),
+  ]);
+  //blogDetail
+  const blog: GETBlog = blogData.blog;
   if (!blog) return notFound();
-
-  const relatedBlogs = mockBlogs.filter((b) => b.id !== blogId);
+  //blog comment
+  const blogComment: GETBlogComment[] = blogCmtData.comments;
+  // const relatedBlogs: GETBlog[] = await getBlogDetail();
 
   return (
     <MaxWidthWrapper className="py-10">
       <div className="grid grid-cols-12 gap-5">
-        {/* MAIN CONTENT */}
-        <div className="col-span-12 lg:col-span-8">
-          <div className="pb-5">
-            <h1 className="text-4xl font-bold">{blog.title}</h1>
-            <p className="py-3 text-sm text-gray-500">
-              Đăng {formatDate(new Date(blog.createdAt))}, bởi{" "}
-              <span className="font-bold">{blog.createdBy}</span>
-            </p>
-            <Image
-              src={blog.thumbnail}
-              alt={blog.title}
-              width={800}
-              height={500}
-              className="w-full rounded-md object-cover"
-            />
-          </div>
+        {/* Blog Detail */}
+        <section className="col-span-12 lg:col-span-8">
+          <BlogDetailClient key={blog.post_id} blog={blog} />
+        </section>
 
-          <TiptapView value={blog.content} />
-
+        {/* Related blog */}
+        <section className="col-span-12 lg:col-span-4">
           <div className="py-10">
-            <h3 className="text-xl font-bold border-b border-orange-500 py-3">
+            <h3 className="text-xl font-bold border-b border-pink-500 py-3">
               Các bài đăng liên quan
             </h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 py-3">
-              {relatedBlogs.map((item) => (
-                <BlogCard key={item.id} {...item} blogId={item.id} />
-              ))}
+              {/* {relatedBlogs.map((item, index) => (
+                <BlogCard key={index} blog={item} />
+              ))} */}
+              <p>Không có</p>
             </div>
           </div>
-        </div>
+        </section>
 
-        {/* SIDEBAR */}
-        <div className="col-span-12 lg:col-span-4">
-          <h3 className="text-xl font-bold border-b border-orange-500 py-3">
-            Bài viết nổi bật
-          </h3>
-          <div className="flex flex-col gap-3 py-3">
-            {relatedBlogs.map((item) => (
-              <BlogCard
-                key={item.id}
-                {...item}
-                blogId={item.id}
-                variant="small"
-              />
-            ))}
-          </div>
-        </div>
+        {/* Blog Comment Section */}
+        <section className="col-span-12 lg:col-span-10">
+          <BlogCommentClient blogId={id} blogComment={blogComment} />
+        </section>
       </div>
     </MaxWidthWrapper>
   );
