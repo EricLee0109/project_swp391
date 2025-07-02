@@ -1,29 +1,27 @@
+import { auth } from "@/auth";
 import BlogHome from "@/components/home/Blogs";
 import Features from "@/components/home/Features";
 import Hero from "@/components/home/Hero";
 
 import MaxWidthWrapper from "@/components/profile/MaxWidthWrapper";
 import SearchForm from "@/components/SearchForm";
-
-
-import StartupCard from "@/components/StartupCard";
-import { authJWT } from "@/lib/auth";
+import { GETBlog } from "@/types/blog/blog";
 
 import { redirect } from "next/navigation";
 
-type StartupCardType = {
-  _id?: number;
-  _createdAt: Date;
-  views: number;
-  author: {
-    _id: number;
-    name: string;
-  };
-  description: string;
-  image: string;
-  category: string;
-  title: string;
-};
+// type StartupCardType = {
+//   _id?: number;
+//   _createdAt: Date;
+//   views: number;
+//   author: {
+//     _id: number;
+//     name: string;
+//   };
+//   description: string;
+//   image: string;
+//   category: string;
+//   title: string;
+// };
 
 export default async function Home({
   searchParams,
@@ -31,55 +29,35 @@ export default async function Home({
   searchParams: Promise<{ query?: string }>;
 }) {
   const query = (await searchParams).query;
-  const userSession = await authJWT();
-  const role = userSession?.user.role; // Safely get the role
+  const session = await auth();
+  const role = session?.user.role; // Safely get the role
 
-  if (userSession && role !== "Customer") redirect("/dashboard");
+  if (session && role !== "Customer") redirect("/dashboard");
 
-  // if (
-  //   role &&
-  //   (role === RoleTypeEnums.Consultant ||
-  //     role === RoleTypeEnums.Staff ||
-  //     role === RoleTypeEnums.Admin ||
-  //     role === RoleTypeEnums.Customer ||
-  //     role === RoleTypeEnums.Manager)
-  // ) {
-  //   // Define the destination based on the role
-  //   let destination = "/";
-  //   switch (role) {
-  //     case RoleTypeEnums.Consultant:
-  //       destination = "/consultant/dashboard/schedule";
-  //       break;
-  //     case RoleTypeEnums.Staff:
-  //       destination = "/staff/dashboard";
-  //       break;
-  //     case RoleTypeEnums.Admin:
-  //       destination = "/admin/dashboard";
-  //       break;
-  //     case RoleTypeEnums.Manager:
-  //       destination = "/manager/dashboard";
-  //       break;
-  //     case RoleTypeEnums.Customer:
-  //       destination = "/";
-  //       break;
-  //   }
+  async function getBlogs() {
+    const res = await fetch(`${process.env.BE_BASE_URL}/blogs/public`, {
+      method: "GET",
+      next: { revalidate: 3600 }, //caching 1 hour
+    });
+    return res.json();
+  }
 
-  //   redirect(destination);
-  // }
+  const blogData = await getBlogs();
+  const blogs: GETBlog[] = blogData.blogs;
 
-  const posts = [
-    {
-      _createdAt: new Date(),
-      views: 150,
-      author: { _id: 1, name: "Eric Le" },
-      _id: 1,
-      description: "This is a description",
-      image:
-        "https://images.unsplash.com/photo-1575998064976-9df66085cc83?q=80&w=1673&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-      category: "STIs",
-      title: "Symtoms of STIs",
-    },
-  ];
+  // const posts = [
+  //   {
+  //     _createdAt: new Date(),
+  //     views: 150,
+  //     author: { _id: 1, name: "Eric Le" },
+  //     _id: 1,
+  //     description: "This is a description",
+  //     image:
+  //       "https://images.unsplash.com/photo-1575998064976-9df66085cc83?q=80&w=1673&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+  //     category: "STIs",
+  //     title: "Symtoms of STIs",
+  //   },
+  // ];
 
   return (
     <div>
@@ -98,7 +76,7 @@ export default async function Home({
         <SearchForm query={query} />
       </section>
       <MaxWidthWrapper>
-        <section className="section_container">
+        {/* <section className="section_container">
           <p className="text-30-semibold">
             {query ? `Search result for ${query}` : "All Blogs"}
           </p>
@@ -111,14 +89,13 @@ export default async function Home({
               <p className="no-result">Not found</p>
             )}
           </ul>
-        </section>
+        </section> */}
         {/* <TrustSignals /> */}
 
         <Hero />
-        <BlogHome />
+        <BlogHome blogs={blogs} />
         <Features />
       </MaxWidthWrapper>
-  
     </div>
   );
 }

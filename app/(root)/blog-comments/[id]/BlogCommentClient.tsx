@@ -1,0 +1,125 @@
+"use client";
+import LoadingSkeleton from "@/app/(dashboard)/admin/dashboard/healthServices/loading";
+import CommentForm from "@/components/blog/CommentForm";
+import { formatDate } from "@/lib/utils";
+import { BlogComment, GETBlogComment } from "@/types/blog/blog";
+import { useState } from "react";
+
+interface BlogCommentClientProps {
+  blogComment: GETBlogComment[];
+  blogId: string;
+}
+
+// async function getRepliesComment(comment_id: string) {
+//   if (!comment_id) {
+//     console.error("comment_id is undefined");
+//     return [];
+//   }
+
+//   try {
+//     const response = await fetch(
+//       `${process.env.BE_BASE_URL}/blog-comments/${comment_id}/replies`, // Fixed: removed /api
+//       { method: "GET" }
+//     );
+
+//     if (!response.ok) {
+//       console.error(`Failed to fetch replies: ${response.status}`);
+//       return [];
+//     }
+
+//     return response.json();
+//   } catch (error) {
+//     console.error("Error fetching replies:", error);
+//     return [];
+//   }
+// }
+
+export default function BlogCommentClient({
+  blogComment,
+  blogId,
+}: BlogCommentClientProps) {
+  //   const response = await getRepliesComment(blogComment.comment_id);
+  //   const replies = await response;
+  const [replyUser, setReplyUser] = useState<string | null>(null);
+  const [cmtId, setCmtId] = useState<string | null>(null);
+
+  const handleReply = (comment: GETBlogComment) => {
+    setReplyUser(comment.user.full_name);
+    setCmtId(comment.comment_id);
+  };
+
+  const handleRemove = () => {
+    setReplyUser(null);
+    setCmtId(null);
+  };
+
+  return (
+    <>
+      <h3 className="text-xl font-bold border-b border-pink-500 py-3">
+        Bình luận (Hỏi đáp Q&A)
+      </h3>
+      <div className="flex flex-col gap-4 py-3">
+        {blogComment && Array.isArray(blogComment) && blogComment.length > 0 ? (
+          blogComment.map((comment: GETBlogComment) => (
+            <div
+              key={comment.comment_id}
+              className="border rounded-md p-4 bg-gray-50"
+            >
+              <div className="flex items-center justify-between mb-2">
+                <div
+                  onClick={() => handleReply(comment)}
+                  className="cursor-pointer"
+                >
+                  <span className="font-semibold text-sm text-gray-700">
+                    {comment.user.full_name}
+                  </span>
+                  <span className="text-xs text-gray-400">
+                    {formatDate(comment.created_at)}
+                  </span>
+                  <p className="text-gray-800 mb-2">{comment.content}</p>
+                </div>
+              </div>
+              {comment.replies && comment.replies.length > 0 && (
+                <CommentWithReplies comment={comment} />
+              )}
+            </div>
+          ))
+        ) : (
+          <LoadingSkeleton />
+        )}
+        <div>
+          <CommentForm
+            replyUser={replyUser || null}
+            commentId={cmtId}
+            blogId={blogId}
+            handleRemove={handleRemove}
+          />
+        </div>
+      </div>
+    </>
+  );
+}
+
+function CommentWithReplies({ comment }: { comment: GETBlogComment }) {
+  //   const replies = await getRepliesComment(comment.comment_id);
+
+  return (
+    <div>
+      <div className="ml-4 border-l-2 border-pink-400 pl-3 mt-2">
+        {comment.replies.map((reply: BlogComment) => (
+          <div key={reply.comment_id} className="mb-2">
+            <div className="flex items-center justify-between mb-1">
+              <span className="font-semibold text-xs text-gray-600">
+                {reply.user.full_name}
+              </span>
+              <span className="text-xs text-gray-300">
+                {formatDate(reply.created_at)}
+              </span>
+            </div>
+            <p className="text-gray-700 text-sm">{reply.content}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
