@@ -5,7 +5,9 @@ export default function Consultant() {
   return (
     <div>
       <MaxWidthWrapper>
-        <ConsultantPage />
+      
+          <ConsultantPage />
+     
       </MaxWidthWrapper>
     </div>
   );
