@@ -4,7 +4,7 @@ import Hero from "@/components/home/Hero";
 
 import MaxWidthWrapper from "@/components/profile/MaxWidthWrapper";
 import SearchForm from "@/components/SearchForm";
-import Footer from "@/components/share/Footer";
+
 
 import StartupCard from "@/components/StartupCard";
 import { authJWT } from "@/lib/auth";
@@ -118,7 +118,7 @@ export default async function Home({
         <BlogHome />
         <Features />
       </MaxWidthWrapper>
-      <Footer />
+  
     </div>
   );
 }

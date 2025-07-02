@@ -35,9 +35,13 @@ export default function MenstrualCyclePage() {
 
   if (loading) return null; // hoặc spinner
 
-  return hasCycle ? (
-    <MenstrualCycleTracker key={setupKey} /> // thêm key để chắc chắn re-mount
-  ) : (
-    <MenstrualCycleSetup onClose={handleCloseSetup} />
-  );
+return (
+  <div className="h-screen ">
+    {hasCycle ? (
+      <MenstrualCycleTracker key={setupKey} />
+    ) : (
+      <MenstrualCycleSetup onClose={handleCloseSetup} />
+    )}
+  </div>
+);
 }
