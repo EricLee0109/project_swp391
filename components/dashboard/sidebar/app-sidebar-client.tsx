@@ -115,6 +115,30 @@ export function AppSidebarClient({ user, ...props }: AppSidebarClientProps) {
               },
             ],
           },
+           {
+            title: "Quản lý tư vấn viên",
+            url: "/manager/dashboard/consultant-check",
+            icon: LucideHospital,
+            isActive: true,
+            items: [
+              {
+                title: "Danh sách tư vấn viên",
+                url: "/manager/dashboard/consultant-check/view",
+              },
+            ],
+          },
+          {
+            title: "Quản lý người dùng",
+            url: "/manager/dashboard/user",
+            icon: Users,
+            isActive: true,
+            items: [
+              {
+                title: "Danh sách người dùng",
+                url: "/manager/dashboard/user",
+              },
+            ],
+          },
         ];
 
       case "Consultant":
@@ -178,71 +202,6 @@ export function AppSidebarClient({ user, ...props }: AppSidebarClientProps) {
   console.log("User role in sidebar:", user?.role);
   console.log("Navigation items:", navMain);
 
-  // const navMain = [
-  //   {
-  //     title: "Tổng quan",
-  //     url: "/dashboard",
-  //     icon: ChartPie,
-  //     isActive: true,
-  //     items: [
-  //       {
-  //         title: "Dashboard",
-  //         url: "/dashboard", // same as main
-  //       },
-  //     ],
-  //   },
-  //   {
-  //     title: "Người dùng",
-  //     url: "/dashboard/user",
-  //     icon: CircleUserRound,
-  //     isActive: true,
-  //     items: [
-  //       {
-  //         title: "Tài khoản",
-  //         url: "/dashboard/user",
-  //       },
-  //       {
-  //         title: "Nhân viên (Quản lý cuộc hẹn)",
-  //         url: "/dashboard/appointment/view",
-  //       },
-  //       {
-  //         title: "Nhân viên (Quản lý vận chuyển)",
-  //         url: "/dashboard/shipping/view",
-  //       },
-  //       {
-  //         title: "Khách hàng",
-  //         url: "/dashboard/customer",
-  //       },
-  //       {
-  //         title: "Dịch vụ sức khỏe (Services)",
-  //         url: "/dashboard/healthServices/view",
-  //       },
-  //     ],
-  //   },
-  //   {
-  //     title: "Đặt lịch",
-  //     url: "/dashboard/schedule",
-  //     icon: CircleUserRound,
-  //     isActive: true,
-  //     items: [
-  //       {
-  //         title: "Tư vấn viên khách hàng",
-  //         url: "/dashboard/schedule",
-  //       },
-  //     ],
-  //   },
-  //   {
-  //     title: "Khác",
-  //     url: "#",
-  //     icon: RectangleEllipsis,
-  //     items: [
-  //       {
-  //         title: "Blog",
-  //         url: "/blog",
-  //       },
-  //     ],
-  //   },
-  // ];
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>

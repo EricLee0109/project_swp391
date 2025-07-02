@@ -1,3 +1,5 @@
+// File: app/(root)/consultant/[id]/page.tsx
+
 import { notFound } from "next/navigation";
 import MaxWidthWrapper from "@/components/profile/MaxWidthWrapper";
 import { Badge } from "@/components/ui/badge";
@@ -8,11 +10,11 @@ import { getAllConsultantProfiles } from "@/app/api/consultant/action";
 import { ConsultantProfile } from "@/types/user/User";
 
 interface DetailPageProps {
-  params: { id: string };
+  params: { id: string }; 
 }
 
 export default async function DetailPage({ params }: DetailPageProps) {
-  const consultantId = params.id;
+  const consultantId = params.id; // ✅ sửa tên biến
 
   // ✅ Gọi toàn bộ consultants
   const consultants = await getAllConsultantProfiles();
@@ -25,7 +27,7 @@ export default async function DetailPage({ params }: DetailPageProps) {
   if (!consultant) return notFound();
 
   return (
-    <main className="h-screen  py-6">
+    <main className="h-screen py-6">
       <MaxWidthWrapper>
         <section className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-background rounded-xl">
           <div className="relative w-full h-[400px]">
@@ -59,9 +61,7 @@ export default async function DetailPage({ params }: DetailPageProps) {
                 </p>
                 <p>
                   Trạng thái:{" "}
-                  {consultant.is_verified
-                    ? "✅ Đã xác minh"
-                    : "⚠️ Chưa xác minh"}
+                  {consultant.is_verified ? "✅ Đã xác minh" : "⚠️ Chưa xác minh"}
                 </p>
               </div>
 

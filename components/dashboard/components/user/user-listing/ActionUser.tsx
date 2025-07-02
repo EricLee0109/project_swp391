@@ -18,13 +18,17 @@ import { User } from "@/types/user/User";
 import { changeUserRole } from "@/app/api/dashboard/chang-role/action";
 import { notify } from "@/lib/toastNotify";
 
+// import UpdateConsultantDialog from "../UpdateConsultant";
+
 interface ActionUserProps {
   user: User;
   onRoleChanged?: () => void; // ✅ thêm prop
 }
 
 export function ActionUser({ user, onRoleChanged }: ActionUserProps) {
+  //  const [openUpdateDialog, setOpenUpdateDialog] = useState(false);
   return (
+    <>
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="h-8 w-8 p-0">
@@ -73,7 +77,7 @@ export function ActionUser({ user, onRoleChanged }: ActionUserProps) {
                   });
                   notify("success", "Vai trò mới: Nhân viên");
                   if (res.success && onRoleChanged) {
-                    onRoleChanged(); 
+                    onRoleChanged();
                   }
                 }}
               >
@@ -89,7 +93,7 @@ export function ActionUser({ user, onRoleChanged }: ActionUserProps) {
 
                   notify("success", "Vai trò mới: Admin");
                   if (res.success && onRoleChanged) {
-                    onRoleChanged(); 
+                    onRoleChanged();
                   }
                 }}
               >
@@ -104,7 +108,7 @@ export function ActionUser({ user, onRoleChanged }: ActionUserProps) {
                   });
                   notify("success", "Vai trò mới: Tư vấn viên");
                   if (res.success && onRoleChanged) {
-                    onRoleChanged(); 
+                    onRoleChanged();
                   }
                 }}
               >
@@ -120,7 +124,7 @@ export function ActionUser({ user, onRoleChanged }: ActionUserProps) {
 
                   notify("success", "Vai trò mới: Quản lý");
                   if (res.success && onRoleChanged) {
-                    onRoleChanged(); 
+                    onRoleChanged();
                   }
                 }}
               >
@@ -129,7 +133,9 @@ export function ActionUser({ user, onRoleChanged }: ActionUserProps) {
             </DropdownMenuSubContent>
           </DropdownMenuPortal>
         </DropdownMenuSub>
-
+         {/* <DropdownMenuItem onSelect={() => setOpenUpdateDialog(true)}>
+          Cập nhật TTV
+        </DropdownMenuItem> */}
         <DropdownMenuSub>
           <DropdownMenuSubTrigger>Thay đổi trạng thái</DropdownMenuSubTrigger>
           <DropdownMenuPortal>
@@ -145,5 +151,13 @@ export function ActionUser({ user, onRoleChanged }: ActionUserProps) {
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
+    {/* <UpdateConsultantDialog
+        open={openUpdateDialog}
+        onClose={() => setOpenUpdateDialog(false)}
+        userId={user.user_id}
+      /> */}
+    </>
+    
+    
   );
 }

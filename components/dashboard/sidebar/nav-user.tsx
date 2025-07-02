@@ -21,6 +21,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { signOutAuth } from "@/app/(auth)/login/actions";
 import { User } from "@/types/ServiceType/HealthServiceType";
+import Link from "next/link";
 
 export function NavUser({
   user,
@@ -84,10 +85,17 @@ export function NavUser({
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem>
-                <BadgeCheck />
-                Tải khoản
-              </DropdownMenuItem>
+            
+             <DropdownMenuItem asChild>
+  <Link
+    href={`/${user.role?.toLowerCase() || "default"}/dashboard/profile-dashboard`}
+    className="flex items-center gap-2"
+  >
+    <BadgeCheck className="w-4 h-4" />
+    Tài khoản
+  </Link>
+</DropdownMenuItem>
+
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={handleLogout}>
