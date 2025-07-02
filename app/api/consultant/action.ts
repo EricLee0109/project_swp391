@@ -37,33 +37,39 @@ export async function getAllConsultantProfiles(): Promise<ConsultantProfile[] | 
     return null;
   }
 }
-export async function getConsultantById(id: string): Promise<ConsultantProfile | null> {
+
+export async function updateConsultantProfile(data: {
+  qualifications?: string;
+  experience?: string;
+  specialization?: string;
+}): Promise<{ success: boolean } | { success: false; message: string }> {
   try {
     const session = await auth();
+
     if (!session?.accessToken) {
-      console.error("Access token not found");
-      return null;
+      return { success: false, message: "Access token not found" };
     }
 
-    const res = await fetch(`${BE_BASE_URL}/auth/profile/consultants/${id}`, {
-      method: "GET",
+    const res = await fetch(`${BE_BASE_URL}/auth/profile/consultant`, {
+      method: "PATCH",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${session.accessToken}`,
       },
-      cache: "no-store",
+      body: JSON.stringify(data),
     });
 
     if (!res.ok) {
       const err = await res.json();
-      console.error("Consultant fetch error:", err.message || res.statusText);
-      return null;
+      return { success: false, message: err.message || "Update failed" };
     }
 
-    const data: ConsultantProfile = await res.json();
-    return data;
-  } catch (error) {
-    console.error("getConsultantById error:", error);
-    return null;
+    return { success: true };
+  } catch (error: unknown) {
+  console.error("Error updating consultant profile:", error);
+  if (typeof error === "object" && error && "message" in error) {
+    return { success: false, message: (error as { message?: string }).message || "Unknown error" };
   }
+  return { success: false, message: "Unknown error" };
+}
 }
