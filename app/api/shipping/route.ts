@@ -1,16 +1,15 @@
 import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
+import { auth } from "@/auth"; // chắc bạn có hàm auth() ở đâu đó
 
 export async function GET() {
   try {
-    const cookieStore = await cookies();
-    const accessToken = cookieStore.get("accessToken")?.value;
-    if (!accessToken) {
+    const session = await auth();
+    if (!session?.accessToken) {
       return NextResponse.json({ error: "Chưa đăng nhập." }, { status: 401 });
     }
 
     const headers: Record<string, string> = {
-      Authorization: `Bearer ${accessToken}`,
+      Authorization: `Bearer ${session.accessToken}`,
     };
 
     const beRes = await fetch(`${process.env.BE_BASE_URL}/shipping`, {

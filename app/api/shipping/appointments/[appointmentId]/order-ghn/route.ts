@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
+import { auth } from "@/auth";
 
 export async function POST(
   request: Request,
@@ -13,15 +13,15 @@ export async function POST(
       return NextResponse.json({ error: "Thiếu appointmentId." }, { status: 400 });
     }
 
-    const cookieStore = await cookies();
-    const accessToken = cookieStore.get("accessToken")?.value;
-    if (!accessToken) {
+    const session = await auth();
+
+    if (!session?.accessToken) {
       return NextResponse.json({ error: "Chưa đăng nhập." }, { status: 401 });
     }
 
     const headers: Record<string, string> = {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${accessToken}`,
+      Authorization: `Bearer ${session.accessToken}`,
     };
 
     const beRes = await fetch(

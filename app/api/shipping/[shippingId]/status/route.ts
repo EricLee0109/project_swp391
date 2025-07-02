@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 
-export async function GET(
+export async function PATCH(
   request: Request,
   context: { params: Promise<{ shippingId: string }> }
 ) {
@@ -20,18 +20,24 @@ export async function GET(
 
     const headers: Record<string, string> = {
       Authorization: `Bearer ${session.accessToken}`,
+      "Content-Type": "application/json",
     };
 
-    const beRes = await fetch(`${process.env.BE_BASE_URL}/shipping/${shippingId}`, {
-      method: "GET",
+    const body = await request.json();
+    const { status } = body;
+
+    if (!status) {
+      return NextResponse.json({ error: "Thiếu trạng thái." }, { status: 400 });
+    }
+
+    const beRes = await fetch(`${process.env.BE_BASE_URL}/shipping/${shippingId}/status`, {
+      method: "PATCH",
       headers,
+      body: JSON.stringify({ status }),
     });
 
     if (!beRes.ok) {
-      return NextResponse.json(
-        { message: "Không tìm thấy đơn vận chuyển", error: "Not Found", statusCode: 404 },
-        { status: beRes.status }
-      );
+      return NextResponse.json({ error: "Cập nhật trạng thái thất bại." }, { status: beRes.status });
     }
 
     const data = await beRes.json();
@@ -40,4 +46,3 @@ export async function GET(
     return NextResponse.json({ error: "Lỗi server." }, { status: 500 });
   }
 }
-

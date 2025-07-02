@@ -14,12 +14,14 @@ interface ShippingDetailDialogProps {
   shippingInfo: ShippingInfoType | null;
   open: boolean;
   setOpen: (open: boolean) => void;
+  direction: "outbound" | "return";
 }
 
 export function ShippingDetailDialog({
   shippingInfo,
   open,
   setOpen,
+  direction,
 }: ShippingDetailDialogProps) {
   if (!shippingInfo) {
     return (
@@ -51,56 +53,46 @@ export function ShippingDetailDialog({
     ShippingStatus,
     { label: string; color: string; icon: string }
   > = {
-    [ShippingStatus.Pending]: {
-      label: "Chưa tạo đơn GHN",
-      color: "bg-yellow-100 text-yellow-800",
-      icon: "⏳",
-    },
-    [ShippingStatus.Shipped]: {
-      label: "Đã gửi đơn GHN",
-      color: "bg-blue-100 text-blue-800",
-      icon: "🚚",
-    },
-    [ShippingStatus.DeliveredToCustomer]: {
-      label: "Đã giao cho khách",
-      color: "bg-green-100 text-green-800",
-      icon: "✅",
-    },
-    [ShippingStatus.PickupRequested]: {
-      label: "Yêu cầu lấy hàng",
-      color: "bg-purple-100 text-purple-800",
-      icon: "📦",
-    },
-    [ShippingStatus.SampleInTransit]: {
-      label: "Mẫu đang gửi về lab",
-      color: "bg-orange-100 text-orange-800",
-      icon: "📤",
-    },
-    [ShippingStatus.ReturnedToLab]: {
-      label: "Mẫu đã về lab",
-      color: "bg-teal-100 text-teal-800",
-      icon: "🏥",
-    },
-    [ShippingStatus.Failed]: {
-      label: "Thất bại / hủy đơn",
-      color: "bg-red-100 text-red-800",
-      icon: "❌",
-    },
+    Pending: { label: "Chưa tạo đơn GHN", color: "bg-yellow-100 text-yellow-800", icon: "⏳" },
+    Shipped: { label: "Đã gửi đơn GHN", color: "bg-blue-100 text-blue-800", icon: "🚚" },
+    DeliveredToCustomer: { label: "Đã giao cho khách", color: "bg-green-100 text-green-800", icon: "✅" },
+    PickupRequested: { label: "Yêu cầu trả mẫu", color: "bg-purple-100 text-purple-800", icon: "📦" },
+    SampleInTransit: { label: "Mẫu đang gửi về lab", color: "bg-orange-100 text-orange-800", icon: "📤" },
+    ReturnedToLab: { label: "Mẫu đã về lab", color: "bg-teal-100 text-teal-800", icon: "🏥" },
+    Failed: { label: "Thất bại / hủy đơn", color: "bg-red-100 text-red-800", icon: "❌" },
   };
 
-  const statusData =
-    statusMap[shippingInfo.shipping_status] || {
-      label: "Không xác định",
-      color: "bg-gray-100 text-gray-800",
-      icon: "❓",
-    };
+  const statusData = statusMap[shippingInfo.shipping_status] || {
+    label: "Không xác định",
+    color: "bg-gray-100 text-gray-800",
+    icon: "❓",
+  };
+
+  // Xác định address hiển thị dựa vào chiều
+  const address =
+    direction === "outbound"
+      ? shippingInfo.shipping_address ?? "Chưa có"
+      : shippingInfo.pickup_address ?? "Chưa có";
+
+  const ward =
+    direction === "outbound" ? shippingInfo.ward ?? "Chưa có" : shippingInfo.pickup_ward ?? "Chưa có";
+
+  const district =
+    direction === "outbound"
+      ? shippingInfo.district ?? "Chưa có"
+      : shippingInfo.pickup_district ?? "Chưa có";
+
+  const province =
+    direction === "outbound"
+      ? shippingInfo.province ?? "Chưa có"
+      : shippingInfo.pickup_province ?? "Chưa có";
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="max-w-2xl bg-white rounded-xl shadow-lg p-6">
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold text-gray-900 border-b pb-2">
-            Chi tiết đơn vận chuyển
+            Chi tiết đơn vận chuyển ({direction === "outbound" ? "Chiều đi" : "Chiều về"})
           </DialogTitle>
         </DialogHeader>
         <div className="grid grid-cols-2 gap-4 mt-4 text-gray-700">
@@ -117,17 +109,16 @@ export function ShippingDetailDialog({
             <p className="ml-2">{shippingInfo.contact_phone}</p>
           </div>
           <div className="col-span-2">
-            <p className="font-medium">Địa chỉ:</p>
+            <p className="font-medium">
+              {direction === "outbound" ? "Địa chỉ giao hàng:" : "Địa chỉ lấy mẫu:"}
+            </p>
             <p className="ml-2">
-              {shippingInfo.shipping_address}, {shippingInfo.ward},{" "}
-              {shippingInfo.district}, {shippingInfo.province}
+              {address}, {ward}, {district}, {province}
             </p>
           </div>
           <div>
             <p className="font-medium">Mã đơn hàng:</p>
-            <p className="ml-2">
-              {shippingInfo.provider_order_code || "Chưa có"}
-            </p>
+            <p className="ml-2">{shippingInfo.provider_order_code || "Chưa có"}</p>
           </div>
           <div>
             <p className="font-medium">Thời gian dự kiến:</p>
@@ -148,9 +139,7 @@ export function ShippingDetailDialog({
           </div>
           <div>
             <p className="font-medium">Ngày tạo:</p>
-            <p className="ml-2">
-              {new Date(shippingInfo.created_at).toLocaleString()}
-            </p>
+            <p className="ml-2">{new Date(shippingInfo.created_at).toLocaleString()}</p>
           </div>
           <div>
             <p className="font-medium">Cập nhật cuối:</p>

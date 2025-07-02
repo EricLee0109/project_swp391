@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { DataTable } from "@/components/data-table";
-import { columns } from "@/components/dashboard/components/shipping/columns"
+import { columns } from "@/components/dashboard/components/shipping/columns";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Header from "@/components/dashboard/header";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -13,29 +13,32 @@ export default function ShippingTrackingPage() {
   const [appointments, setAppointments] = useState<AppointmentListType[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-console.log("ShippingTrackingPage render");
-  useEffect(() => {
-    console.log("useEffect ShippingTrackingPage called");
-    async function fetchAppointments() {
-      try {
-        const res = await fetch("/api/appointments", {
-          credentials: "include",
-        });
-        const apiRes = await res.json();
-        if (res.ok) {
-          setAppointments(apiRes.appointments || apiRes.data || []);
-        } else {
-          setError(apiRes?.error || "Không thể tải danh sách cuộc hẹn.");
-          notify("error", apiRes?.error || "Không thể tải danh sách cuộc hẹn.");
-        }
-      } catch {
-        notify("error", "Lỗi mạng. Vui lòng thử lại.");
-      } finally {
-        setLoading(false);
+  const [updateFlag, setUpdateFlag] = useState(0);
+
+  const fetchAppointments = useCallback(async () => {
+    try {
+      const res = await fetch("/api/appointments", {
+        credentials: "include",
+        cache: "no-store",
+      });
+      const apiRes = await res.json();
+      if (res.ok) {
+        setAppointments(apiRes.appointments || apiRes.data || []);
+        setError(null);
+      } else {
+        setError(apiRes?.error || "Không thể tải danh sách cuộc hẹn.");
+        notify("error", apiRes?.error || "Không thể tải danh sách cuộc hẹn.");
       }
+    } catch {
+      notify("error", "Lỗi mạng. Vui lòng thử lại.");
+    } finally {
+      setLoading(false);
     }
-    fetchAppointments();
   }, []);
+
+  useEffect(() => {
+    fetchAppointments();
+  }, [fetchAppointments, updateFlag]);
 
   async function handleCreateShipping(appointmentId: string) {
     try {
@@ -53,13 +56,14 @@ console.log("ShippingTrackingPage render");
     }
   }
 
-  // GỌI HÀM columns để lấy mảng trước khi truyền
-const cols = columns({ onCreateShipping: handleCreateShipping });
+  const handleShippingUpdated = () => {
+    setUpdateFlag((prev) => prev + 1);
+  };
 
-console.log("Columns:", cols);
-console.log("Is Array?", Array.isArray(cols));
-
-  console.log("Columns type:", typeof cols, Array.isArray(cols));
+  const cols = columns({
+    onCreateShipping: handleCreateShipping,
+    onShippingUpdated: handleShippingUpdated,
+  });
 
   if (loading) {
     return (
@@ -101,8 +105,7 @@ console.log("Is Array?", Array.isArray(cols));
               <CardTitle>Các cuộc hẹn liên quan</CardTitle>
             </CardHeader>
             <CardContent>
-           <DataTable columns={cols} data={appointments} />
-
+              <DataTable columns={cols} data={appointments} />
             </CardContent>
           </Card>
         </div>
