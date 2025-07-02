@@ -8,11 +8,11 @@ import { getAllConsultantProfiles } from "@/app/api/consultant/action";
 import { ConsultantProfile } from "@/types/user/User";
 
 interface DetailPageProps {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
 export default async function DetailPage({ params }: DetailPageProps) {
-  const consultantId = params.id;
+  const { id: consultantId } = await params;
 
   // ✅ Gọi toàn bộ consultants
   const consultants = await getAllConsultantProfiles();
@@ -66,7 +66,8 @@ export default async function DetailPage({ params }: DetailPageProps) {
               </div>
 
               <div className="border-t border-gray-700 mt-4 pt-4 text-sm text-muted-foreground">
-                Mô tả về tư vấn viên này. Bạn có thể đặt lịch tư vấn bằng nút bên dưới.
+                Mô tả về tư vấn viên này. Bạn có thể đặt lịch tư vấn bằng nút
+                bên dưới.
               </div>
             </div>
 
