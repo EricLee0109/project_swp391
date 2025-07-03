@@ -1,12 +1,14 @@
 // app/(consultant)/dashboard/profile/page.tsx
 
-// import Header from "@/components/dashboard/header";
+import Header from "@/components/dashboard/header";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import Link from "next/link";
 import { auth } from "@/auth";
 
 import ProfileDashboard from "@/components/dashboard/components/profile-dashboard/ProfileDashboardProps";
+import { ConsultantProfile } from "@/types/user/User";
+import { getMyConsultantProfile } from "@/app/api/dashboard/profile-dashboard/action";
 
 export default async function DashboardPage() {
   const session = await auth();
@@ -14,13 +16,17 @@ export default async function DashboardPage() {
 
   const isConsultant = user?.role === "Consultant";
 
+  const consultantProfile = await getMyConsultantProfile();
+
+  console.log(consultantProfile, "consultantProfileee");
+
   return (
     <div>
-      {/* <Header
+      <Header
         title="Quản lý hồ sơ"
         href="/dashboard/profile"
         currentPage="Hồ sơ tư vấn viên"
-      /> */}
+      />
 
       <div className="container mx-auto p-6 space-y-6">
         {isConsultant && (
@@ -34,7 +40,7 @@ export default async function DashboardPage() {
           </div>
         )}
 
-        <ProfileDashboard />
+        <ProfileDashboard profile={consultantProfile} />
       </div>
     </div>
   );

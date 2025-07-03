@@ -4,7 +4,7 @@ import { ConsultantProfile } from "@/types/user/User";
 
 async function fetchAllConsultant() {
   const response = await fetch(
-    `${process.env.BE_BASE_URL}/auth/profile/consultants/all/`,
+    `${process.env.BE_BASE_URL}/auth/profile/consultants/all`,
     { method: "GET", next: { revalidate: 3000 } }
   );
   const data: ConsultantProfile[] = await response.json();
