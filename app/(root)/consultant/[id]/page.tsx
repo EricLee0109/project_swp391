@@ -15,7 +15,7 @@ interface DetailPageProps {
 
 export default async function DetailPage({ params }: DetailPageProps) {
   const { id: consultantId } = await params;
-
+  console.log(consultantId, "consultant");
   // ✅ Gọi toàn bộ consultants
   const consultants = await getAllConsultantProfiles();
 
