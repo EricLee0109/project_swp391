@@ -6,7 +6,7 @@ import { notFound } from "next/navigation";
 import { ConsultantProfile } from "@/types/user/User";
 
 interface ProfileDashboardProps {
-  profile: ConsultantProfile;
+  profile: ConsultantProfile | null;
 }
 
 export default async function ProfileDashboard({
@@ -15,7 +15,7 @@ export default async function ProfileDashboard({
   const session = await auth();
   const user = session?.user;
 
-  if (!user) return notFound();
+  if (!user || !profile) return notFound();
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
