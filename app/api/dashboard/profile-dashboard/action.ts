@@ -1,7 +1,7 @@
 "use server";
 
 import { auth } from "@/auth";
-import { BE_BASE_URL } from "@/lib/config";
+// import { BE_BASE_URL } from "@/lib/config";
 import { ConsultantProfile } from "@/types/user/User";
 
 // GET /api/auth/profile/consultant
@@ -14,14 +14,17 @@ export async function getMyConsultantProfile(): Promise<ConsultantProfile | null
       return null;
     }
 
-    const res = await fetch(`${BE_BASE_URL}/auth/profile/consultant`, {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${session.accessToken}`,
-        "Content-Type": "application/json",
-      },
-      cache: "no-store",
-    });
+    const res = await fetch(
+      `${process.env.BE_BASE_URL}/auth/profile/consultant`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${session.accessToken}`,
+          "Content-Type": "application/json",
+        },
+        cache: "no-store",
+      }
+    );
 
     if (!res.ok) {
       const error = await res.json();
@@ -52,14 +55,17 @@ export async function updateConsultantProfile(data: {
       return { success: false, message: "Access token missing" };
     }
 
-    const res = await fetch(`${BE_BASE_URL}/auth/profile/consultant`, {
-      method: "PATCH",
-      headers: {
-        Authorization: `Bearer ${session.accessToken}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(data),
-    });
+    const res = await fetch(
+      `${process.env.BE_BASE_URL}/auth/profile/consultant`,
+      {
+        method: "PATCH",
+        headers: {
+          Authorization: `Bearer ${session.accessToken}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      }
+    );
 
     if (!res.ok) {
       const error = await res.json();

@@ -1,9 +1,11 @@
 // types/user/User.ts
 export type Gender = "Male" | "Female" | "Other" | null;
 export type Role = "Admin" | "Staff" | "Manager" | "Consultant" | "Customer";
-export type PrivacySetting = {
-  showFullName: boolean;
-} | "PRIVATE";
+export type PrivacySetting =
+  | {
+      showFullName: boolean;
+    }
+  | "PRIVATE";
 
 export interface User {
   user_id: string;
@@ -45,11 +47,13 @@ export interface ConsultantProfile {
   deleted_at: string | null;
   user: ConsultantUser;
 }
-export interface ConsultantUser { 
+export interface ConsultantUser {
   user_id: string;
   email: string;
   full_name: string;
-  role: string;
+  phone_number: string;
+  address: string;
+  role: Role;
   is_verified: boolean;
   is_active: boolean;
 }

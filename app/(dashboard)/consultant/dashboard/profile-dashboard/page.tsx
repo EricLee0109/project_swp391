@@ -7,14 +7,17 @@ import Link from "next/link";
 import { auth } from "@/auth";
 
 import ProfileDashboard from "@/components/dashboard/components/profile-dashboard/ProfileDashboardProps";
+import { getMyConsultantProfile } from "@/app/api/dashboard/profile-dashboard/action";
 
 export default async function DashboardPage() {
   const session = await auth();
   const user = session?.user;
 
-
   const isConsultant = user?.role === "Consultant";
 
+  const consultantProfile = await getMyConsultantProfile();
+
+  console.log(consultantProfile, "consultantProfileee");
 
   return (
     <div>
@@ -36,7 +39,7 @@ export default async function DashboardPage() {
           </div>
         )}
 
-        <ProfileDashboard />
+        <ProfileDashboard profile={consultantProfile} />
       </div>
     </div>
   );
