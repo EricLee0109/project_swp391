@@ -51,6 +51,7 @@ export async function DELETE(
       { status: 500 }
     );
   }
+  
 }
 
 export async function GET(
@@ -72,6 +73,7 @@ export async function GET(
     if (!session?.accessToken) {
       return NextResponse.json({ error: "Chưa đăng nhập." }, { status: 401 });
     }
+
 
     const beRes = await fetch(
       `${process.env.BE_BASE_URL}/appointments/${appointmentId}`,
@@ -101,3 +103,4 @@ export async function GET(
     );
   }
 }
+

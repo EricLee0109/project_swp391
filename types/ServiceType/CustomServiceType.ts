@@ -40,6 +40,7 @@ export interface CreateAppointmentDto {
   type: string;
   location: string;
   related_appointment_id?: string | null;
+  test_code?: string | null;
   contact_name?: string;
   contact_phone?: string;
   shipping_address?: string;

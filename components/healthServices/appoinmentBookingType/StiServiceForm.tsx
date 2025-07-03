@@ -80,9 +80,9 @@ export function StiTestBookingForm({
       }
       const checkoutUrl = responseData.data?.paymentLink;
       if (checkoutUrl) {
-      window.location.href = checkoutUrl;
-      return; 
-    }
+        window.location.href = checkoutUrl;
+        return;
+      }
       onClose();
     } catch (error) {
       console.error("Lỗi khi đặt lịch xét nghiệm STI:", error);
@@ -112,9 +112,8 @@ export function StiTestBookingForm({
               {service.available_modes.map((mode) => (
                 <label
                   key={mode}
-                  className={`flex items-center gap-2 p-4 border rounded-lg cursor-pointer flex-1 ${
-                    selectedMode === mode ? "border-teal-500 bg-teal-50" : ""
-                  }`}
+                  className={`flex items-center gap-2 p-4 border rounded-lg cursor-pointer flex-1 ${selectedMode === mode ? "border-teal-500 bg-teal-50" : ""
+                    }`}
                 >
                   <input
                     type="radio"
@@ -162,8 +161,9 @@ export function StiTestBookingForm({
                 className="w-full p-2 border rounded-md"
               >
                 <option value="">Chọn buổi</option>
-                <option value="morning">Buổi sáng</option>
-                <option value="afternoon">Buổi chiều</option>
+                <option value="morning">Buổi sáng (7:00 AM - 11:00 AM)</option>
+                <option value="afternoon">Buổi chiều (1:00 PM - 5:00 PM)</option>
+
               </select>
               {form.formState.errors.session && (
                 <p className="text-red-500 text-sm">

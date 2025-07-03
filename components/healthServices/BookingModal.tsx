@@ -29,7 +29,7 @@ export function BookingModal({
     {
       service_id: service.service_id,
       type: service.type,
-      related_appointment_id: null,
+      test_code: null,
     }
   );
   const [selectedTime, setSelectedTime] = useState("");
@@ -80,8 +80,8 @@ export function BookingModal({
         },
         body: JSON.stringify({
           ...appointment,
-          related_appointment_id:
-            stiAppointmentId || appointment.related_appointment_id,
+          test_code:
+            stiAppointmentId || appointment.test_code,
         }),
       });
       if (!response.ok) {
@@ -90,14 +90,21 @@ export function BookingModal({
         }
         throw new Error("Không thể tạo lịch hẹn");
       }
-            const responseData = await response.json();
+      const responseData = await response.json();
 
       notify("success", "Đặt lịch hẹn thành công!");
-         const checkoutUrl = responseData.data?.paymentLink?.checkoutUrl;
-      if (checkoutUrl) {
-      window.location.href = checkoutUrl;
-      return; 
-    }
+      if (stiAppointmentId) {
+        // Nếu có mã STI, thì redirect về checkoutUrl (nếu có)
+        const checkoutUrl = responseData.data?.paymentLink?.checkoutUrl;
+        if (checkoutUrl) {
+          window.location.href = checkoutUrl;
+          return;
+        }
+      } else {
+        // Nếu không có mã STI, redirect về trang chủ "/"
+        window.location.href = "/profile/order";
+        return;
+      }
       onClose();
     } catch (error) {
       console.error("Lỗi khi tạo lịch hẹn:", error);
@@ -170,33 +177,33 @@ export function BookingModal({
 
         {(step === 2 ||
           (step === 1 && service.available_modes.length <= 1)) && (
-          <div>
-            <h2 className="text-2xl font-bold mb-6 text-center">
-              Chọn tư vấn viên
-            </h2>
-            <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-2">
-              {consultants.map((c) => (
-                <div
-                  key={c.consultant_id}
-                  onClick={() => handleConsultantSelect(c)}
-                  className="flex items-center p-4 border rounded-lg cursor-pointer hover:bg-gray-100"
-                >
-                  <Image
-                    src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTHfd3PPulVSp4ZbuBFNkePoUR_fLJQe474Ag&s"
-                    alt={c.full_name || ""}
-                    width={48}
-                    height={48}
-                    className="rounded-full mr-4"
-                  />
-                  <div className="flex-grow">
-                    <p className="font-bold">{c.full_name}</p>
-                    <p className="text-sm text-gray-500">{c.specialization}</p>
+            <div>
+              <h2 className="text-2xl font-bold mb-6 text-center">
+                Chọn tư vấn viên
+              </h2>
+              <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-2">
+                {consultants.map((c) => (
+                  <div
+                    key={c.consultant_id}
+                    onClick={() => handleConsultantSelect(c)}
+                    className="flex items-center p-4 border rounded-lg cursor-pointer hover:bg-gray-100"
+                  >
+                    <Image
+                      src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTHfd3PPulVSp4ZbuBFNkePoUR_fLJQe474Ag&s"
+                      alt={c.full_name || ""}
+                      width={48}
+                      height={48}
+                      className="rounded-full mr-4"
+                    />
+                    <div className="flex-grow">
+                      <p className="font-bold">{c.full_name}</p>
+                      <p className="text-sm text-gray-500">{c.specialization}</p>
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
-          </div>
-        )}
+          )}
 
         {step === 3 && selectedConsultant && (
           <div>
