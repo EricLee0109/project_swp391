@@ -7,7 +7,6 @@ import Link from "next/link";
 import { auth } from "@/auth";
 
 import ProfileDashboard from "@/components/dashboard/components/profile-dashboard/ProfileDashboardProps";
-import { ConsultantProfile } from "@/types/user/User";
 import { getMyConsultantProfile } from "@/app/api/dashboard/profile-dashboard/action";
 
 export default async function DashboardPage() {
