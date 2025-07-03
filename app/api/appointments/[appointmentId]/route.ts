@@ -56,13 +56,16 @@ export async function DELETE(
 
 export async function GET(
   request: Request,
-  { params }: { params: { appointmentId: string } }
+  { params }: { params: Promise<{ appointmentId: string }> }
 ) {
   try {
-    const { appointmentId } = params;
+    const { appointmentId } = await params;
 
     if (!appointmentId) {
-      return NextResponse.json({ error: "Thiếu appointmentId." }, { status: 400 });
+      return NextResponse.json(
+        { error: "Thiếu appointmentId." },
+        { status: 400 }
+      );
     }
 
     const session = await auth();
@@ -71,11 +74,15 @@ export async function GET(
       return NextResponse.json({ error: "Chưa đăng nhập." }, { status: 401 });
     }
 
-    const beRes = await fetch(`${process.env.BE_BASE_URL}/appointments/${appointmentId}`, {
-      headers: {
-        Authorization: `Bearer ${session.accessToken}`,
-      },
-    });
+
+    const beRes = await fetch(
+      `${process.env.BE_BASE_URL}/appointments/${appointmentId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${session.accessToken}`,
+        },
+      }
+    );
 
     if (!beRes.ok) {
       const errText = await beRes.text();
@@ -96,3 +103,4 @@ export async function GET(
     );
   }
 }
+
