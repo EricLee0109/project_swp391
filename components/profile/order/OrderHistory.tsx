@@ -9,6 +9,7 @@ import { formatDateVN } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { shippingStatusMap, paymentStatusMap } from "./helper";
 import { notify } from "@/lib/toastNotify";
+import ResultTesting from "./ResultTesting";
 
 interface ApiAppointment {
   appointment_id: string;
@@ -107,19 +108,14 @@ export default function OrderHistory() {
         method: "POST",
         credentials: "include",
       });
-      // const data = await res.json();
       if (res.ok) {
         setRequestSuccess(appointmentId);
-        notify("success", "Yêu cầu trả mẫu đã được gửi thành công.")
-        // alert("Yêu cầu trả mẫu đã được gửi thành công.");
-        // Có thể reload data hoặc cập nhật trạng thái ở đây nếu cần
+        notify("success", "Yêu cầu trả mẫu đã được gửi thành công.");
       } else {
-        notify("error", "Gửi yêu cầu thất bại.")
-        // alert(data.error || "Gửi yêu cầu thất bại.");
+        notify("error", "Gửi yêu cầu thất bại.");
       }
     } catch {
-      notify("error", "Lỗi mạng, vui lòng thử lại")
-      // alert("Lỗi mạng, vui lòng thử lại.");
+      notify("error", "Lỗi mạng, vui lòng thử lại");
     } finally {
       setRequestLoading(null);
     }
@@ -159,7 +155,6 @@ export default function OrderHistory() {
             <p className="text-center text-gray-500">Chưa có lịch hẹn nào.</p>
           ) : (
             paginatedAppointments.map((appt) => {
-              // Điều kiện hiển thị nút yêu cầu trả mẫu
               const canRequestReturn =
                 appt.type === "Testing" &&
                 appt.mode === "AT_HOME" &&
@@ -272,7 +267,6 @@ export default function OrderHistory() {
                     </div>
                   </div>
 
-                  {/* Nút yêu cầu trả mẫu */}
                   {canRequestReturn && (
                     <div className="mt-4 flex justify-end">
                       <Button
@@ -284,6 +278,12 @@ export default function OrderHistory() {
                       </Button>
                     </div>
                   )}
+
+                  {/* Hiển thị chi tiết kết quả xét nghiệm cho type Testing */}
+{appt.type === "Testing" && (
+  <ResultTesting appointmentId={appt.appointment_id} />
+)}
+
                 </div>
               );
             })
