@@ -52,3 +52,52 @@ export async function DELETE(
     );
   }
 }
+
+export async function GET(
+  request: Request,
+  { params }: { params: Promise<{ appointmentId: string }> }
+) {
+  try {
+    const { appointmentId } = await params;
+
+    if (!appointmentId) {
+      return NextResponse.json(
+        { error: "Thiếu appointmentId." },
+        { status: 400 }
+      );
+    }
+
+    const session = await auth();
+
+    if (!session?.accessToken) {
+      return NextResponse.json({ error: "Chưa đăng nhập." }, { status: 401 });
+    }
+
+    const beRes = await fetch(
+      `${process.env.BE_BASE_URL}/appointments/${appointmentId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${session.accessToken}`,
+        },
+      }
+    );
+
+    if (!beRes.ok) {
+      const errText = await beRes.text();
+      return NextResponse.json(
+        { error: `Lỗi backend: ${beRes.status} - ${errText}` },
+        { status: beRes.status }
+      );
+    }
+
+    const data = await beRes.json();
+
+    return NextResponse.json(data, { status: 200 });
+  } catch (error) {
+    console.error("Lỗi khi lấy chi tiết lịch hẹn:", error);
+    return NextResponse.json(
+      { error: "Lỗi server khi lấy chi tiết lịch hẹn." },
+      { status: 500 }
+    );
+  }
+}
