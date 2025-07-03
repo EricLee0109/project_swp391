@@ -16,7 +16,7 @@ export default async function BlogsPage() {
   const blogs: GETBlog[] = blogsData.blogs;
 
   // const blog = Promise.resolve(blogData);
-  console.log(blogs, "blogdataaa");
+  // console.log(blogs, "blogdataaa");
 
   return (
     <div>
