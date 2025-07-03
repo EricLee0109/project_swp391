@@ -3,7 +3,7 @@
 import { getAllConsultantProfiles } from "@/app/api/consultant/action";
 import ConsultantCard from "@/components/consultant-page/ConsultantCart";
 
-export default async function ConsultantPage() {
+export default async function Consultant() {
   const consultants = await getAllConsultantProfiles();
 
   if (!consultants) return <div>Lỗi khi tải danh sách tư vấn viên</div>;

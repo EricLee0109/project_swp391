@@ -4,7 +4,9 @@ import { BE_BASE_URL } from "@/lib/config";
 import { auth } from "@/auth";
 import { ConsultantProfile } from "@/types/user/User";
 
-export async function getAllConsultantProfiles(): Promise<ConsultantProfile[] | null> {
+export async function getAllConsultantProfiles(): Promise<
+  ConsultantProfile[] | null
+> {
   try {
     const session = await auth();
 
@@ -24,13 +26,16 @@ export async function getAllConsultantProfiles(): Promise<ConsultantProfile[] | 
 
     if (!res.ok) {
       const errorData = await res.json();
-      console.error("Failed to fetch consultants:", errorData.message || res.statusText);
+      console.error(
+        "Failed to fetch consultants:",
+        errorData.message || res.statusText
+      );
       return null;
     }
 
     const data: ConsultantProfile[] = await res.json();
     console.log("BE data consultant", data);
-    
+
     return data;
   } catch (error) {
     console.error("Error fetching consultant profiles:", error);
@@ -66,10 +71,13 @@ export async function updateConsultantProfile(data: {
 
     return { success: true };
   } catch (error: unknown) {
-  console.error("Error updating consultant profile:", error);
-  if (typeof error === "object" && error && "message" in error) {
-    return { success: false, message: (error as { message?: string }).message || "Unknown error" };
+    console.error("Error updating consultant profile:", error);
+    if (typeof error === "object" && error && "message" in error) {
+      return {
+        success: false,
+        message: (error as { message?: string }).message || "Unknown error",
+      };
+    }
+    return { success: false, message: "Unknown error" };
   }
-  return { success: false, message: "Unknown error" };
-}
 }
