@@ -35,3 +35,16 @@ export interface BlogCommentQA {
   content: string;
   parent_id?: string | null;
 }
+
+export interface EditBlog {
+  post_id: string;
+  title: string;
+  content: string;
+  category: string;
+}
+
+export interface CreateBlog {
+  title: string;
+  content: string;
+  category: string;
+}

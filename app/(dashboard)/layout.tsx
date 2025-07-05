@@ -1,6 +1,6 @@
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { Toaster } from "@/components/ui/sonner";
-import { notFound } from "next/navigation";
+import { redirect } from "next/navigation";
 import { AppSidebar } from "@/components/dashboard/sidebar/app-sidebar";
 import { auth } from "@/auth";
 
@@ -12,7 +12,7 @@ export default async function DashboardLayout({
   const userAuth = await auth();
   if (!userAuth) {
     // Redirect to login or handle unauthenticated state
-    notFound();
+    return redirect("/login");
   }
 
   return (

@@ -1,11 +1,14 @@
 "use client";
 import LoadingSkeleton from "@/app/(dashboard)/admin/dashboard/healthServices/loading";
 import CommentForm from "@/components/blog/CommentForm";
+import EmptyComments from "@/components/EmptyCommentSection";
 import { formatDate } from "@/lib/utils";
 import { BlogComment, GETBlogComment } from "@/types/blog/blog";
+import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 
 interface BlogCommentClientProps {
+  accessToken: string | null;
   blogComment: GETBlogComment[];
   blogId: string;
 }
@@ -35,13 +38,19 @@ interface BlogCommentClientProps {
 // }
 
 export default function BlogCommentClient({
+  accessToken,
   blogComment,
   blogId,
 }: BlogCommentClientProps) {
+  console.log(blogComment, "blogComment");
   //   const response = await getRepliesComment(blogComment.comment_id);
   //   const replies = await response;
+  const [displayCommentSection, setDisplayCommentSection] =
+    useState<boolean>(false);
   const [replyUser, setReplyUser] = useState<string | null>(null);
   const [cmtId, setCmtId] = useState<string | null>(null);
+  const pathName = usePathname();
+  const router = useRouter();
 
   const handleReply = (comment: GETBlogComment) => {
     setReplyUser(comment.user.full_name);
@@ -53,49 +62,87 @@ export default function BlogCommentClient({
     setCmtId(null);
   };
 
+  const handleAddComment = () => {
+    setDisplayCommentSection(!displayCommentSection);
+  };
+
   return (
     <>
       <h3 className="text-xl font-bold border-b border-pink-500 py-3">
         Bình luận (Hỏi đáp Q&A)
       </h3>
-      <div className="flex flex-col gap-4 py-3">
-        {blogComment && Array.isArray(blogComment) && blogComment.length > 0 ? (
-          blogComment.map((comment: GETBlogComment) => (
-            <div
-              key={comment.comment_id}
-              className="border rounded-md p-4 bg-gray-50"
-            >
-              <div className="flex items-center justify-between mb-2">
-                <div
-                  onClick={() => handleReply(comment)}
-                  className="cursor-pointer"
-                >
-                  <span className="font-semibold text-sm text-gray-700">
-                    {comment.user.full_name}
-                  </span>
-                  <span className="text-xs text-gray-400">
-                    {formatDate(comment.created_at)}
-                  </span>
-                  <p className="text-gray-800 mb-2">{comment.content}</p>
+      {blogComment && blogComment.length > 0 ? (
+        <div className="flex flex-col gap-4 py-3">
+          {blogComment &&
+          Array.isArray(blogComment) &&
+          blogComment.length > 0 ? (
+            blogComment.map((comment: GETBlogComment) => (
+              <div
+                key={comment.comment_id}
+                className="border rounded-md p-4 bg-gray-50"
+              >
+                <div className="flex items-center justify-between mb-2">
+                  <div
+                    onClick={() => handleReply(comment)}
+                    className="cursor-pointer"
+                  >
+                    <span className="font-semibold text-sm text-gray-700">
+                      {comment.user.full_name}
+                    </span>
+                    <span className="text-xs text-gray-400">
+                      {formatDate(comment.created_at)}
+                    </span>
+                    <p className="text-gray-800 mb-2">{comment.content}</p>
+                  </div>
                 </div>
+                {comment.replies && comment.replies.length > 0 && (
+                  <CommentWithReplies comment={comment} />
+                )}
               </div>
-              {comment.replies && comment.replies.length > 0 && (
-                <CommentWithReplies comment={comment} />
-              )}
-            </div>
-          ))
-        ) : (
-          <LoadingSkeleton />
-        )}
-        <div>
-          <CommentForm
-            replyUser={replyUser || null}
-            commentId={cmtId}
-            blogId={blogId}
-            handleRemove={handleRemove}
-          />
+            ))
+          ) : (
+            <LoadingSkeleton />
+          )}
+          <div>
+            <CommentForm
+              accessToken={accessToken}
+              replyUser={replyUser || null}
+              commentId={cmtId}
+              blogId={blogId}
+              handleRemove={handleRemove}
+              onRequireLogin={() =>
+                router.push(
+                  `/login?callbackUrl=${encodeURIComponent(pathName)}`
+                )
+              }
+            />
+          </div>
         </div>
-      </div>
+      ) : (
+        <>
+          {displayCommentSection ? (
+            <EmptyComments
+              title="No comments yet"
+              description="Start the conversation! Share your thoughts and engage with other readers."
+              onActionClick={handleAddComment}
+              className="border-2 border-dashed border-gray-200 rounded-lg"
+            />
+          ) : (
+            <CommentForm
+              accessToken={accessToken}
+              replyUser={replyUser || null}
+              commentId={cmtId}
+              blogId={blogId}
+              handleRemove={handleRemove}
+              onRequireLogin={() =>
+                router.push(
+                  `/login?callbackUrl=${encodeURIComponent(pathName)}`
+                )
+              }
+            />
+          )}
+        </>
+      )}
     </>
   );
 }

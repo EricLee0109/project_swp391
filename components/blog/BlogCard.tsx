@@ -20,47 +20,6 @@ const BlogCard = ({ blog }: BlogCardProps) => {
 
   return (
     <>
-      {/* <div className="card-containter"> */}
-      {/* <AspectRatio ratio={16 / 10}>
-          <Image
-            src={
-              "https://dummyjson.com/image/400x200/282828?fontFamily=pacifico&text=Blog+Image"
-            }
-            alt={blog?.title || ""}
-            fill
-            className="object-cover object-center rounded-md"
-          />
-        </AspectRatio> */}
-
-      {/* <p className="my-2 text-sm">Ngày tạo: {formattedCreateDate}</p> */}
-      {/* {blog?.created_at && (
-          <p className="my-2 text-sm">Cập nhật: {blog?.created_at}</p>
-        )} */}
-
-      {/* <Link href={`/blog/${blog?.post_id}`}>
-          <h3 className="font-bold my-2">{blog?.title}</h3>
-        </Link>
-
-        <p className="text-sm text-gray-500">{blog?.content}</p>
-
-        <div className="flex flex-wrap gap-2 my-2 text-xs text-gray-600">
-          <span>Tác giả: {blog?.author?.full_name || "Không rõ"}</span>
-          <span>|</span>
-          <span>Chuyên mục: {blog?.category || "Không rõ"}</span>
-          <span>|</span>
-          <span>Lượt xem: {blog?.views_count ?? 0}</span>
-          <span>|</span>
-          <span>{blog?.is_published ? "Đã xuất bản" : "Chưa xuất bản"}</span>
-        </div>
-
-        <Link
-          href={`/blog/${blog?.post_id}`}
-          className="my-3 text-sm font-semibold underline"
-        >
-          Xem thêm
-        </Link>
-      </div> */}
-
       <li className="startup-card group">
         <div className="flex-between">
           <p className="start-card_date">
@@ -92,7 +51,7 @@ const BlogCard = ({ blog }: BlogCardProps) => {
           </Link>
         </div>
 
-        <Link href={`/blog/${blog.title}`}>
+        <Link href={`/blog/${blog.post_id}`}>
           <p className="startup-card_desc">{blog.content}</p>
           <Image
             src={

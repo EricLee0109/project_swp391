@@ -5,6 +5,7 @@ import {
   ChartPie,
   LucideHospital,
   LucideIcon,
+  Notebook,
   ShipIcon,
   TimerIcon,
   Users,
@@ -115,7 +116,7 @@ export function AppSidebarClient({ user, ...props }: AppSidebarClientProps) {
               },
             ],
           },
-           {
+          {
             title: "Quản lý tư vấn viên",
             url: "/manager/dashboard/consultant-check",
             icon: LucideHospital,
@@ -182,6 +183,18 @@ export function AppSidebarClient({ user, ...props }: AppSidebarClientProps) {
               {
                 title: "Danh sách các đơn của khách hàng",
                 url: "/staff/dashboard/shipping/view",
+              },
+            ],
+          },
+          {
+            title: "Quản lý các bài viết",
+            url: "/staff/dashboard/blogs",
+            icon: Notebook,
+            isActive: true,
+            items: [
+              {
+                title: "Danh sách các bài viết",
+                url: "/staff/dashboard/blogs/view",
               },
             ],
           },

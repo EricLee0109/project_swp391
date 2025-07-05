@@ -16,6 +16,7 @@ type ProfileUserType = {
 export default async function Navbar() {
   const session = await authJWT();
   const ggSession = await auth();
+
   let user = null;
   let type: "jwt" | "oauth" | null = null;
   if (session?.user) {
