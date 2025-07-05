@@ -1,6 +1,7 @@
 import jwt from "jsonwebtoken";
 import { User } from "@/types/ServiceType/HealthServiceType";
 import { auth } from "@/auth";
+import { redirect } from "next/navigation";
 
 const JWT_SECRET = process.env.JWT_SECRET!;
 
@@ -18,6 +19,6 @@ export async function authJWT() {
     return { user: decoded || null };
   } catch (err) {
     console.error("❌ Invalid token:", err);
-    return null;
+    return redirect("/login");
   }
 }

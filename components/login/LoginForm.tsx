@@ -16,7 +16,7 @@ import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import { useState, useTransition } from "react";
 import { githubSignIn, googleSignIn } from "@/app/(auth)/login/actions";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 const loginSchema = z.object({
   email: z.string().email("Email không hợp lệ"),
   password: z.string().min(6, "Mật khẩu ít nhất 6 ký tự"),
@@ -43,6 +43,9 @@ export function LoginForm({
   });
   const [message, setMessage] = useState("");
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get("callbackUrl") || "/";
+  // console.log(searchParams.get("callbackUrl"), "callback");
 
   // const handleSubmit = (data: LoginFormValues) => {
   //   setMessage("");
@@ -85,47 +88,48 @@ export function LoginForm({
   //   });
   // };
 
-const handleSubmit = async (data: LoginFormValues) => {
-  const { email, password } = data;
-  setMessage("");
-  startTransition(async () => {
-    if (loginType === "custom") {
-      try {
-        const result = await signIn("credentials", {
-          email,
-          password,
-          redirect: false,
-        });
+  const handleSubmit = async (data: LoginFormValues) => {
+    const { email, password } = data;
+    setMessage("");
+    startTransition(async () => {
+      if (loginType === "custom") {
+        try {
+          const result = await signIn("credentials", {
+            email,
+            password,
+            redirect: false,
+          });
 
-        if (result?.error) {
-          setMessage("Invalid email or password");
-        } else if (result?.ok) {
-          // Gọi session để lấy role
-          const res = await fetch("/api/auth/session");
-          const session = await res.json();
-          const role = session?.user?.role;
+          if (result?.error) {
+            setMessage("Invalid email or password");
+          } else if (result?.ok) {
+            // Gọi session để lấy role
+            const res = await fetch("/api/auth/session");
+            const session = await res.json();
+            const role = session?.user?.role;
 
-          if (!role) {
-            setMessage("Không xác định được vai trò người dùng.");
-            return;
+            if (!role) {
+              setMessage("Không xác định được vai trò người dùng.");
+              return;
+            }
+
+            if (role === "Customer") {
+              // Redirect to previous page and force re-render by pushing current pathname
+              router.replace(callbackUrl); //if does not have callbackUrl, redirect to home page /
+              router.refresh();
+            } else {
+              router.push("/dashboard");
+            }
+
+            router.refresh(); // Cập nhật dữ liệu layout
           }
-
-          if (role === "Customer") {
-            router.push("/");
-          } else {
-            router.push("/dashboard");
-          }
-
-          router.refresh(); // Cập nhật dữ liệu layout
+        } catch (error) {
+          console.error("Login error:", error);
+          setMessage("An unexpected error occurred");
         }
-      } catch (error) {
-        console.error("Login error:", error);
-        setMessage("An unexpected error occurred");
       }
-    }
-  });
-};
-
+    });
+  };
 
   const handleGoogleLogin = () => {
     setPendingProvider("google");

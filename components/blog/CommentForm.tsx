@@ -7,6 +7,7 @@ import { useForm } from "react-hook-form";
 import { CommentFormValues, commentSchema } from "@/types/schemas/FormSchemas";
 import { BlogCommentQA } from "@/types/blog/blog";
 import { X } from "lucide-react";
+import { notify } from "@/lib/toastNotify";
 
 async function blogCommentQA(
   req: BlogCommentQA,
@@ -45,15 +46,19 @@ async function blogCommentQA(
 }
 
 export default function CommentForm({
+  accessToken,
   blogId,
   commentId,
   replyUser,
   handleRemove,
+  onRequireLogin,
 }: {
+  accessToken: string | null;
   blogId: string;
   commentId?: string | null;
   replyUser?: string | null;
   handleRemove: () => void;
+  onRequireLogin: () => void;
 }) {
   const {
     register,
@@ -65,6 +70,12 @@ export default function CommentForm({
   });
 
   const onSubmit = async (data: CommentFormValues) => {
+    if (!accessToken) {
+      notify("error", "Vui lòng đăng nhập để bình luận!");
+      onRequireLogin();
+      return;
+    }
+
     await blogCommentQA(
       { content: data.content },
       blogId,

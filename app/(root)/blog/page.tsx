@@ -6,7 +6,7 @@ import { GETBlog } from "@/types/blog/blog";
 async function getBlogs() {
   const res = await fetch(`${process.env.BE_BASE_URL}/blogs/public`, {
     method: "GET",
-    next: { revalidate: 3600 }, //caching 1 hour
+    cache: "no-store",
   });
   return res.json();
 }
