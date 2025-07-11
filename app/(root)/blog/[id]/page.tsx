@@ -5,6 +5,7 @@ import BlogDetailClient from "@/app/(root)/blog/[id]/BlogDetailClient";
 import BlogCommentClient from "@/app/(root)/blog-comments/[id]/BlogCommentClient";
 import { auth } from "@/auth";
 import RelatedBlogsSection from "@/components/blog/RelatedBlogCard";
+import Breadcrumb from "@/components/share/Breadcrumb";
 
 //Nextjs required PageProps
 interface BlogDetailPageProps {
@@ -61,27 +62,36 @@ export default async function BlogDetailPage({ params }: BlogDetailPageProps) {
   const relatedBlogs: GETBlog[] = relatedBlogsData.blogs;
   console.log(relatedBlogs, "relatedBlogs");
   return (
-    <MaxWidthWrapper className="py-10">
-      <div className="grid grid-cols-12 gap-5">
-        {/* Blog Detail */}
-        <section className="col-span-12 lg:col-span-12">
-          <BlogDetailClient key={blog.post_id} blog={blog} />
-        </section>
+    <>
+      <Breadcrumb
+        items={[
+          { label: "Trang chủ", href: "/" },
+          { label: "Blogs", href: "/blog" },
+          { label: "Chi tiết", href: `/blog/${id}` },
+        ]}
+      />
+      <MaxWidthWrapper className="py-10">
+        <div className="grid grid-cols-12 gap-5">
+          {/* Blog Detail */}
+          <section className="col-span-12 lg:col-span-12">
+            <BlogDetailClient key={blog.post_id} blog={blog} />
+          </section>
 
-        {/* Blog Comment Section */}
-        <section className="col-span-4 lg:col-span-8">
-          <BlogCommentClient
-            accessToken={accessToken ?? null}
-            blogId={id}
-            blogComment={blogComment}
-          />
-        </section>
+          {/* Blog Comment Section */}
+          <section className="col-span-4 lg:col-span-8">
+            <BlogCommentClient
+              accessToken={accessToken ?? null}
+              blogId={id}
+              blogComment={blogComment}
+            />
+          </section>
 
-        {/* Related blog */}
-        <section className="col-span-12 lg:col-span-4">
-          <RelatedBlogsSection relatedBlogs={relatedBlogs} />
-        </section>
-      </div>
-    </MaxWidthWrapper>
+          {/* Related blog */}
+          <section className="col-span-12 lg:col-span-4">
+            <RelatedBlogsSection relatedBlogs={relatedBlogs} />
+          </section>
+        </div>
+      </MaxWidthWrapper>
+    </>
   );
 }

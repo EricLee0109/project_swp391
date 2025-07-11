@@ -32,7 +32,13 @@ export default async function Home({
   const session = await auth();
   const role = session?.user.role; // Safely get the role
 
-  if (session && role !== "Customer") redirect("/dashboard");
+  if (
+    session &&
+    role !== "Customer" &&
+    role !== "Staff" &&
+    role !== "Consultant"
+  )
+    redirect("/dashboard");
 
   async function getBlogs() {
     const res = await fetch(`${process.env.BE_BASE_URL}/blogs/public`, {

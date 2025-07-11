@@ -12,6 +12,7 @@ import {
   AvailableModeEnums,
 } from "@/types/ServiceType/HealthServiceType";
 import Loading from "@/app/(root)/loading";
+import EmptyComments from "@/components/EmptyCommentSection";
 
 type RawService = Omit<Service, "price"> & { price: string };
 
@@ -111,11 +112,11 @@ export function ServiceBrowser() {
             />
           ))
         ) : (
-          <div className="col-span-full text-center py-16">
-            <p className="text-gray-500 text-lg">
-              Không có kết quả nào được tìm thấy!
-            </p>
-          </div>
+          <EmptyComments
+            title="Không có dịch vụ nào!"
+            showActionButton={false}
+            description="Hiện không có dịch vụ nào đang hoạt động!"
+          />
         )}
       </div>
     </>

@@ -4,7 +4,11 @@ import { useEffect, useState } from "react";
 import { Home, Hospital, CheckCircle2, Info, Users, Clock } from "lucide-react";
 import { BookingTrigger } from "@/components/healthServices/BookingTrigger";
 import { DetailItem } from "@/components/healthServices/DetailItem";
-import { CustomService, Consultant } from "@/types/ServiceType/CustomServiceType";
+import {
+  CustomService,
+  Consultant,
+} from "@/types/ServiceType/CustomServiceType";
+import LoadingSkeleton from "@/app/(dashboard)/admin/dashboard/healthServices/loading";
 
 interface TestingHours {
   morning?: { start: string; end: string };
@@ -41,8 +45,18 @@ export default function DetailService({ serviceId }: { serviceId: string }) {
     if (serviceId) fetchDetail();
   }, [serviceId]);
 
-  if (loading) return <div className="p-10 text-center">Đang tải...</div>;
-  if (!service) return <div className="p-10 text-center text-red-500">Không tìm thấy dịch vụ.</div>;
+  if (loading)
+    return (
+      <div className="p-10 text-center">
+        <LoadingSkeleton />
+      </div>
+    );
+  if (!service)
+    return (
+      <div className="p-10 text-center text-red-500">
+        Không tìm thấy dịch vụ.
+      </div>
+    );
 
   const formattedPrice = new Intl.NumberFormat("vi-VN", {
     style: "currency",
@@ -51,12 +65,17 @@ export default function DetailService({ serviceId }: { serviceId: string }) {
   }).format(parseInt(service.price, 10));
 
   const formatTestingHours = (testingHours?: TestingHours | null) => {
-    if (!testingHours) return (
-      <>
-        <div><b>Ca sáng:</b> Không có</div>
-        <div><b>Ca chiều:</b> Không có</div>
-      </>
-    );
+    if (!testingHours)
+      return (
+        <>
+          <div>
+            <b>Ca sáng:</b> Không có
+          </div>
+          <div>
+            <b>Ca chiều:</b> Không có
+          </div>
+        </>
+      );
     const morning = testingHours.morning
       ? `${testingHours.morning.start} - ${testingHours.morning.end}`
       : "Không có";
@@ -65,8 +84,12 @@ export default function DetailService({ serviceId }: { serviceId: string }) {
       : "Không có";
     return (
       <>
-        <div><b>Ca sáng:</b> {morning}</div>
-        <div><b>Ca chiều:</b> {afternoon}</div>
+        <div>
+          <b>Ca sáng:</b> {morning}
+        </div>
+        <div>
+          <b>Ca chiều:</b> {afternoon}
+        </div>
       </>
     );
   };
@@ -105,7 +128,9 @@ export default function DetailService({ serviceId }: { serviceId: string }) {
                     </span>
                     <span>Đang hoạt động</span>
                   </div>
-                ) : "Tạm dừng"
+                ) : (
+                  "Tạm dừng"
+                )
               }
             />
             <DetailItem
@@ -129,7 +154,9 @@ export default function DetailService({ serviceId }: { serviceId: string }) {
               </p>
             </div>
             <div className="mb-6">
-              <h3 className="font-semibold text-gray-700 mb-2">Hình thức khám:</h3>
+              <h3 className="font-semibold text-gray-700 mb-2">
+                Hình thức khám:
+              </h3>
               <div className="space-y-3">
                 {service.available_modes.includes("AT_CLINIC") && (
                   <div className="flex items-center gap-2 text-gray-600">
@@ -148,7 +175,7 @@ export default function DetailService({ serviceId }: { serviceId: string }) {
             <BookingTrigger
               service={service}
               consultants={consultants}
-              schedules={consultants.flatMap(c => c.schedules || [])}
+              schedules={consultants.flatMap((c) => c.schedules || [])}
             />
           </div>
         </div>

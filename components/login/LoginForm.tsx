@@ -23,6 +23,7 @@ const loginSchema = z.object({
 });
 
 import { signIn } from "next-auth/react";
+import { notify } from "@/lib/toastNotify";
 
 type LoginFormValues = z.infer<typeof loginSchema>;
 
@@ -101,7 +102,7 @@ export function LoginForm({
           });
 
           if (result?.error) {
-            setMessage("Invalid email or password");
+            notify("error", "Invalid email or password");
           } else if (result?.ok) {
             // Gọi session để lấy role
             const res = await fetch("/api/auth/session");
@@ -109,7 +110,7 @@ export function LoginForm({
             const role = session?.user?.role;
 
             if (!role) {
-              setMessage("Không xác định được vai trò người dùng.");
+              notify("error", "Không xác định được vai trò người dùng.");
               return;
             }
 
@@ -125,7 +126,7 @@ export function LoginForm({
           }
         } catch (error) {
           console.error("Login error:", error);
-          setMessage("An unexpected error occurred");
+          notify("error", "An unexpected error occurred");
         }
       }
     });

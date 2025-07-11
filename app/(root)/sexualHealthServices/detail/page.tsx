@@ -1,4 +1,5 @@
 import DetailService from "@/components/healthServices/DetailService";
+import Breadcrumb from "@/components/share/Breadcrumb";
 import { notFound } from "next/navigation";
 
 export default async function ServiceDetailPage({
@@ -14,10 +15,19 @@ export default async function ServiceDetailPage({
   }
 
   return (
-    <div className="bg-gray-50 min-h-screen font-sans">
-      <main className="container mx-auto px-4 py-8 md:py-12">
-        <DetailService serviceId={serviceId} />
-      </main>
-    </div>
+    <>
+      <Breadcrumb
+        items={[
+          { label: "Trang chủ", href: "/" },
+          { label: "Dịch vụ sức khỏe", href: "/sexualHealthServices" },
+          { label: "Chi tiết", href: "/sexualHealthServices/detail" },
+        ]}
+      />
+      <div className="bg-gray-50 min-h-screen font-sans">
+        <main className="container mx-auto px-4 py-8 md:py-12">
+          <DetailService serviceId={serviceId} />
+        </main>
+      </div>
+    </>
   );
 }
