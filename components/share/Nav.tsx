@@ -27,6 +27,7 @@ const stisCategories = [
 export default async function Nav() {
   const session = await authJWT();
   const ggSession = await auth();
+  const role = ggSession?.user.role;
   let user = null;
   let type: "jwt" | "oauth" | null = null;
   if (session?.user) {
@@ -36,11 +37,29 @@ export default async function Nav() {
     user = ggSession.user;
     type = "oauth";
   }
+
+  const isStaffConsultantRole =
+    role === "Staff" || role === "Consultant" ? true : false;
+
   return (
     <div className="bg-black transition-all duration-300">
       <MaxWidthWrapper className="flex justify-evenly gap-5 items-center">
         <NavigationMenu>
           <NavigationMenuList>
+            {isStaffConsultantRole && (
+              <NavigationMenuItem>
+                <NavigationMenuLink
+                  href="/dashboard"
+                  className={cn(
+                    navigationMenuTriggerStyle(),
+                    "bg-transparent text-white hover:text-white hover:bg-white/20 rounded-none uppercase font-bold"
+                  )}
+                >
+                  Dashboard
+                </NavigationMenuLink>
+              </NavigationMenuItem>
+            )}
+
             <NavigationMenuItem>
               <NavigationMenuTrigger className="bg-transparent text-white hover:text-white hover:bg-white/20 rounded-none uppercase font-bold">
                 Các loại STIs
@@ -92,7 +111,7 @@ export default async function Nav() {
                 Tư vấn viên
               </NavigationMenuLink>
             </NavigationMenuItem>
-            {user && type && (
+            {user && type && !isStaffConsultantRole && (
               <NavigationMenuItem>
                 <NavigationMenuLink
                   href="/menstrualCycle"

@@ -76,7 +76,7 @@ export default function BlogCommentClient({
           {blogComment &&
           Array.isArray(blogComment) &&
           blogComment.length > 0 ? (
-            blogComment.map((comment: GETBlogComment) => (
+            blogComment.map((comment) => (
               <div
                 key={comment.comment_id}
                 className="border rounded-md p-4 bg-gray-50"

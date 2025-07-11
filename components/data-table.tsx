@@ -45,6 +45,11 @@ const filterConfigs = [
     columnKey: "name",
     placeholder: "Filter by service name...",
   },
+  //Blog Table
+  {
+    columnKey: "title",
+    placeholder: "Filter by title name...",
+  },
 ];
 
 //Reusable DataTable component that can be used in various parts of the application
@@ -73,32 +78,33 @@ export function DataTable<TData, TValue>({
     meta: {},
   });
 
-  const findFilterSearch = filterConfigs.filter(
-    (column) => !table.getColumn(column.columnKey)
-  );
+  //filter search name
+  const filterFound = React.useMemo(() => {
+    //prevent re-render, memmorize result
+    const findFilterSearch = filterConfigs.filter((column) =>
+      table?.getColumn(column?.columnKey)
+    );
+    console.log(findFilterSearch[0], "filter search");
+    return findFilterSearch[0];
+  }, [table]);
 
-  for (const value of filterConfigs) {
-    console.log(value.columnKey, "hello3");
-  }
+  const columnFound = table.getColumn(filterFound?.columnKey);
 
   return (
     <div className="ml-4 mr-4 mt-4">
-      <div className="flex items-center py-4">
-        {!findFilterSearch.map((e) => e.columnKey) &&
-          filterConfigs.map(({ columnKey, placeholder }) => {
-            const column = table.getColumn(columnKey);
-
-            return (
-              <Input
-                key={columnKey}
-                placeholder={placeholder}
-                value={(column?.getFilterValue() as string) ?? ""}
-                onChange={(event) => column?.setFilterValue(event.target.value)}
-                className="max-w-sm"
-              />
-            );
-          })}
-      </div>
+      {filterFound && (
+        <div className="flex items-center py-4">
+          <Input
+            key={filterFound.columnKey}
+            placeholder={filterFound.placeholder}
+            value={(columnFound?.getFilterValue() as string) ?? ""}
+            onChange={(event) =>
+              columnFound?.setFilterValue(event.target.value)
+            }
+            className="max-w-sm"
+          />
+        </div>
+      )}
       <div className="rounded-md border">
         <Table>
           <TableHeader>
