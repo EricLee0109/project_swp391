@@ -59,9 +59,11 @@ export default function OrderHistory() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 3; // số lịch hẹn trên 1 trang
-  const [requestLoading, setRequestLoading] = useState<string | null>(null); // appointmentId đang gửi request
+  const itemsPerPage = 3;
+  const [requestLoading, setRequestLoading] = useState<string | null>(null);
   const [requestSuccess, setRequestSuccess] = useState<string | null>(null);
+  const [validateLoading, setValidateLoading] = useState<string | null>(null);
+  const [validateResult, setValidateResult] = useState<{ [key: string]: { valid: boolean; message: string } }>({});
 
   useEffect(() => {
     async function fetchAppointments() {
@@ -99,7 +101,6 @@ export default function OrderHistory() {
     }
   };
 
-  // Gọi API tạo yêu cầu trả mẫu
   async function requestReturnSample(appointmentId: string) {
     setRequestLoading(appointmentId);
     setRequestSuccess(null);
@@ -118,6 +119,22 @@ export default function OrderHistory() {
       notify("error", "Lỗi mạng, vui lòng thử lại");
     } finally {
       setRequestLoading(null);
+    }
+  }
+
+  async function validateTestCode(appointmentId: string, testCode: string) {
+    setValidateLoading(appointmentId);
+    try {
+      const res = await fetch(`/api/appointments/validate-test-code/${testCode}`, {
+        credentials: "include",
+      });
+      const data = await res.json();
+      setValidateResult(prev => ({ ...prev, [appointmentId]: data }));
+      notify(data.valid ? "success" : "error", data.message);
+    } catch {
+      notify("error", "Lỗi mạng, vui lòng thử lại");
+    } finally {
+      setValidateLoading(null);
     }
   }
 
@@ -162,6 +179,10 @@ export default function OrderHistory() {
 
               const isRequesting = requestLoading === appt.appointment_id;
               const isRequested = requestSuccess === appt.appointment_id;
+
+              const canValidate = appt.type === "Testing" && appt.test_code;
+              const isValidating = validateLoading === appt.appointment_id;
+              const validateRes = validateResult[appt.appointment_id];
 
               return (
                 <div
@@ -239,12 +260,12 @@ export default function OrderHistory() {
                           <Badge
                             variant={
                               appt.payment_status
-                                ? paymentStatusMap[appt.payment_status]?.variant || "default"
-                                : "outline"
+                                ? paymentStatusMap[appt.payment_status].variant || "default"
+                              : "outline"
                             }
                           >
                             {appt.payment_status
-                              ? paymentStatusMap[appt.payment_status]?.label || appt.payment_status
+                              ? paymentStatusMap[appt.payment_status].label || appt.payment_status
                               : "Không xác định"}
                           </Badge>
                         }
@@ -255,20 +276,18 @@ export default function OrderHistory() {
                       {appt.test_result_status && (
                         <Info
                           label="Kết quả xét nghiệm"
-                          value={
-                            appt.test_result_status === "Pending"
-                              ? "Đang chờ"
-                              : appt.test_result_status === "Completed"
-                                ? "Hoàn thành"
-                                : appt.test_result_status
-                          }
+                          value={appt.test_result_status === "Pending"
+                            ? "Đang chờ"
+                            : appt.test_result_status === "Completed"
+                              ? "Hoàn thành"
+                              : appt.test_result_status}
                         />
                       )}
                     </div>
                   </div>
 
-                  {canRequestReturn && (
-                    <div className="mt-4 flex justify-end">
+                  <div className="mt-4 flex justify-end gap-2">
+                    {canRequestReturn && (
                       <Button
                         variant={isRequested ? "default" : "outline"}
                         disabled={isRequesting || isRequested}
@@ -276,19 +295,25 @@ export default function OrderHistory() {
                       >
                         {isRequesting ? "Đang gửi..." : isRequested ? "Đã gửi yêu cầu" : "Yêu cầu trả mẫu"}
                       </Button>
-                    </div>
+                    )}
+                    {canValidate && (
+                      <Button
+                        variant={validateRes ? "default" : "outline"}
+                        disabled={isValidating || !!validateRes}
+                        onClick={() => validateTestCode(appt.appointment_id, appt.test_code!)}
+                      >
+                        {isValidating ? "Đang kiểm tra..." : validateRes ? (validateRes.valid ? "Hợp lệ" : "Không hợp lệ") : "Kiểm tra tư vấn miễn phí"}
+                      </Button>
+                    )}
+                  </div>
+
+                  {appt.type === "Testing" && (
+                    <ResultTesting appointmentId={appt.appointment_id} />
                   )}
-
-                  {/* Hiển thị chi tiết kết quả xét nghiệm cho type Testing */}
-{appt.type === "Testing" && (
-  <ResultTesting appointmentId={appt.appointment_id} />
-)}
-
                 </div>
               );
             })
           )}
-          {/* Phân trang */}
           {totalPages > 1 && (
             <div className="flex justify-center gap-2 mt-6">
               <Button
