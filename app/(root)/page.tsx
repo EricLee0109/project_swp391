@@ -30,15 +30,18 @@ export default async function Home({
 }) {
   const query = (await searchParams).query;
   const session = await auth();
-  const role = session?.user.role; // Safely get the role
+  const role = session?.user?.role; // Safely get the role
 
   if (
     session &&
     role !== "Customer" &&
     role !== "Staff" &&
     role !== "Consultant"
-  )
-    redirect("/dashboard");
+  ) {
+    return redirect("/dashboard");
+  } else {
+    return;
+  }
 
   async function getBlogs() {
     const res = await fetch(`${process.env.BE_BASE_URL}/blogs/public`, {
