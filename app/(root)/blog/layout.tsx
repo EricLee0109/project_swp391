@@ -6,7 +6,9 @@ interface ConsultantPageLayoutProps {
 
 const ConsultantPageLayout = ({ children }: ConsultantPageLayoutProps) => {
   return (
-    <div className="min-h-screen font-sans">
+    <div className="min-h-screen font-sans mdl-js">
+      {" "}
+      {/* mdl-js prevent hyderation error from NextJs */}
       <Breadcrumb
         items={[
           { label: "Trang chủ", href: "/" },
@@ -24,7 +26,7 @@ const ConsultantPageLayout = ({ children }: ConsultantPageLayoutProps) => {
         </header>
 
         {/* The stateful, interactive part is delegated to a Client Component */}
-        {children}
+        <div>{children}</div>
       </main>
     </div>
   );

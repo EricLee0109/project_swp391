@@ -8,12 +8,12 @@ export async function getAllConsultantProfiles(): Promise<
   ConsultantProfile[] | null
 > {
   try {
-    const session = await auth();
+    // const session = await auth();
 
-    if (!session?.accessToken) {
-      console.error("Access token not found in session");
-      return null;
-    }
+    // if (!session?.accessToken) {
+    //   console.error("Access token not found in session");
+    //   return null;
+    // }
 
     const res = await fetch(
       `${process.env.BE_BASE_URL}/auth/profile/consultants/all`,
@@ -21,7 +21,8 @@ export async function getAllConsultantProfiles(): Promise<
         method: "GET",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${session.accessToken}`,
+          // Authorization: `Bearer ${session.accessToken}`,
+          //not need accessToken to this API
         },
         cache: "no-store", // đảm bảo không cache trên server
       }

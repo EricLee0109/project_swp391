@@ -21,7 +21,7 @@ const Hero = () => {
       <div className="col-span-12 md:col-span-6 flex justify-center">
         <Image
           src="/docter.png"
-          alt="Ảnh bác sĩ"
+          alt="doctor"
           width={400}
           height={400}
           className="object-contain max-w-full h-auto"

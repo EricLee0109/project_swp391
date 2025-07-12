@@ -37,8 +37,12 @@ export default function ConsultantCard({ consultant }: Props) {
           <h3 className="font-semibold text-lg">{consultant.user.full_name}</h3>
           <Badge variant="outline">{consultant.specialization}</Badge>
         </div>
-        <p className="text-sm text-muted-foreground">Trình độ: {consultant.qualifications}</p>
-        <p className="text-sm text-muted-foreground">Kinh nghiệm: {consultant.experience}</p>
+        <p className="text-sm text-muted-foreground">
+          Trình độ: {consultant.qualifications}
+        </p>
+        <p className="text-sm text-muted-foreground">
+          Kinh nghiệm: {consultant.experience}
+        </p>
       </CardContent>
       <CardFooter className="px-4 pb-4">
         <div className="flex items-center gap-1 text-yellow-500 text-sm">

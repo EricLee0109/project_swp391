@@ -66,8 +66,8 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className={workSans.variable}>
+    <html lang="en" suppressHydrationWarning>
+      <body className={workSans.variable} suppressHydrationWarning>
         <SessionProvider>{children}</SessionProvider>
         <Toaster />
       </body>
