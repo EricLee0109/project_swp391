@@ -39,8 +39,6 @@ export default async function Home({
     role !== "Consultant"
   ) {
     return redirect("/dashboard");
-  } else {
-    return;
   }
 
   async function getBlogs() {
