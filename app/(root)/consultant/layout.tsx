@@ -1,16 +1,22 @@
 import Breadcrumb from "@/components/share/Breadcrumb";
+export const dynamic = "force-dynamic";
 
 interface ConsultantPageLayoutProps {
   children: React.ReactNode;
 }
+interface DetailPageProps {
+  params: Promise<{ id: string }>;
+}
+const ConsultantPageLayout = async ({ children, params }: ConsultantPageLayoutProps & DetailPageProps) => {
+  const { id: consultantId } = await params;
 
-const ConsultantPageLayout = ({ children }: ConsultantPageLayoutProps) => {
   return (
     <div className="min-h-screen font-sans">
       <Breadcrumb
         items={[
           { label: "Trang chủ", href: "/" },
           { label: "Tư vấn viên", href: "/consultant" },
+          { label: "Chi tiết", href: `/consultant/${consultantId}` },
         ]}
       />
       <main className="container mx-auto px-4 py-8 md:py-12">
@@ -23,11 +29,11 @@ const ConsultantPageLayout = ({ children }: ConsultantPageLayoutProps) => {
           </p>
         </header>
 
-        {/* The stateful, interactive part is delegated to a Client Component */}
         {children}
       </main>
     </div>
   );
 };
+
 
 export default ConsultantPageLayout;

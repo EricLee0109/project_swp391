@@ -18,8 +18,8 @@ export interface User {
   is_verified?: boolean; // Thêm dấu ? để optional
   created_at: string;
   updated_at: string;
-  customerProfile?: CustomerProfile | null; // Optional
-  consultantProfile?: ConsultantProfile | null; // Optional
+ customerProfile?: any;
+  consultantProfile?: any;
 }
 
 export interface CustomerProfile {
@@ -34,26 +34,5 @@ export interface CustomerProfile {
   deleted_at: string | null;
 }
 
-export interface ConsultantProfile {
-  consultant_id: string;
-  user_id: string;
-  qualifications: string;
-  experience: string;
-  specialization: string;
-  is_verified: boolean;
-  average_rating: number;
-  created_at: string;
-  updated_at: string;
-  deleted_at: string | null;
-  user: ConsultantUser;
-}
-export interface ConsultantUser {
-  user_id: string;
-  email: string;
-  full_name: string;
-  phone_number: string;
-  address: string;
-  role: Role;
-  is_verified: boolean;
-  is_active: boolean;
-}
+// ✅ Xuất thêm type Consultant
+export * from "./CustomServiceType";
