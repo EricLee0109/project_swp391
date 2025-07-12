@@ -2,7 +2,7 @@
 
 // import { BE_BASE_URL } from "@/lib/config";
 import { auth } from "@/auth";
-import { ConsultantProfile } from "@/types/user/User";
+import { ConsultantProfile } from "@/types/user/CustomServiceType";
 
 export async function getAllConsultantProfiles(): Promise<
   ConsultantProfile[] | null

@@ -6,7 +6,7 @@ import { Plus } from "lucide-react";
 import Link from "next/link";
 import { auth } from "@/auth";
 
-import ProfileDashboard from "@/components/dashboard/components/profile-dashboard/ProfileDashboardProps";
+// import ProfileDashboard from "@/components/dashboard/components/profile-dashboard/ProfileDashboardProps";
 import { getMyConsultantProfile } from "@/app/api/dashboard/profile-dashboard/action";
 
 export default async function DashboardPage() {
@@ -39,7 +39,7 @@ export default async function DashboardPage() {
           </div>
         )}
 
-        <ProfileDashboard profile={consultantProfile} />
+        {/* <ProfileDashboard profile={consultantProfile} /> */}
       </div>
     </div>
   );

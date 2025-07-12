@@ -2,7 +2,7 @@
 
 import ConsultantCard from "@/components/consultant-page/ConsultantCart";
 import EmptyComments from "@/components/EmptyCommentSection";
-import { ConsultantProfile } from "@/types/user/User";
+import { ConsultantProfile } from "@/types/user/CustomServiceType";
 import { notFound } from "next/navigation";
 
 interface ConsultantProps {
@@ -10,18 +10,19 @@ interface ConsultantProps {
 }
 
 export default function Consultant({ consultantProfiles }: ConsultantProps) {
-  if (!consultantProfiles) return notFound();
-
+  if (!consultantProfiles) return notFound(); 
   return (
     <div className="p-6 space-y-6">
       {consultantProfiles && consultantProfiles.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-          {consultantProfiles.map((consultant: ConsultantProfile) => (
-            <ConsultantCard
-              key={consultant.consultant_id}
-              consultant={consultant}
-            />
-          ))}
+          {consultantProfiles.map((consultant,) =>
+            consultant.consultant?.consultant_id ? (
+              <ConsultantCard
+                key={consultant.consultant.consultant_id}
+                consultant={consultant}
+              />
+            ) : null
+          )}
         </div>
       ) : (
         <EmptyComments
