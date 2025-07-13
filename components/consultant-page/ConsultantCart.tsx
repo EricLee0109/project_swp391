@@ -2,13 +2,14 @@
 
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ConsultantProfile } from "@/types/user/CustomServiceType";
+import { ConsultantGetAll } from "@/types/user/CustomServiceType";
 import { Star } from "lucide-react";
 import { useRouter } from "next/navigation"; // ✅ Sửa từ 'next/router'
 import Image from "next/image";
 
 interface Props {
-  consultant: ConsultantProfile;
+  // consultant: ConsultantProfile;
+  consultant: ConsultantGetAll;
 }
 export default function ConsultantCard({ consultant }: Props) {
   const router = useRouter();
@@ -17,6 +18,8 @@ export default function ConsultantCard({ consultant }: Props) {
     router.push(`/consultant/${consultant.consultant.consultant_id}`);
   };
 
+  console.log(consultant, "consultant");
+
   return (
     <Card
       className="cursor-pointer hover:shadow-xl transition-all duration-300"
@@ -24,8 +27,8 @@ export default function ConsultantCard({ consultant }: Props) {
     >
       <div className="relative w-full h-60">
         <Image
-          src={consultant.user?.image || "/white-placeholder.png"}
-          alt={`Ảnh của ${consultant.user?.full_name || "Tư vấn viên"}`}
+          src={consultant?.image || "/white-placeholder.png"}
+          alt={`Ảnh của ${consultant.full_name || "Tư vấn viên"}`}
           fill
           sizes="(max-width: 768px) 100vw, 33vw"
           className="object-cover rounded-t-xl"
@@ -34,7 +37,7 @@ export default function ConsultantCard({ consultant }: Props) {
       <CardContent className="space-y-2 mt-3">
         <div className="flex justify-between items-center">
           <h3 className="font-semibold text-lg">
-            {consultant.user?.full_name}
+            {consultant.full_name || "Khoa"}
           </h3>
           <Badge variant="outline">
             {consultant.consultant.specialization}

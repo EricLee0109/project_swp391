@@ -2,10 +2,11 @@
 
 // import { BE_BASE_URL } from "@/lib/config";
 import { auth } from "@/auth";
-import { ConsultantProfile } from "@/types/user/CustomServiceType";
+import { ConsultantGetAll } from "@/types/user/CustomServiceType";
 
 export async function getAllConsultantProfiles(): Promise<
-  ConsultantProfile[] | null
+  // ConsultantProfile[] | null
+  ConsultantGetAll[] | null
 > {
   try {
     // const session = await auth();
@@ -37,7 +38,7 @@ export async function getAllConsultantProfiles(): Promise<
       return null;
     }
 
-    const data: ConsultantProfile[] = await res.json();
+    const data: ConsultantGetAll[] = await res.json();
     console.log("BE data consultant", data);
 
     return data;

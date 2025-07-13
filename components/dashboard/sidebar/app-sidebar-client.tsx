@@ -5,6 +5,7 @@ import {
   ChartPie,
   LucideHospital,
   LucideIcon,
+  MessageCircleQuestion,
   Notebook,
   ShipIcon,
   TimerIcon,
@@ -154,6 +155,18 @@ export function AppSidebarClient({ user, ...props }: AppSidebarClientProps) {
               {
                 title: "Lịch hẹn",
                 url: "/consultant/dashboard/schedule",
+              },
+            ],
+          },
+          {
+            title: "Quản lý các câu hỏi",
+            url: "/consultant/dashboard/questions",
+            icon: MessageCircleQuestion,
+            isActive: true,
+            items: [
+              {
+                title: "Danh sách các câu hỏi từ khách hàng",
+                url: "/consultant/dashboard/questions/view",
               },
             ],
           },

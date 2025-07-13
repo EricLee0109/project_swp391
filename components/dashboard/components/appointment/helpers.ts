@@ -1,6 +1,9 @@
 // helpers.ts
 
-import { StatusTypeEnums, PaymentStatusEnums} from "@/types/enums/HealthServiceEnums";
+import {
+  StatusTypeEnums,
+  PaymentStatusEnums,
+} from "@/types/enums/HealthServiceEnums";
 
 export const statusMap: Record<StatusTypeEnums, string> = {
   Pending: "Chờ xác nhận",
@@ -14,7 +17,6 @@ export const statusPaymentMap: Record<PaymentStatusEnums, string> = {
   Pending: "Chờ thanh toán",
   Paid: "Đã thanh toán",
   Failed: "Hủy",
-
 };
 
 export const getStatusBadgeVariant = (status: StatusTypeEnums) => {
@@ -57,5 +59,18 @@ export const getTypeBadgeVariant = (type: "Consultation" | "Testing") => {
       return "bg-green-100 text-green-800";
     default:
       return "default";
+  }
+};
+
+export const getQuestionStatusBadgeVariant = (
+  type: "Pending" | "Answered" | "Closed"
+) => {
+  switch (type) {
+    case "Pending":
+      return "bg-blue-100 text-blue-800";
+    case "Answered":
+      return "bg-green-100 text-green-800";
+    default:
+      return "bg-red-100 text-red-800";
   }
 };
