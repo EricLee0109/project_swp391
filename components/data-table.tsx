@@ -22,35 +22,34 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
 }
 
-const filterConfigs = [
-  //Appointments Table
-  {
-    columnKey: "user_full_name",
-    placeholder: "Filter by customer name...",
-  },
-  //Shippings Table
-  {
-    columnKey: "user_name",
-    placeholder: "Filter by customer name...",
-  },
-  //Health Services Table
-  {
-    columnKey: "name",
-    placeholder: "Filter by service name...",
-  },
-  //Blog Table
-  {
-    columnKey: "title",
-    placeholder: "Filter by title name...",
-  },
-];
+// const filterConfigs = [
+//   //Appointments Table
+//   {
+//     columnKey: "user_full_name",
+//     placeholder: "Filter by customer name...",
+//   },
+//   //Shippings Table
+//   {
+//     columnKey: "user_name",
+//     placeholder: "Filter by customer name...",
+//   },
+//   //Health Services Table
+//   {
+//     columnKey: "name",
+//     placeholder: "Filter by service name...",
+//   },
+//   //Blog Table
+//   {
+//     columnKey: "title",
+//     placeholder: "Filter by title name...",
+//   },
+// ];
 
 //Reusable DataTable component that can be used in various parts of the application
 export function DataTable<TData, TValue>({
@@ -78,21 +77,21 @@ export function DataTable<TData, TValue>({
     meta: {},
   });
 
-  //filter search name
-  const filterFound = React.useMemo(() => {
-    //prevent re-render, memmorize result
-    const findFilterSearch = filterConfigs.filter((column) =>
-      table?.getColumn(column?.columnKey)
-    );
-    console.log(findFilterSearch[0], "filter search");
-    return findFilterSearch[0];
-  }, [table]);
+  // //filter search name
+  // const filterFound = React.useMemo(() => {
+  //   //prevent re-render, memmorize result
+  //   const findFilterSearch = filterConfigs.filter((column) =>
+  //     table?.getColumn(column?.columnKey)
+  //   );
+  //   console.log(findFilterSearch[0], "filter search");
+  //   return findFilterSearch[0];
+  // }, [table]);
 
-  const columnFound = table.getColumn(filterFound?.columnKey);
+  // const columnFound = table.getColumn(filterFound?.columnKey);
 
   return (
     <div className="ml-4 mr-4 mt-4">
-      {filterFound && (
+      {/* {filterFound && (
         <div className="flex items-center py-4">
           <Input
             key={filterFound.columnKey}
@@ -104,7 +103,7 @@ export function DataTable<TData, TValue>({
             className="max-w-sm"
           />
         </div>
-      )}
+      )} */}
       <div className="rounded-md border">
         <Table>
           <TableHeader>

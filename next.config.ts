@@ -15,7 +15,6 @@ const nextConfig = {
       },
     ],
   },
-  secret: process.env.AUTH_SECRET,
 };
 
 module.exports = nextConfig;

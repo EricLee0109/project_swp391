@@ -102,7 +102,7 @@ export function LoginForm({
           });
 
           if (result?.error) {
-            notify("error", "Invalid email or password");
+            notify("error", "Email hoặc mật khẩu chưa đúng!");
           } else if (result?.ok) {
             // Gọi session để lấy role
             const res = await fetch("/api/auth/session");
