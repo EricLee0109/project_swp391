@@ -3,7 +3,7 @@
 import { StiTestBookingForm } from "@/components/healthServices/appoinmentBookingType/StiServiceForm";
 import { notify } from "@/lib/toastNotify";
 import { formatDate } from "@/lib/utils";
-import { Home, ArrowLeft, Hospital } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
 import {
@@ -30,33 +30,26 @@ export function BookingModal({
       service_id: service.service_id,
       type: service.type,
       test_code: null,
+      location: "Tại phòng khám",
     }
   );
   const [selectedTime, setSelectedTime] = useState("");
   const [selectedDate, setSelectedDate] = useState("");
   const [stiAppointmentId, setStiAppointmentId] = useState<string>("");
 
-  const handleLocationSelect = (location: "AT_HOME" | "AT_CLINIC") => {
-    setAppointment((prev) => ({
-      ...prev,
-      location: location === "AT_HOME" ? "Tại nhà" : "Tại phòng khám",
-    }));
-    setStep(2);
-  };
-
   const handleConsultantSelect = (consultant: Consultant) => {
     setAppointment((prev) => ({
       ...prev,
       consultant_id: consultant.consultant_id,
     }));
-    setStep(3);
+    setStep(2);
   };
 
   const handleScheduleSelect = (schedule: Schedule, time: string) => {
     setAppointment((prev) => ({ ...prev, schedule_id: schedule.schedule_id }));
     setSelectedTime(time);
     setSelectedDate(schedule.start_time);
-    setStep(4);
+    setStep(3);
   };
 
   const createAppointment = async () => {
@@ -69,7 +62,7 @@ export function BookingModal({
         "error",
         "Vui lòng hoàn thành tất cả các bước trước khi đặt lịch."
       );
-      // return;
+      return;
     }
 
     try {
@@ -92,17 +85,18 @@ export function BookingModal({
       const responseData = await response.json();
 
       notify("success", "Đặt lịch hẹn thành công!");
+      
       if (stiAppointmentId) {
-        // Nếu có mã STI, thì redirect về checkoutUrl (nếu có)
-        const checkoutUrl = responseData.data?.paymentLink?.checkoutUrl;
+        // If stiAppointmentId is provided (assumed valid), redirect to /profile/order
+        window.location.href = "/profile/order";
+      } else {
+        // If no stiAppointmentId, redirect to checkoutUrl if available
+        const checkoutUrl = responseData.data?.paymentLink;
         if (checkoutUrl) {
           window.location.href = checkoutUrl;
-          return;
+        } else {
+          window.location.href = "/profile/order"; // Fallback if no checkoutUrl
         }
-      } else {
-        // Nếu không có mã STI, redirect về trang chủ "/"
-        window.location.href = "/profile/order";
-        return;
       }
       onClose();
     } catch (error) {
@@ -148,34 +142,7 @@ export function BookingModal({
           </button>
         )}
 
-        {step === 1 && service.available_modes.length > 1 && (
-          <div>
-            <h2 className="text-2xl font-bold mb-6 text-center">
-              Chọn địa điểm
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {service.available_modes.map((mode) => (
-                <div
-                  key={mode}
-                  onClick={() => handleLocationSelect(mode)}
-                  className="cursor-pointer p-6 border rounded-lg text-center hover:bg-gray-100 transition"
-                >
-                  {mode === "AT_CLINIC" ? (
-                    <Hospital className="mx-auto mb-2" size={32} />
-                  ) : (
-                    <Home className="mx-auto mb-2" size={32} />
-                  )}
-                  <p className="font-semibold">
-                    {mode === "AT_CLINIC" ? "Tại phòng khám" : "Tại nhà"}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {(step === 2 ||
-          (step === 1 && service.available_modes.length <= 1)) && (
+        {step === 1 && (
           <div>
             <h2 className="text-2xl font-bold mb-6 text-center">
               Chọn tư vấn viên
@@ -204,7 +171,7 @@ export function BookingModal({
           </div>
         )}
 
-        {step === 3 && selectedConsultant && (
+        {step === 2 && selectedConsultant && (
           <div>
             <h2 className="text-2xl font-bold mb-6 text-center">
               Chọn thời gian tư vấn
@@ -244,7 +211,7 @@ export function BookingModal({
           </div>
         )}
 
-        {step === 4 && selectedConsultant && (
+        {step === 3 && selectedConsultant && (
           <div>
             <h2 className="text-2xl font-bold mb-6 text-center">
               Xác nhận lịch hẹn
@@ -256,9 +223,7 @@ export function BookingModal({
               </p>
               <p>
                 <span>Địa điểm:</span>{" "}
-                <span className="font-bold">
-                  {appointment.location || "Tại phòng khám"}
-                </span>
+                <span className="font-bold">Tại phòng khám</span>
               </p>
               <p>
                 <span>Tư vấn viên:</span>{" "}
