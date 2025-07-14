@@ -1,8 +1,9 @@
 "use server";
 
 import { auth } from "@/auth";
-// import { BE_BASE_URL } from "@/lib/config";
 import { ConsultantProfile } from "@/types/user/User";
+// import { BE_BASE_URL } from "@/lib/config";
+
 
 // GET /api/auth/profile/consultant
 export async function getMyConsultantProfile(): Promise<ConsultantProfile | null> {

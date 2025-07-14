@@ -40,7 +40,7 @@ export function LogoutButton({
     <p
       onClick={handleLogout}
       className={cn(
-        "text-red-500 cursor-pointer hover:underline",
+        "text-red-600 cursor-pointer hover:underline",
         isPending && "opacity-50 pointer-events-none",
         className
       )}

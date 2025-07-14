@@ -5,105 +5,59 @@ import Image from "next/image";
 import { auth } from "@/auth";
 import { authJWT } from "@/lib/auth";
 import ProfileMenu from "../profile/profile-menu";
+import { User } from "@/types/user/User";
+import { RawUser } from "@/types/user/RawUser";
 
-type ProfileUserType = {
-  name?: string | null;
-  fullName?: string | null;
-  email?: string | null;
-  avatar?: string | null;
-};
+function normalizeUser(raw: RawUser): User {
+  return {
+    user_id: raw.user_id || raw.id || "",
+    full_name: raw.full_name || raw.fullName || raw.name || "Người dùng",
+    email: raw.email || "example@gmail.com",
+    phone_number: raw.phone_number || "",
+    address: raw.address || "",
+    image: raw.avatar || raw.image || "/shadcn.png",
+    role: raw.role || "Customer",
+    is_verified: raw.is_verified ?? false,
+    is_active: raw.is_active ?? true,
+    customerProfile: raw.customerProfile ?? null,
+    consultantProfile: raw.consultantProfile ?? null,
+  };
+}
 
 export default async function Navbar() {
   const session = await authJWT();
   const ggSession = await auth();
 
-  let user = null;
+  let user: User | null = null;
   let type: "jwt" | "oauth" | null = null;
+
   if (session?.user) {
-    user = session.user;
+    user = normalizeUser(session.user as RawUser);
     type = "jwt";
   } else if (ggSession?.user) {
-    // uncommand when solve ggSession
-    // user = ggSession.user;
+    user = normalizeUser(ggSession.user as RawUser);
     type = "oauth";
   }
 
-  const profileUser: ProfileUserType = {
-    name: user?.name || "User",
-    fullName: user?.fullName || user?.full_name || "Default user",
-    email: user?.email || "example@gmail.com",
-    avatar: user?.avatar || "/shadcn.png",
-  };
-
   return (
-    <header className="px-5 py-3 bg-white    font-work-sans">
+    <header className="px-5 py-3 bg-white font-work-sans">
       <nav className="flex justify-between items-center">
         <Link href={"/"}>
           <Image src={"/logo.png"} alt="logo" width={144} height={30} />
         </Link>
         <div className="flex items-center gap-5 text-black">
-          {/* <Button asChild>
-            <Link href={"/sexualHealthServices"}>Health Services</Link>
-          </Button> */}
-          {/* {user && type && (
-            <Button asChild>
-              <Link href={"/menstrualCycle"}>Menstrual Cycle</Link>
-            </Button>
-          )} */}
-
-          {user && type && <ProfileMenu user={profileUser} type={type} />}
-
+          {user && type && <ProfileMenu user={user} type={type} />}
           {!user && (
             <>
               <Button asChild>
                 <Link href={"/login"}>Sign In</Link>
               </Button>
-              <button>
-                <Link href={"/sign-up-otp"}> Sign up</Link>
-              </button>
+              <Button variant="outline" asChild>
+                <Link href={"/sign-up-otp"}>Sign Up</Link>
+              </Button>
             </>
           )}
         </div>
-        {/* <div>
-          {session?.user || ggSession?.user ? (
-            <div className="flex items-center gap-5 text-black">
-              <Button asChild>
-                <Link href={`/dashboard/${session.user.role}`}>Dashboard</Link>
-              </Button>
-              <Button asChild>
-                <Link href={"/sexualHealthServices"}>Health Services</Link>
-              </Button>
-              <Button asChild>
-                <Link href={"/menstrualCycle"}>Menstrual Cycle</Link>
-              </Button>
-              {session?.user && <LogoutButton type="jwt" />}
-              {ggSession?.user && <LogoutButton type="oauth" />} */}
-
-        {/* <Link
-                href={`/user/${session?.user.user_id || ggSession?.user.id}`}
-              >
-                <span>{session?.user.email || ggSession?.user.name}</span>
-              </Link> */}
-
-        {/* </div>
-          ) : (
-            <div className="flex items-center gap-5 text-black">
-              <Button asChild>
-                <Link href={"/sexualHealthServices"}>Health Services</Link>
-              </Button>
-              <Button asChild>
-                <Link href={"/menstrualCycle"}>Menstrual Cycle</Link>
-              </Button>
-
-              <Button asChild>
-                <Link href={"/login"}>Sign In</Link>
-              </Button>
-              <button>
-                <Link href={"/signup"}> Sign up</Link>
-              </button>
-            </div>
-          )}
-        </div> */}
       </nav>
     </header>
   );

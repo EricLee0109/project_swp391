@@ -3,64 +3,30 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import { CalendarIcon } from "lucide-react";
-
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatDate } from "@/lib/utils";
+import { CustomerDetailResponse } from "@/types/user/User";
 
-interface ProfileType {
-  profileId: string;
-  userId: string;
-  fullName: string;
-  address: string | null;
-  dateOfBirth: string;
-  gender: "Male" | "Female" | "Other";
-  medicalHistory?: string;
-  avatar?: string;
-  privacySettings: {
-    shareData: boolean;
-    showEmail: boolean;
-  };
-}
-//
 export default function ProfileViewer() {
-  const [profile, setProfile] = useState<ProfileType | null>(null);
+  const [profile, setProfile] = useState<CustomerDetailResponse | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    async function fetchProfile() {
+    const fetchProfile = async () => {
       try {
-        const res = await fetch("/api/profile/customer", {
-          credentials: "include",
-        });
-        const data = await res.json();
-
-        if (res.ok) {
-          const mappedProfile: ProfileType = {
-            profileId: data.profile_id,
-            userId: data.user_id,
-            fullName: data.full_name,
-            address: data.address,
-            dateOfBirth: data.date_of_birth,
-            gender: data.gender,
-            medicalHistory: data.medical_history,
-            avatar: data.avatar,
-            privacySettings: {
-              shareData: data.privacy_settings?.shareData ?? false,
-              showEmail: data.privacy_settings?.showEmail ?? false,
-            },
-          };
-
-          setProfile(mappedProfile);
-        } else {
-          console.error("Không thể tải hồ sơ:", data?.error);
-        }
+        const res = await fetch("/api/profile/me");
+        if (!res.ok) throw new Error("Lỗi khi fetch profile");
+        const data: CustomerDetailResponse = await res.json();
+        setProfile(data);
+        console.log("Profile data:", data);
       } catch (err) {
-        console.error("Lỗi mạng khi tải hồ sơ:", err);
+        console.error("Lỗi:", err);
+        setProfile(null);
       } finally {
         setLoading(false);
       }
-    }
+    };
 
     fetchProfile();
   }, []);
@@ -75,7 +41,7 @@ export default function ProfileViewer() {
     );
   }
 
-  if (!profile) {
+  if (!profile || !profile.customerProfile) {
     return (
       <Card className="p-6">
         <p className="text-center text-destructive">
@@ -85,50 +51,51 @@ export default function ProfileViewer() {
     );
   }
 
+  const customer = profile.customerProfile;
   const avatarUrl =
-    profile.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(profile.fullName)}`;
+    customer.user.image ||
+    `https://ui-avatars.com/api/?name=${encodeURIComponent(
+      customer.user.full_name
+    )}`;
 
   return (
     <div className="py-5">
       <Card className="p-6">
         <CardHeader>
-          <CardTitle className="text-xl">Hồ sơ của tôii</CardTitle>
+          <CardTitle className="text-xl">Hồ sơ của tôi</CardTitle>
           <p className="text-sm text-muted-foreground">Thông tin cá nhân</p>
         </CardHeader>
 
         <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Thông tin bên trái */}
           <div className="space-y-4">
-            <Info label="Họ tên" value={profile.fullName || "Chưa có"} />
-            <Info label="Địa chỉ" value={profile.address || "Chưa có"} />
+            <Info label="Họ tên" value={customer.user.full_name} />
+            <Info label="Địa chỉ" value={customer.user.address} />
             <Info
               label="Ngày sinh"
-              value={
-                profile.dateOfBirth
-                  ? formatDate(new Date(profile.dateOfBirth))
-                  : "Chưa có"
-              }
+              value={formatDate(new Date(customer.date_of_birth))}
               icon={<CalendarIcon className="w-4 h-4 text-muted-foreground" />}
             />
-            <Info label="Giới tính" value={profile.gender} />
             <Info
-              label="Tiền sử bệnh"
-              value={profile.medicalHistory || "Không có"}
+              label="Giới tính"
+              value={
+                customer.gender === "Male"
+                  ? "Nam"
+                  : customer.gender === "Female"
+                  ? "Nữ"
+                  : "Khác"
+              }
             />
-            <Info
-              label="Chia sẻ dữ liệu"
-              value={profile.privacySettings.shareData ? "Có" : "Không"}
-            />
-            <Info
-              label="Hiển thị email công khai"
-              value={profile.privacySettings.showEmail ? "Có" : "Không"}
-            />
+
+            <Info label="Tiền sử bệnh" value={customer.medical_history} />
+            {/* <Info
+              label="Hiển thị tên"
+              value={customer.privacy_settings.showFullName ? "Có" : "Không"}
+            /> */}
           </div>
 
-          {/* Ảnh đại diện */}
           <div className="flex flex-col items-center gap-2">
             <Image
-              src={avatarUrl}
+              src={customer.user.image || avatarUrl}
               alt="avatar"
               width={144}
               height={144}
