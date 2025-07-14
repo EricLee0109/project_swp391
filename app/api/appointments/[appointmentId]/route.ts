@@ -37,7 +37,8 @@ export async function DELETE(
     );
 
     if (!beRes.ok) {
-      throw new Error(`Backend trả về lỗi với mã trạng thái ${beRes.status}`);
+      const errorData = await beRes.json();
+      throw new Error(errorData.message || `Backend trả về lỗi với mã trạng thái ${beRes.status}`);
     }
 
     return NextResponse.json(

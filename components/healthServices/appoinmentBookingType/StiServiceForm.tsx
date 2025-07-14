@@ -55,38 +55,37 @@ export function StiTestBookingForm({
     };
 
     try {
-      const response = await fetch("/api/appointments/sti", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      });
+    const response = await fetch("/api/appointments/sti", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    });
 
-      if (!response.ok) {
-        if (response.status === 401) {
-          notify("error", "Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.");
-        }
-        throw new Error("Không thể đặt lịch xét nghiệm STI");
-      }
+    const responseData = await response.json();
 
-      const responseData = await response.json();
-      const appointmentId = responseData.data?.appointment?.appointment_id;
-      if (appointmentId) {
-        setStiAppointmentId(appointmentId);
-        notify("success", `Đặt lịch xét nghiệm STI thành công! Mã lịch hẹn: ${appointmentId}`);
-      } else {
-        notify("success", "Đặt lịch xét nghiệm STI thành công!");
-      }
-      const checkoutUrl = responseData.data?.paymentLink;
-      if (checkoutUrl) {
-        window.location.href = checkoutUrl;
-        return;
-      }
-      onClose();
-    } catch (error) {
-      console.error("Lỗi khi đặt lịch xét nghiệm STI:", error);
-      notify("error", "Không thể đặt lịch xét nghiệm STI. Vui lòng thử lại.");
+    if (!response.ok) {
+      throw new Error(responseData.error || "Không thể lưu thiết lập!");
+    }
+
+    const appointmentId = responseData.data?.appointment?.appointment_id;
+    if (appointmentId) {
+      setStiAppointmentId(appointmentId);
+      notify("success", `Đặt lịch xét nghiệm STI thành công! Mã lịch hẹn: ${appointmentId}`);
+    } else {
+      notify("success", "Đặt lịch xét nghiệm STI thành công!");
+    }
+
+    const checkoutUrl = responseData.data?.paymentLink;
+    if (checkoutUrl) {
+      window.location.href = checkoutUrl;
+      return;
+    }
+    onClose();
+  } catch (error) {
+    console.error("Lỗi khi đặt lịch xét nghiệm STI:", error);
+    notify("error", (error as Error).message);
     }
   }
 

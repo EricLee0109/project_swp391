@@ -44,7 +44,8 @@ export async function PATCH(
     );
 
     if (!beRes.ok) {
-      throw new Error(`Backend trả về lỗi với mã trạng thái ${beRes.status}`);
+      const errorData = await beRes.json();
+      throw new Error(errorData.message || `Backend trả về lỗi với mã trạng thái ${beRes.status}`);
     }
 
     const responseData = await beRes.json();
@@ -53,7 +54,6 @@ export async function PATCH(
       { status: 200 }
     );
   } catch (error) {
-    console.error("Lỗi khi cập nhật trạng thái:", error);
     return NextResponse.json(
       { error: (error as Error).message || "Không thể cập nhật trạng thái." },
       { status: 500 }

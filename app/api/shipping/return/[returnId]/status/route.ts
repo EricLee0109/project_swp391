@@ -32,6 +32,10 @@ export async function PATCH(
       );
     }
 
+    console.log("=== API CALL ===");
+    console.log("Requested Status:", status);
+    console.log("Return ID:", returnId);
+
     const beRes = await fetch(
       `${process.env.BE_BASE_URL}/shipping/return/${returnId}/status`,
       {
@@ -44,6 +48,12 @@ export async function PATCH(
       }
     );
 
+    const data = await beRes.json();
+
+    console.log("=== BACKEND RESPONSE ===");
+    console.log("Response Status:", beRes.status);
+    console.log("Response Data:", data);
+
     if (!beRes.ok) {
       if (beRes.status === 401) {
         return NextResponse.json(
@@ -51,19 +61,33 @@ export async function PATCH(
           { status: 401 }
         );
       }
-      const errorBody = await beRes.text();
       throw new Error(
-        `Backend trả về lỗi với mã trạng thái ${beRes.status}: ${errorBody}`
+        `Backend trả về lỗi với mã trạng thái ${beRes.status}: ${JSON.stringify(data)}`
       );
     }
 
-    const data = await beRes.json();
+    // Use shipping_status instead of new_status
+    const returnedStatus = data.shipping_status || data.new_status;
 
-    return NextResponse.json(data, { status: 200 });
+    if (!returnedStatus || returnedStatus !== status) {
+      console.log("Status Mismatch: Expected", status, "but received", returnedStatus || "undefined");
+      return NextResponse.json(
+        {
+          error: `Trạng thái không khớp: Yêu cầu ${status}, nhận ${returnedStatus || "undefined"}.`,
+          new_status: returnedStatus,
+        },
+        { status: 400 }
+      );
+    }
+
+    return NextResponse.json(
+      { message: "Cập nhật trạng thái thành công", new_status: returnedStatus },
+      { status: 200 }
+    );
   } catch (error) {
     console.error("Lỗi khi cập nhật trạng thái đơn chiều về:", error);
     return NextResponse.json(
-      { error: "Không thể cập nhật trạng thái đơn chiều về. Vui lòng thử lại." },
+      { error: (error as Error).message || "Không thể cập nhật trạng thái đơn chiều về. Vui lòng thử lại." },
       { status: 500 }
     );
   }

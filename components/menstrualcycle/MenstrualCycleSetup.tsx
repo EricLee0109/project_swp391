@@ -92,12 +92,15 @@ const payload = {
         body: JSON.stringify(payload),
       });
 
-      if (!res.ok) throw new Error("Không thể lưu thiết lập!");
+      if (!res.ok){
+        const errorData = await res.json();
+        throw new Error(errorData.message || "Không thể lưu thiết lập!")
+      }
 
       notify("success", "Đã lưu thành công!");
-      onClose(true); // báo đã setup xong
-    } catch {
-      notify("error", "Không thể lưu thiết lập. Vui lòng thử lại!");
+      onClose(true);
+    } catch (error){
+      notify("error", (error as Error).message);
     } finally {
       setLoading(false);
     }

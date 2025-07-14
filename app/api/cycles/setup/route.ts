@@ -11,9 +11,6 @@ export async function POST(req: Request) {
     // 2. Lấy accessToken từ cookie
     const session = await auth();
 
-    // const cookieStore = await cookies();
-    // const accessToken = cookieStore.get("accessToken")?.value;
-
     // 3. Chuẩn bị headers
     const headers: Record<string, string> = {
       "Content-Type": "application/json",
@@ -27,7 +24,6 @@ export async function POST(req: Request) {
       method: "POST",
       headers,
       body: JSON.stringify(data),
-      // credentials: "include", // KHÔNG cần khi dùng SSR (API route)
     });
 
     // 5. Lấy dữ liệu trả về từ backend
