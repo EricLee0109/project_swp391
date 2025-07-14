@@ -74,7 +74,7 @@ export default function CellActions({
     return: ShippingInfoType | null;
   }>({ outbound: null, return: null });
 
-  // Lấy thông tin đơn vận chuyển chiều đi và chiều về
+  // Fetch shipping details
   const fetchShippingDetails = useCallback(async () => {
     try {
       const res = await fetch(`/api/shipping/appointments/${appointment.appointment_id}`, {
@@ -96,36 +96,13 @@ export default function CellActions({
     }
   }, [appointment.appointment_id]);
 
-  async function handleUpdateReturnStatus(id: string, status: ShippingStatus) {
-    try {
-      const res = await fetch(`/api/shipping/return/${id}/status`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status }),
-        credentials: "include",
-      });
-
-      const apiRes = await res.json();
-      if (res.ok) {
-        onShippingUpdated();
-        fetchShippingDetails();
-        notify("success", "Cập nhật trạng thái đơn chiều về thành công.");
-        setOpenUpdateReturnDialog(false);
-      } else {
-        notify("error", apiRes.error || "Cập nhật thất bại.");
-      }
-    } catch {
-      notify("error", "Lỗi mạng. Vui lòng thử lại.");
-    }
-  }
-
   useEffect(() => {
     fetchShippingDetails();
   }, [fetchShippingDetails]);
 
   const shouldShowOptions = appointment.type === "Testing";
 
-  // Kiểm tra các trạng thái để quyết định nút nào hiển thị
+  // Check conditions for displaying options
   const canCreateOutbound =
     !shippingInfo.outbound || shippingInfo.outbound.shipping_status === ShippingStatus.Pending;
 
@@ -136,11 +113,13 @@ export default function CellActions({
     shippingInfo.outbound?.shipping_status === ShippingStatus.PickupRequested &&
     !shippingInfo.return;
 
-  const canUpdateReturn = shippingInfo.return && [
-    ShippingStatus.SampleInTransit,
-    ShippingStatus.PickupRequested,
-    ShippingStatus.Failed
-  ].includes(shippingInfo.return.shipping_status);
+  const canUpdateReturn =
+    shippingInfo.return &&
+    [
+      ShippingStatus.SampleInTransit,
+      ShippingStatus.PickupRequested,
+      ShippingStatus.Failed,
+    ].includes(shippingInfo.return.shipping_status);
 
   const canViewReturnDetail = shippingInfo.return !== null;
 
@@ -157,42 +136,31 @@ export default function CellActions({
 
           {shouldShowOptions && (
             <>
-              {/* Tạo đơn vận chuyển chiều đi */}
               {canCreateOutbound && (
                 <DropdownMenuItem onSelect={() => setOpenCreateDialog(true)}>
                   <TestTube2 className="mr-2 h-4 w-4" /> Tạo đơn vận chuyển
                 </DropdownMenuItem>
               )}
-
-              {/* Cập nhật đơn vận chuyển chiều đi */}
               {canUpdateOutbound && (
                 <DropdownMenuItem onSelect={() => setOpenUpdateDialog(true)}>
                   <Edit className="mr-2 h-4 w-4" /> Cập nhật đơn vận chuyển (Chiều đi)
                 </DropdownMenuItem>
               )}
-
-              {/* Tạo đơn trả mẫu chiều về */}
               {canCreateReturn && (
                 <DropdownMenuItem onSelect={() => setOpenReturnDialog(true)}>
                   <Package className="mr-2 h-4 w-4" /> Tạo đơn trả mẫu
                 </DropdownMenuItem>
               )}
-
-              {/* Xem chi tiết đơn vận chuyển chiều đi */}
               {shippingInfo.outbound && (
                 <DropdownMenuItem onSelect={() => setOpenDetailDialog(true)}>
                   <Info className="mr-2 h-4 w-4" /> Xem chi tiết đơn vận chuyển (Chiều đi)
                 </DropdownMenuItem>
               )}
-
-              {/* Xem chi tiết đơn vận chuyển chiều về */}
               {canViewReturnDetail && (
                 <DropdownMenuItem onSelect={() => setOpenReturnDetailDialog(true)}>
                   <Info className="mr-2 h-4 w-4" /> Xem chi tiết đơn trả mẫu (Chiều về)
                 </DropdownMenuItem>
               )}
-
-              {/* Nút cập nhật đơn chiều về */}
               {canUpdateReturn && (
                 <DropdownMenuItem onSelect={() => setOpenUpdateReturnDialog(true)}>
                   <Edit className="mr-2 h-4 w-4" /> Cập nhật trạng thái đơn trả mẫu (Chiều về)
@@ -203,7 +171,6 @@ export default function CellActions({
         </DropdownMenuContent>
       </DropdownMenu>
 
-      {/* Dialog tạo đơn vận chuyển chiều đi */}
       <CreateShippingFormDialog
         appointment={appointment}
         open={openCreateDialog}
@@ -214,8 +181,6 @@ export default function CellActions({
         }}
         shippingInfo={shippingInfo.outbound}
       />
-
-      {/* Dialog tạo đơn trả mẫu chiều về */}
       <CreateReturnShippingDialog
         appointmentId={appointment.appointment_id}
         open={openReturnDialog}
@@ -225,24 +190,18 @@ export default function CellActions({
           onShippingUpdated();
         }}
       />
-
-      {/* Dialog xem chi tiết đơn vận chuyển chiều đi */}
       <ShippingDetailDialog
         shippingInfo={shippingInfo.outbound}
         open={openDetailDialog}
         setOpen={setOpenDetailDialog}
         direction="outbound"
       />
-
-      {/* Dialog xem chi tiết đơn trả mẫu chiều về */}
       <ShippingDetailDialog
         shippingInfo={shippingInfo.return}
         open={openReturnDetailDialog}
         setOpen={setOpenReturnDetailDialog}
         direction="return"
       />
-
-      {/* Dialog cập nhật đơn vận chuyển chiều đi */}
       <UpdateShippingDialog
         shippingInfo={shippingInfo.outbound}
         appointmentId={appointment.appointment_id}
@@ -259,7 +218,11 @@ export default function CellActions({
         appointmentId={appointment.appointment_id}
         open={openUpdateReturnDialog}
         setOpen={setOpenUpdateReturnDialog}
-        onUpdateSuccess={(status) => handleUpdateReturnStatus(shippingInfo.return!.id, status)}
+        onUpdateSuccess={() => {
+          fetchShippingDetails();
+          setOpenUpdateReturnDialog(false);
+          onShippingUpdated();
+        }}
       />
     </>
   );
