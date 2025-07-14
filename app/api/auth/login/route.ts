@@ -11,7 +11,8 @@ export async function POST(req: Request) {
   });
 
   const data = await res.json();
-
+  console.log("BE Login response:", data);
+  
   if (!res.ok) {
     return NextResponse.json({ message: data.message }, { status: 401 });
   }

@@ -3,8 +3,6 @@
 
 import ProfileForm from "@/components/profile/ProFileForm";
 
-
-
 export default function ProfilePage() {
   return (
   <div className="pb-20">

@@ -20,15 +20,16 @@ import {
 import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { LogoutButton } from "../login/LogoutButton";
+import { useEffect, useState } from "react";
+import { User } from "@/types/user/User";
+import { usePathname } from "next/navigation";
+import { cn } from "@/lib/utils"; // dùng helper cn chuẩn nếu đã có
 
-type UserType = {
-  name?: string | null;
-  fullName?: string | null;
-  email?: string | null;
-  avatar?: string | null;
-  full_name?: string | null;
+
+type ProfileMenuProps = {
+  user: User;
+  type: "jwt" | "oauth";
 };
-
 const navItems = [
   { title: "Hồ sơ", icon: CircleUser, href: "/profile" },
   { title: "Danh sách", icon: Heart, href: "/profile/favourite" },
@@ -36,19 +37,29 @@ const navItems = [
   { title: "Thông báo", icon: Bell, href: "/profile/notification" },
   { title: "Cài đặt", icon: Settings, href: "/profile/settings" },
 ];
+export default function ProfileMenu({ type }: ProfileMenuProps) {
+  const [user, setUser] = useState<User | null>(null);
+  const pathname = usePathname();
 
-export default function ProfileMenu({
-  user,
-  type,
-}: {
-  user: UserType;
-  type: "jwt" | "oauth";
-}) {
-  const displayName = user?.fullName || user?.name || user.full_name || "User";
-  const displayEmail = user?.email || "user@example.com";
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const res = await fetch("/api/profile/me");
+        if (!res.ok) throw new Error("Lỗi khi fetch user profile");
+        const data = await res.json();
+        setUser(data.user);
+      } catch (err) {
+        console.error("Fetch user error:", err);
+      }
+    };
+
+    fetchUser();
+  }, []);
+
+  const displayName = user?.full_name || "Người dùng";
   const avatarUrl =
-    user?.avatar || `https://ui-avatars.com/api/?name=${displayName}`;
-  // console.log("user" + type, user);
+    user?.image ||
+    `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}`;
 
   return (
     <DropdownMenu>
@@ -56,29 +67,41 @@ export default function ProfileMenu({
         <div className="rounded-full overflow-hidden cursor-pointer">
           <Avatar className="h-10 w-10 border shadow-sm">
             <AvatarImage src={avatarUrl} alt={displayName} />
-            <AvatarFallback>{displayName[0]}</AvatarFallback>
+            <AvatarFallback>{displayName[0] || "?"}</AvatarFallback>
           </Avatar>
         </div>
       </DropdownMenuTrigger>
+
       <DropdownMenuContent className="w-56 bg-white text-black border shadow-lg rounded-md z-50">
         <DropdownMenuLabel>
           <div>Tài khoản của tôi</div>
-          <p className="text-zinc-500 text-sm font-normal">{displayEmail}</p>
+          <p className="text-zinc-500 text-sm font-normal">
+            {user?.email || "Đang tải..."}
+          </p>
         </DropdownMenuLabel>
+
         <DropdownMenuSeparator />
 
         <DropdownMenuGroup>
-          {navItems.map((item, index) => (
-            <DropdownMenuItem key={index} asChild>
-              <Link
-                href={item.href}
-                className="cursor-pointer gap-2 flex items-center"
-              >
-                <item.icon className="h-4 w-4" />
-                {item.title}
-              </Link>
-            </DropdownMenuItem>
-          ))}
+          {navItems.map((item, index) => {
+            const isActive = pathname === item.href;
+
+            return (
+              <DropdownMenuItem key={index} asChild>
+                <Link
+                  href={item.href}
+                  className={cn(
+                    "gap-2 flex items-center w-full px-2 py-1.5 rounded-md hover:bg-zinc-200 active:bg-zinc-300",
+                    isActive &&
+                      "text-pink-500 font-semibold bg-orange-100 hover:bg-orange-100 active:bg-orange-200"
+                  )}
+                >
+                  <item.icon className="h-4 w-4" />
+                  {item.title}
+                </Link>
+              </DropdownMenuItem>
+            );
+          })}
         </DropdownMenuGroup>
 
         <DropdownMenuSeparator />

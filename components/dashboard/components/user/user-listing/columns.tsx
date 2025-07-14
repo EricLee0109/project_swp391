@@ -149,18 +149,23 @@ export const columns = (onRoleChanged: () => void): ColumnDef<User>[] => [
     cell: ({ row }) => row.original.customerProfile?.gender || "—",
   },
 
-  {
-    accessorKey: "created_at",
-    header: "Ngày tạo",
-    cell: ({ row }) =>
-      new Date(row.original.created_at).toLocaleDateString("vi-VN"),
+ {
+  accessorKey: "created_at",
+  header: "Ngày tạo",
+  cell: ({ row }) => {
+    const createdAt = row.original.customerProfile?.created_at;
+    return createdAt ? new Date(createdAt).toLocaleDateString("vi-VN") : "-";
   },
-  {
-    accessorKey: "updated_at",
-    header: "Ngày cập nhật",
-    cell: ({ row }) =>
-      new Date(row.original.updated_at).toLocaleDateString("vi-VN"),
+},
+{
+  accessorKey: "updated_at",
+  header: "Ngày cập nhật",
+  cell: ({ row }) => {
+    const updatedAt = row.original.customerProfile?.updated_at;
+    return updatedAt ? new Date(updatedAt).toLocaleDateString("vi-VN") : "-";
   },
+},
+
   {
     accessorKey: "is_active",
     header: ({ column }) => (
