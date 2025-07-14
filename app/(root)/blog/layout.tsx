@@ -7,12 +7,12 @@ interface ConsultantPageLayoutProps {
 const ConsultantPageLayout = ({ children }: ConsultantPageLayoutProps) => {
   return (
     <div className="min-h-screen font-sans mdl-js">
-      {" "}
       {/* mdl-js prevent hyderation error from NextJs */}
       <Breadcrumb
         items={[
           { label: "Trang chủ", href: "/" },
-          { label: "Tư vấn viên", href: "/consultant" },
+          { label: "Blogs", href: "/blog" },
+          { label: "Chi tiết", href: `/blog/` },
         ]}
       />
       <main className="container mx-auto px-4 py-8 md:py-12">

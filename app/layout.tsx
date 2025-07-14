@@ -68,7 +68,7 @@ export default async function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={workSans.variable} suppressHydrationWarning>
-        <SessionProvider>{children}</SessionProvider>
+        <SessionProvider basePath="/api/auth">{children}</SessionProvider>
         <Toaster />
       </body>
     </html>

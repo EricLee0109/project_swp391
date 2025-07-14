@@ -7,7 +7,10 @@ interface ConsultantPageLayoutProps {
 interface DetailPageProps {
   params: Promise<{ id: string }>;
 }
-const ConsultantPageLayout = async ({ children, params }: ConsultantPageLayoutProps & DetailPageProps) => {
+const ConsultantPageLayout = async ({
+  children,
+  params,
+}: ConsultantPageLayoutProps & DetailPageProps) => {
   const { id: consultantId } = await params;
 
   return (
@@ -34,6 +37,5 @@ const ConsultantPageLayout = async ({ children, params }: ConsultantPageLayoutPr
     </div>
   );
 };
-
 
 export default ConsultantPageLayout;
