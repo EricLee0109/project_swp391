@@ -7,7 +7,14 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import MaxWidthWrapper from "./MaxWidthWrapper";
-import { Bell, CircleUser, ClipboardList, Heart, Settings } from "lucide-react";
+import {
+  Bell,
+  CircleUser,
+  ClipboardList,
+  Heart,
+  MessageCircleQuestion,
+  Settings,
+} from "lucide-react";
 import { LogoutButton } from "@/components/login/LogoutButton";
 import { User } from "@/types/user/User";
 
@@ -23,11 +30,11 @@ interface ProfileLayoutProps {
   type: string;
 }
 
-
 const navItems = [
   { title: "Hồ sơ", icon: CircleUser, href: "/profile" },
   { title: "Danh sách", icon: Heart, href: "/profile/favourite" },
   { title: "Lịch sử", icon: ClipboardList, href: "/profile/order" },
+  { title: "Câu hỏi", icon: MessageCircleQuestion, href: "/profile/questions" },
   { title: "Thông báo", icon: Bell, href: "/profile/notification" },
   { title: "Cài đặt", icon: Settings, href: "/profile/settings" },
 ];
@@ -57,7 +64,8 @@ export default function ProfileLayout({ children }: ProfileLayoutProps) {
   const displayName = user?.full_name || "User";
   const displayEmail = user?.email || "user@example.com";
   const avatarUrl =
-    user?.image || `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}`;
+    user?.image ||
+    `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}`;
 
   return (
     <MaxWidthWrapper>
