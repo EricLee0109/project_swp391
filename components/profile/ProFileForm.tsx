@@ -69,12 +69,14 @@ export default function ProfileViewer() {
         <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-4">
             <Info label="Họ tên" value={customer.user.full_name} />
+            <Info label="Email" value={customer.user.email} />
             <Info label="Địa chỉ" value={customer.user.address} />
             <Info
               label="Ngày sinh"
               value={formatDate(new Date(customer.date_of_birth))}
               icon={<CalendarIcon className="w-4 h-4 text-muted-foreground" />}
             />
+            <Info label="Số điện thoại" value={customer.user.phone_number} />
             <Info
               label="Giới tính"
               value={
@@ -87,6 +89,7 @@ export default function ProfileViewer() {
             />
 
             <Info label="Tiền sử bệnh" value={customer.medical_history} />
+       
             {/* <Info
               label="Hiển thị tên"
               value={customer.privacy_settings.showFullName ? "Có" : "Không"}
