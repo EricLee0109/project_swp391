@@ -5,6 +5,7 @@ import { authJWT } from "@/lib/auth";
 
 // Import type chính xác
 import { User } from "@/types/user/User";
+import Breadcrumb from "@/components/share/Breadcrumb";
 
 // Chỉ lấy field cần thiết để dùng cho UI
 type ProfileUserType = {
@@ -30,8 +31,17 @@ export default async function Layout({ children }: { children: ReactNode }) {
   };
 
   return (
-    <ProfileLayout user={profileUser} type="jwt">
-      {children}
-    </ProfileLayout>
+    <>
+      <Breadcrumb
+        items={[
+          { label: "Trang chủ", href: "/" },
+          { label: "Trang cá nhân", href: "/profile" },
+          // { label: "Chi tiết", href: `/blog/` },
+        ]}
+      />
+      <ProfileLayout user={profileUser} type="jwt">
+        {children}
+      </ProfileLayout>
+    </>
   );
 }
