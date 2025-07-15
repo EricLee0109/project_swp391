@@ -69,21 +69,21 @@ export default function MenstrualCycleSetup({
     //   return;
     // }
     setLoading(true);
-const toIsoDateString = (date: Date | null) => {
-  if (!date) return "";
-  return date.toISOString().split("T")[0]; // "2025-01-05"
-};
+    const toIsoDateString = (date: Date | null) => {
+      if (!date) return "";
+      return date.toISOString().split("T")[0]; // "2025-01-05"
+    };
 
-const payload = {
-  startDate: toIsoDateString(data.lastCycleStartDate), // ĐÚNG
-  periodLength: Number(data.lastPeriodLength),
-  previousCycles: [
-    {
-      startDate: toIsoDateString(data.prevCycleStartDate), // ĐÚNG
-      periodLength: Number(data.prevPeriodLength),
-    },
-  ],
-};
+    const payload = {
+      startDate: toIsoDateString(data.lastCycleStartDate), // ĐÚNG
+      periodLength: Number(data.lastPeriodLength),
+      previousCycles: [
+        {
+          startDate: toIsoDateString(data.prevCycleStartDate), // ĐÚNG
+          periodLength: Number(data.prevPeriodLength),
+        },
+      ],
+    };
 
     try {
       const res = await fetch("/api/cycles/setup", {
@@ -92,14 +92,14 @@ const payload = {
         body: JSON.stringify(payload),
       });
 
-      if (!res.ok){
+      if (!res.ok) {
         const errorData = await res.json();
-        throw new Error(errorData.message || "Không thể lưu thiết lập!")
+        throw new Error(errorData.message || "Không thể lưu thiết lập!");
       }
 
       notify("success", "Đã lưu thành công!");
       onClose(true);
-    } catch (error){
+    } catch (error) {
       notify("error", (error as Error).message);
     } finally {
       setLoading(false);
@@ -111,13 +111,13 @@ const payload = {
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           <Card className="w-full max-w-lg rounded-2xl shadow-2xl animate-fadeIn border-none bg-white">
-            <CardHeader className="bg-gradient-to-r from-pink-400 via-fuchsia-500 to-violet-500 rounded-t-2xl py-2 px-8 flex items-center gap-3">
+            <CardHeader className="bg-gradient-to-r from-pink-400 via-fuchsia-500 to-violet-500 rounded-t-2xl py-2 px-8 flex items-center flex-row gap-3">
               <CalendarCheck2 className="w-7 h-7 text-white drop-shadow" />
               <CardTitle className="text-white font-bold text-xl drop-shadow">
                 Thiết lập chu kỳ kinh nguyệt
               </CardTitle>
             </CardHeader>
-            <CardContent className="py-6 px-8 space-y-5">
+            <CardContent className="py-0 px-8 space-y-2 md:py-2 md:space-y-4">
               <CardDescription className="mb-2 text-base text-gray-700">
                 Nhập thông tin về{" "}
                 <span className="text-pink-500 font-semibold">
@@ -155,7 +155,7 @@ const payload = {
                             }
                           />
                         </FormControl>
-                        
+
                         <FormMessage />
                       </FormItem>
                     )}
