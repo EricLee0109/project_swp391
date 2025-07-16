@@ -1,5 +1,6 @@
 import { auth } from "@/auth";
 import BlogHome from "@/components/home/Blogs";
+import CheckResults from "@/components/home/CheckResults";
 import Features from "@/components/home/Features";
 import Hero from "@/components/home/Hero";
 
@@ -101,6 +102,7 @@ export default async function Home({
 
         <Hero />
         <BlogHome blogs={blogs} />
+        <CheckResults />
         <Features />
       </MaxWidthWrapper>
     </div>

@@ -32,6 +32,7 @@ import {
 } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { ChevronDownIcon } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 
 // Validation schema
 const formSchema = z.object({
@@ -44,11 +45,27 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 
+interface ScheduleDetail {
+  schedule_id: string;
+  consultant_id: string;
+  service_id: string;
+  start_time: string;
+  end_time: string;
+  is_booked: boolean;
+  created_at: string;
+  deleted_at: string | null;
+  max_appointments_per_day: number;
+  service: {
+    name: string;
+  };
+}
+
 interface PaymentActionsDropdownProps {
   scheduleId: string;
   onDeleted?: () => void;
   onUpdated?: () => void;
   serverAccessToken?: string;
+  appointmentId?: string;
 }
 
 export function PaymentActionsDropdown({
@@ -56,18 +73,18 @@ export function PaymentActionsDropdown({
   onDeleted,
   onUpdated,
   serverAccessToken,
+  appointmentId,
 }: PaymentActionsDropdownProps) {
   const handleCopy = () => {
     navigator.clipboard.writeText(scheduleId);
+    notify("success", "Đã sao chép ID lịch!");
   };
 
   const [openUpdateDialog, setOpenUpdateDialog] = useState(false);
   const [services, setServices] = useState<{ service_id: string; name: string; type: string }[]>([]);
-  const [initialData, setInitialData] = useState<{
-    start_time: string;
-    end_time: string;
-    service_id: string;
-  } | null>(null);
+  const [initialData, setInitialData] = useState<ScheduleDetail | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -82,58 +99,76 @@ export function PaymentActionsDropdown({
 
   // Fetch schedule data and services
   useEffect(() => {
-    const fetchScheduleData = async () => {
-      try {
-        if (!serverAccessToken) throw new Error("No access token found");
+    let isMounted = true;
 
+    const fetchScheduleData = async () => {
+      if (!serverAccessToken || !isMounted) return;
+
+      setIsLoading(true);
+      try {
+        console.log("Fetching schedule data for scheduleId:", scheduleId);
         const res = await fetch(`/api/schedules/${scheduleId}`, {
           headers: {
             Authorization: `Bearer ${serverAccessToken}`,
           },
         });
-        if (!res.ok) throw new Error("Failed to fetch schedule data");
+        if (!res.ok) {
+          const err = await res.json();
+          throw new Error(err.message || "Không thể tải dữ liệu lịch.");
+        }
         const data = await res.json();
-        setInitialData({
-          start_time: data.start_time,
-          end_time: data.end_time,
-          service_id: data.service_id,
-        });
+        console.log("Schedule data received:", data);
+        if (isMounted) {
+          setInitialData(data.schedule);
 
-        // Set default form values
-        const start = parseISO(data.start_time);
-        const end = parseISO(data.end_time);
-        form.setValue("startDate", start);
-        form.setValue("startTime", format(start, "HH:mm:ss"));
-        form.setValue("endDate", end);
-        form.setValue("endTime", format(end, "HH:mm:ss"));
-        form.setValue("serviceId", data.service_id);
+          const start = parseISO(data.schedule.start_time);
+          const end = parseISO(data.schedule.end_time);
+          form.setValue("startDate", start);
+          form.setValue("startTime", format(start, "HH:mm:ss"));
+          form.setValue("endDate", end);
+          form.setValue("endTime", format(end, "HH:mm:ss"));
+          form.setValue("serviceId", data.schedule.service_id);
+        }
       } catch (error) {
         console.error("Error fetching schedule data:", error);
+        if (isMounted) notify("error", "Không thể tải dữ liệu lịch.");
+      } finally {
+        if (isMounted) setIsLoading(false);
       }
     };
 
     const fetchServices = async () => {
+      if (!isMounted) return;
+
       try {
         const res = await fetch("/api/services");
-        if (!res.ok) throw new Error("Failed to fetch services");
+        if (!res.ok) throw new Error("Không thể tải danh sách dịch vụ.");
         const data = await res.json();
-        // Filter for type "Consultation"
         const consultationServices = data.filter(
           (service: { service_id: string; name: string; type: string }) =>
             service.type === "Consultation"
         );
-        setServices(consultationServices);
+        if (isMounted) setServices(consultationServices);
       } catch (error) {
         console.error("Error fetching services:", error);
-        notify("error", "Không thể tải danh sách dịch vụ.");
+        if (isMounted) notify("error", "Không thể tải danh sách dịch vụ.");
       }
     };
 
     fetchScheduleData();
     fetchServices();
+
+    return () => {
+      isMounted = false;
+    };
   }, [scheduleId, serverAccessToken, form]);
 
   const onSubmit = async (values: FormValues) => {
+    if (!serverAccessToken) {
+      notify("error", "Không tìm thấy token xác thực.");
+      return;
+    }
+
     try {
       const [sh, sm, ss] = values.startTime.split(":").map(Number);
       const [eh, em, es] = values.endTime.split(":").map(Number);
@@ -143,8 +178,6 @@ export function PaymentActionsDropdown({
 
       const end = new Date(values.endDate);
       end.setHours(eh, em, es);
-
-      if (!serverAccessToken) throw new Error("No access token found");
 
       const res = await fetch(`/api/schedules/${scheduleId}`, {
         method: "PATCH",
@@ -174,173 +207,244 @@ export function PaymentActionsDropdown({
     }
   };
 
+  const handleConfirm = async () => {
+    if (!serverAccessToken || !appointmentId) {
+      notify("error", "Không tìm thấy token hoặc ID lịch hẹn.");
+      return;
+    }
+
+    try {
+      console.log("Confirming with appointmentId:", appointmentId); // Debug log
+      const res = await fetch(`/api/appointments/${appointmentId}/confirm`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${serverAccessToken}`,
+        },
+      });
+
+      if (!res.ok) {
+        const err = await res.json();
+        console.error("Confirm API response:", err); // Debug lỗi
+        notify("error", err.message || "Xác nhận lịch hẹn thất bại.");
+        return;
+      }
+
+      notify("success", "Xác nhận lịch hẹn thành công!");
+      if (onUpdated) onUpdated();
+    } catch (error) {
+      console.error("Error confirming appointment:", error);
+      notify("error", "Có lỗi xảy ra khi xác nhận lịch hẹn.");
+    }
+  };
+
+  const handleConfirmClick = () => {
+    if (appointmentId) {
+      setShowConfirmDialog(true);
+    } else {
+      notify("error", "Không có lịch hẹn để xác nhận.");
+    }
+  };
+
+  const confirmAction = () => {
+    setShowConfirmDialog(false);
+    handleConfirm();
+  };
+
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <span className="text-xl leading-none">...</span>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-48 bg-white">
-        <DropdownMenuLabel>Thao tác</DropdownMenuLabel>
-
-        <DropdownMenuItem onClick={handleCopy}>Sao chép ID</DropdownMenuItem>
-
-        <DropdownMenuItem onClick={() => setOpenUpdateDialog(true)}>
-          Cập nhật
-        </DropdownMenuItem>
-
-        <DropdownMenuItem asChild>
-          <DeleteScheduleDialog
-            scheduleId={scheduleId}
-            onDeleted={onDeleted}
-            trigger={
-              <span className="text-red-500 cursor-pointer pl-2">Xóa</span>
-            }
-          />
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-
+    <div>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <span className="text-xl leading-none cursor-pointer">...</span>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end" className="w-48 bg-white">
+          <DropdownMenuLabel>Thao tác</DropdownMenuLabel>
+          <DropdownMenuItem onClick={handleCopy}>Sao chép ID</DropdownMenuItem>
+          <DropdownMenuItem onClick={() => setOpenUpdateDialog(true)}>
+            Cập nhật
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={handleConfirmClick} disabled={!appointmentId}>
+            Xác nhận lịch hẹn
+          </DropdownMenuItem>
+          <DropdownMenuItem asChild>
+            <DeleteScheduleDialog
+              scheduleId={scheduleId}
+              onDeleted={onDeleted}
+              trigger={<span className="text-red-500 cursor-pointer pl-2">Xóa</span>}
+            />
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
       <Dialog open={openUpdateDialog} onOpenChange={setOpenUpdateDialog}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Cập nhật lịch</DialogTitle>
           </DialogHeader>
-
           <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-4 py-4">
-            <div>
-              <Label>Ngày bắt đầu</Label>
-              <div className="flex gap-4">
-                <div className="flex flex-col gap-2">
-                  <Popover open={form.formState.isDirty || !initialData ? undefined : false} onOpenChange={form.formState.isDirty || !initialData ? undefined : () => {}}>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant="outline"
-                        className="w-36 justify-between font-normal"
-                      >
-                        {form.watch("startDate")
-                          ? format(form.watch("startDate"), "dd/MM/yyyy")
-                          : "Chọn ngày"}
-                        <ChevronDownIcon />
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-                        mode="single"
-                        selected={form.watch("startDate")}
-                        captionLayout="dropdown"
-                        locale={vi}
-                        onSelect={(date) => {
-                          form.setValue("startDate", date as Date);
-                        }}
-                      />
-                    </PopoverContent>
-                  </Popover>
-                  {form.formState.errors.startDate && (
-                    <p className="text-sm text-red-500">
-                      {form.formState.errors.startDate.message}
-                    </p>
-                  )}
-                </div>
-                <div className="flex flex-col gap-2">
-                  <Input
-                    type="time"
-                    step="1"
-                    {...form.register("startTime")}
-                    className="bg-background"
-                  />
-                  {form.formState.errors.startTime && (
-                    <p className="text-sm text-red-500">
-                      {form.formState.errors.startTime.message}
-                    </p>
-                  )}
-                </div>
+            {isLoading ? (
+              <div className="space-y-4">
+                <Skeleton className="h-10 w-full" />
+                <Skeleton className="h-10 w-full" />
+                <Skeleton className="h-10 w-full" />
               </div>
-            </div>
-
-            <div>
-              <Label>Ngày kết thúc</Label>
-              <div className="flex gap-4">
-                <div className="flex flex-col gap-2">
-                  <Popover open={form.formState.isDirty || !initialData ? undefined : false} onOpenChange={form.formState.isDirty || !initialData ? undefined : () => {}}>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant="outline"
-                        className="w-36 justify-between font-normal"
+            ) : (
+              <>
+                <div>
+                  <Label>Ngày bắt đầu</Label>
+                  <div className="flex gap-4">
+                    <div className="flex flex-col gap-2">
+                      <Popover
+                        open={form.formState.isDirty || !initialData ? undefined : false}
+                        onOpenChange={form.formState.isDirty || !initialData ? undefined : () => {}}
                       >
-                        {form.watch("endDate")
-                          ? format(form.watch("endDate"), "dd/MM/yyyy")
-                          : "Chọn ngày"}
-                        <ChevronDownIcon />
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-                        mode="single"
-                        selected={form.watch("endDate")}
-                        captionLayout="dropdown"
-                        locale={vi}
-                        onSelect={(date) => {
-                          form.setValue("endDate", date as Date);
-                        }}
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant="outline"
+                            className="w-36 justify-between font-normal"
+                          >
+                            {form.watch("startDate")
+                              ? format(form.watch("startDate"), "dd/MM/yyyy")
+                              : "Chọn ngày"}
+                            <ChevronDownIcon />
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="start">
+                          <Calendar
+                            mode="single"
+                            selected={form.watch("startDate")}
+                            captionLayout="dropdown"
+                            locale={vi}
+                            onSelect={(date) => form.setValue("startDate", date as Date)}
+                          />
+                        </PopoverContent>
+                      </Popover>
+                      {form.formState.errors.startDate && (
+                        <p className="text-sm text-red-500">
+                          {form.formState.errors.startDate.message}
+                        </p>
+                      )}
+                    </div>
+                    <div className="flex flex-col gap-2">
+                      <Input
+                        type="time"
+                        step="1"
+                        {...form.register("startTime")}
+                        className="bg-background"
                       />
-                    </PopoverContent>
-                  </Popover>
-                  {form.formState.errors.endDate && (
-                    <p className="text-sm text-red-500">
-                      {form.formState.errors.endDate.message}
-                    </p>
-                  )}
+                      {form.formState.errors.startTime && (
+                        <p className="text-sm text-red-500">
+                          {form.formState.errors.startTime.message}
+                        </p>
+                      )}
+                    </div>
+                  </div>
                 </div>
-                <div className="flex flex-col gap-2">
-                  <Input
-                    type="time"
-                    step="1"
-                    {...form.register("endTime")}
-                    className="bg-background"
-                  />
-                  {form.formState.errors.endTime && (
-                    <p className="text-sm text-red-500">
-                      {form.formState.errors.endTime.message}
-                    </p>
-                  )}
+                <div>
+                  <Label>Ngày kết thúc</Label>
+                  <div className="flex gap-4">
+                    <div className="flex flex-col gap-2">
+                      <Popover
+                        open={form.formState.isDirty || !initialData ? undefined : false}
+                        onOpenChange={form.formState.isDirty || !initialData ? undefined : () => {}}
+                      >
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant="outline"
+                            className="w-36 justify-between font-normal"
+                          >
+                            {form.watch("endDate")
+                              ? format(form.watch("endDate"), "dd/MM/yyyy")
+                              : "Chọn ngày"}
+                            <ChevronDownIcon />
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="start">
+                          <Calendar
+                            mode="single"
+                            selected={form.watch("endDate")}
+                            captionLayout="dropdown"
+                            locale={vi}
+                            onSelect={(date) => form.setValue("endDate", date as Date)}
+                          />
+                        </PopoverContent>
+                      </Popover>
+                      {form.formState.errors.endDate && (
+                        <p className="text-sm text-red-500">
+                          {form.formState.errors.endDate.message}
+                        </p>
+                      )}
+                    </div>
+                    <div className="flex flex-col gap-2">
+                      <Input
+                        type="time"
+                        step="1"
+                        {...form.register("endTime")}
+                        className="bg-background"
+                      />
+                      {form.formState.errors.endTime && (
+                        <p className="text-sm text-red-500">
+                          {form.formState.errors.endTime.message}
+                        </p>
+                      )}
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </div>
-
-            <div className="grid gap-2">
-              <Label htmlFor="serviceId">Dịch vụ</Label>
-              <select
-                id="serviceId"
-                {...form.register("serviceId")}
-                className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                defaultValue=""
-              >
-                <option value="" disabled>
-                  Chọn dịch vụ
-                </option>
-                {services
-                  .filter((service) => service.type === "Consultation")
-                  .map((service) => (
-                    <option key={service.service_id} value={service.service_id}>
-                      {service.name}
+                <div className="grid gap-2">
+                  <Label htmlFor="serviceId">Dịch vụ</Label>
+                  <select
+                    id="serviceId"
+                    {...form.register("serviceId")}
+                    className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    defaultValue=""
+                  >
+                    <option value="" disabled>
+                      Chọn dịch vụ
                     </option>
-                  ))}
-              </select>
-              {form.formState.errors.serviceId && (
-                <p className="text-sm text-red-500">
-                  {form.formState.errors.serviceId.message}
-                </p>
-              )}
-            </div>
-
+                    {services
+                      .filter((service) => service.type === "Consultation")
+                      .map((service) => (
+                        <option key={service.service_id} value={service.service_id}>
+                          {service.name}
+                        </option>
+                      ))}
+                  </select>
+                  {form.formState.errors.serviceId && (
+                    <p className="text-sm text-red-500">
+                      {form.formState.errors.serviceId.message}
+                    </p>
+                  )}
+                </div>
+              </>
+            )}
             <DialogFooter>
               <Button variant="outline" onClick={() => setOpenUpdateDialog(false)}>
                 Hủy
               </Button>
-              <Button type="submit">Cập nhật</Button>
+              <Button type="submit" disabled={isLoading}>
+                Cập nhật
+              </Button>
             </DialogFooter>
           </form>
         </DialogContent>
       </Dialog>
-    </DropdownMenu>
+      <Dialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Xác nhận lịch hẹn</DialogTitle>
+          </DialogHeader>
+          <div className="py-4">
+            <p>Bạn có chắc chắn muốn xác nhận lịch hẹn này?</p>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowConfirmDialog(false)}>
+              Hủy
+            </Button>
+            <Button variant="destructive" onClick={confirmAction}>
+              Xác nhận
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
   );
 }

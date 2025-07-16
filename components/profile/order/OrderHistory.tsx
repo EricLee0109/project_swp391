@@ -4,12 +4,20 @@ import { useEffect, useState } from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { CalendarIcon, Home, Hospital, MapPin } from "lucide-react";
+import { CalendarIcon, Home, Hospital, MapPin, Star } from "lucide-react";
 import { formatDateVN } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { shippingStatusMap, paymentStatusMap } from "./helper";
 import { notify } from "@/lib/toastNotify";
 import ResultTesting from "./ResultTesting";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 
 interface ApiAppointment {
   appointment_id: string;
@@ -59,11 +67,15 @@ export default function OrderHistory() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 3;
+  const itemsPerPage = 3; // Moved before totalPages
   const [requestLoading, setRequestLoading] = useState<string | null>(null);
   const [requestSuccess, setRequestSuccess] = useState<string | null>(null);
   const [validateLoading, setValidateLoading] = useState<string | null>(null);
   const [validateResult, setValidateResult] = useState<{ [key: string]: { valid: boolean; message: string } }>({});
+  const [feedbackDialogOpen, setFeedbackDialogOpen] = useState<string | null>(null);
+  const [feedbackRating, setFeedbackRating] = useState<number>(0);
+  const [feedbackComment, setFeedbackComment] = useState<string>("");
+  const [feedbackSubmitting, setFeedbackSubmitting] = useState<string | null>(null);
 
   useEffect(() => {
     async function fetchAppointments() {
@@ -129,12 +141,51 @@ export default function OrderHistory() {
         credentials: "include",
       });
       const data = await res.json();
-      setValidateResult(prev => ({ ...prev, [appointmentId]: data }));
+      setValidateResult((prev) => ({ ...prev, [appointmentId]: data }));
       notify(data.valid ? "success" : "error", data.message);
     } catch {
       notify("error", "Lỗi mạng, vui lòng thử lại");
     } finally {
       setValidateLoading(null);
+    }
+  }
+
+  async function submitFeedback(appointmentId: string) {
+    if (feedbackRating < 1 || feedbackRating > 5) {
+      notify("error", "Vui lòng chọn đánh giá từ 1 đến 5 sao.");
+      return;
+    }
+    if (!feedbackComment.trim()) {
+      notify("error", "Vui lòng nhập nhận xét.");
+      return;
+    }
+
+    setFeedbackSubmitting(appointmentId);
+    try {
+      const res = await fetch(`/api/appointments/${appointmentId}/feedback`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          rating: feedbackRating,
+          comment: feedbackComment,
+        }),
+        credentials: "include",
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || "Không thể gửi đánh giá.");
+      }
+
+      notify("success", "Gửi đánh giá thành công!");
+      setFeedbackDialogOpen(null);
+      setFeedbackRating(0);
+      setFeedbackComment("");
+    } catch (error) {
+      console.error("Lỗi khi gửi đánh giá:", error);
+      notify("error", (error as Error).message || "Lỗi mạng, vui lòng thử lại.");
+    } finally {
+      setFeedbackSubmitting(null);
     }
   }
 
@@ -176,13 +227,13 @@ export default function OrderHistory() {
                 appt.type === "Testing" &&
                 appt.mode === "AT_HOME" &&
                 appt.shipping_info?.shipping_status === "DeliveredToCustomer";
-
               const isRequesting = requestLoading === appt.appointment_id;
               const isRequested = requestSuccess === appt.appointment_id;
-
               const canValidate = appt.type === "Testing" && appt.test_code;
               const isValidating = validateLoading === appt.appointment_id;
               const validateRes = validateResult[appt.appointment_id];
+              const canFeedback =
+                appt.type === "Consultation";
 
               return (
                 <div
@@ -305,11 +356,77 @@ export default function OrderHistory() {
                         {isValidating ? "Đang kiểm tra..." : validateRes ? (validateRes.valid ? "Hợp lệ" : "Không hợp lệ") : "Kiểm tra tư vấn miễn phí"}
                       </Button>
                     )}
+                    {canFeedback && (
+                      <Button
+                        variant="outline"
+                        disabled={feedbackSubmitting === appt.appointment_id}
+                        onClick={() => setFeedbackDialogOpen(appt.appointment_id)}
+                      >
+                        {feedbackSubmitting === appt.appointment_id ? "Đang gửi..." : "Đánh giá buổi tư vấn"}
+                      </Button>
+                    )}
                   </div>
 
                   {appt.type === "Testing" && (
                     <ResultTesting appointmentId={appt.appointment_id} />
                   )}
+
+                  <Dialog
+                    open={feedbackDialogOpen === appt.appointment_id}
+                    onOpenChange={() => {
+                      setFeedbackDialogOpen(null);
+                      setFeedbackRating(0);
+                      setFeedbackComment("");
+                    }}
+                  >
+                    <DialogContent className="max-w-md bg-white">
+                      <DialogHeader>
+                        <DialogTitle>Đánh giá buổi tư vấn</DialogTitle>
+                      </DialogHeader>
+                      <div className="space-y-4">
+                        <div>
+                          <label className="block text-sm font-medium mb-2">
+                            Đánh giá (1-5 sao)
+                          </label>
+                          <div className="flex gap-2">
+                            {[1, 2, 3, 4, 5].map((star) => (
+                              <Star
+                                key={star}
+                                className={`w-6 h-6 cursor-pointer ${feedbackRating >= star ? "text-yellow-400 fill-yellow-400" : "text-gray-300"}`}
+                                onClick={() => setFeedbackRating(star)}
+                              />
+                            ))}
+                          </div>
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium mb-2">
+                            Nhận xét
+                          </label>
+                          <Input
+                            value={feedbackComment}
+                            onChange={(e) => setFeedbackComment(e.target.value)}
+                            placeholder="Nhập nhận xét của bạn"
+                            className="w-full"
+                          />
+                        </div>
+                      </div>
+                      <DialogFooter>
+                        <Button
+                          variant="outline"
+                          onClick={() => setFeedbackDialogOpen(null)}
+                          disabled={feedbackSubmitting === appt.appointment_id}
+                        >
+                          Hủy
+                        </Button>
+                        <Button
+                          onClick={() => submitFeedback(appt.appointment_id)}
+                          disabled={feedbackSubmitting === appt.appointment_id}
+                        >
+                          {feedbackSubmitting === appt.appointment_id ? "Đang gửi..." : "Gửi đánh giá"}
+                        </Button>
+                      </DialogFooter>
+                    </DialogContent>
+                  </Dialog>
                 </div>
               );
             })
