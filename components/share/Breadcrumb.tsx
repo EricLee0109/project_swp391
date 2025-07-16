@@ -1,12 +1,15 @@
-import { MdKeyboardArrowRight } from "react-icons/md";
+"use client";
 
+import { MdKeyboardArrowRight } from "react-icons/md";
 import React from "react";
 import MaxWidthWrapper from "../profile/MaxWidthWrapper";
+import Link from "next/link";
 
 interface BreadcrumbItem {
   label: string;
   href: string;
 }
+
 const Breadcrumb = ({ items }: { items: BreadcrumbItem[] }) => {
   return (
     <nav
@@ -15,11 +18,13 @@ const Breadcrumb = ({ items }: { items: BreadcrumbItem[] }) => {
     >
       <MaxWidthWrapper>
         <ul className="flex gap-3 justify-center items-center">
-          {items.map((item, index: number) => (
+          {items.map((item, index) => (
             <React.Fragment key={index}>
               <li>
                 {index < items.length - 1 ? (
-                  <a href={item.href}>{item.label}</a>
+                  <Link href={item.href} className="hover:underline">
+                    {item.label}
+                  </Link>
                 ) : (
                   <span>{item.label}</span>
                 )}
