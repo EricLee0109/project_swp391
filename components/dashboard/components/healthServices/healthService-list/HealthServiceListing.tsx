@@ -7,9 +7,9 @@ import { columns, setSearchQueryForHighlight } from "./columns";
 import { PaginationDashboard } from "@/components/dashboard/PaginationDashboard";
 import { getAllHealthServices } from "@/app/api/dashboard/healthService/action";
 
-import Loading from "@/app/(root)/loading";
 import { ServicesListType } from "@/types/ServiceType/StaffRoleType";
 import HealthServicesForm from "@/components/dashboard/components/healthServices/healthService-list/HealthServicesForm";
+import LoadingSkeleton from "@/app/(dashboard)/admin/dashboard/healthServices/loading";
 
 const HealthServiceListingPage = () => {
   const [allHealthServices, setAllHealthServices] = useState<
@@ -66,7 +66,7 @@ const HealthServiceListingPage = () => {
     currentPage * itemsPerPage
   );
 
-  if (!loading) return <Loading />;
+  if (!loading) return <LoadingSkeleton />;
 
   return (
     <div className="flex flex-col h-full">
