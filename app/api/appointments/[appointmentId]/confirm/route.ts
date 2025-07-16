@@ -1,9 +1,13 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 
-export async function PATCH(request: Request, { params }: { params: { appointmentId: string } }) {
+export async function PATCH(
+  request: Request,
+  context: { params: Promise<{ appointmentId: string }> }
+) {
   try {
     const session = await auth();
+    const { appointmentId } = await context.params;
 
     if (!session?.accessToken) {
       return NextResponse.json(
@@ -17,7 +21,7 @@ export async function PATCH(request: Request, { params }: { params: { appointmen
       Authorization: `Bearer ${session.accessToken}`,
     };
 
-    const url = `${process.env.BE_BASE_URL}/appointments/${params.appointmentId}/confirm`;
+    const url = `${process.env.BE_BASE_URL}/appointments/${appointmentId}/confirm`;
     const beRes = await fetch(url, {
       method: "PATCH",
       headers,
