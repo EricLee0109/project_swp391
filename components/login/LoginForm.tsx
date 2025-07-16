@@ -77,7 +77,7 @@ export function LoginForm({
               router.replace(callbackUrl); //if does not have callbackUrl, redirect to home page /
               router.refresh();
             } else {
-              router.push("/dashboard");
+              router.push(`/${role?.toLowerCase()}/dashboard/profile-dashboard`);
             }
 
             router.refresh(); // Cập nhật dữ liệu layout
