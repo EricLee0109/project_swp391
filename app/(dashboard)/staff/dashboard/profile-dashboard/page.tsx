@@ -16,7 +16,7 @@ export default function DashboardPage() {
 
       <div className="container mx-auto p-6 space-y-6">
         <div className="flex justify-end">
-          <Link href="/consultant/dashboard/update-profile">
+          <Link href="/staff/dashboard/update-profile">
             <Button className="flex gap-2 items-center">Cập nhật hồ sơ</Button>
           </Link>
         </div>
