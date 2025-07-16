@@ -34,7 +34,7 @@ export interface CustomerProfile {
 export interface CustomerDetailResponse {
   user: User;
   customerProfile: CustomerProfile | null;
-  consultantProfile: any | null; // có thể định nghĩa sau nếu có schema
+  consultantProfile: any | null; 
 }
 
 

@@ -13,13 +13,15 @@ import {
 } from "@/types/ServiceType/HealthServiceType";
 import Loading from "@/app/(root)/loading";
 import EmptyComments from "@/components/EmptyCommentSection";
-
+import { useSearchParams } from "next/navigation";
 type RawService = Omit<Service, "price"> & { price: string };
 
 export function ServiceBrowser() {
+   const searchParams = useSearchParams();
+   const initialCategory = searchParams.get("category") || "All";
   const [services, setServices] = useState<Service[]>([]);
   const [searchTerm, setSearchTerm] = useState<string>("");
-  const [activeFilter, setActiveFilter] = useState<string>("All");
+  const [activeFilter, setActiveFilter] = useState<string>(initialCategory);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   useEffect(() => {
@@ -88,7 +90,7 @@ export function ServiceBrowser() {
           />
         </div>
       </div>
-
+ 
       <div className="mb-10 flex justify-center flex-wrap gap-3">
         {categories.map((category) => (
           <FilterPill

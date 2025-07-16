@@ -15,6 +15,7 @@ import {
   ClipboardList,
   DoorOpen,
   Heart,
+  MessageCircleQuestion,
   Settings,
 } from "lucide-react";
 import Link from "next/link";
@@ -25,7 +26,6 @@ import { User } from "@/types/user/User";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils"; // dùng helper cn chuẩn nếu đã có
 
-
 type ProfileMenuProps = {
   user: User;
   type: "jwt" | "oauth";
@@ -34,6 +34,7 @@ const navItems = [
   { title: "Hồ sơ", icon: CircleUser, href: "/profile" },
   { title: "Danh sách", icon: Heart, href: "/profile/favourite" },
   { title: "Lịch sử", icon: ClipboardList, href: "/profile/order" },
+  { title: "Câu hỏi", icon: MessageCircleQuestion, href: "/profile/questions" },
   { title: "Thông báo", icon: Bell, href: "/profile/notification" },
   { title: "Cài đặt", icon: Settings, href: "/profile/settings" },
 ];

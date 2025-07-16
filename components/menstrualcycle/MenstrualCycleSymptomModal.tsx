@@ -1,7 +1,11 @@
 "use client";
 import { useState } from "react";
 import {
-  Card, CardHeader, CardTitle, CardContent, CardFooter,
+  Card,
+  CardHeader,
+  CardTitle,
+  CardContent,
+  CardFooter,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -18,7 +22,11 @@ interface Props {
 }
 
 export default function MenstrualCycleSymptomModal({
-  cycleId, defaultSymptoms, defaultNotes, onClose, onSaved
+  cycleId,
+  defaultSymptoms,
+  defaultNotes,
+  onClose,
+  onSaved,
 }: Props) {
   const [symptoms, setSymptoms] = useState(defaultSymptoms || "");
   const [notes, setNotes] = useState(defaultNotes || "");
@@ -36,13 +44,11 @@ export default function MenstrualCycleSymptomModal({
       if (onSaved) onSaved();
       onClose();
     } catch {
-       notify("error", "Cập nhật thất bại, thử lại!")
+      notify("error", "Cập nhật thất bại, thử lại!");
     } finally {
       setLoading(false);
     }
   };
-
-  
 
   return (
     <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center">
@@ -63,7 +69,7 @@ export default function MenstrualCycleSymptomModal({
               className="border-pink-300 focus:ring-pink-400 focus:border-pink-400 rounded-lg shadow-sm mt-1"
               placeholder="VD: Đau bụng nhẹ"
               value={symptoms}
-              onChange={e => setSymptoms(e.target.value)}
+              onChange={(e) => setSymptoms(e.target.value)}
               maxLength={100}
             />
           </div>
@@ -76,13 +82,19 @@ export default function MenstrualCycleSymptomModal({
               className="border-violet-300 focus:ring-violet-400 focus:border-violet-400 rounded-lg shadow-sm mt-1"
               placeholder="VD: Tâm trạng khó chịu"
               value={notes}
-              onChange={e => setNotes(e.target.value)}
+              onChange={(e) => setNotes(e.target.value)}
               maxLength={100}
             />
           </div>
         </CardContent>
         <CardFooter className="flex gap-3 justify-end bg-gray-50 px-8 py-4 rounded-b-2xl">
-          <Button onClick={onClose} variant="secondary" className="rounded-lg px-6 font-medium">Hủy</Button>
+          <Button
+            onClick={onClose}
+            variant="secondary"
+            className="rounded-lg px-6 font-medium"
+          >
+            Hủy
+          </Button>
           <Button
             onClick={handleSave}
             disabled={loading}
