@@ -4,7 +4,6 @@ import { auth } from "@/auth";
 
 export async function GET() {
   const session = await auth();
-
   // const cookieStore = await cookies();
   // const accessToken = cookieStore.get("accessToken")?.value;
   const headers: Record<string, string> = {};
@@ -17,6 +16,7 @@ export async function GET() {
   });
 
   const data = await beRes.json();
+  
   return NextResponse.json(data, { status: beRes.status });
 }
 
