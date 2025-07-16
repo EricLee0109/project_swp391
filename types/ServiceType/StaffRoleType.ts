@@ -45,25 +45,25 @@ export interface AppointmentListType {
   } | null;
 }
 
-export interface ServicesListType {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  filter(arg0: (s: any) => boolean): ServicesListType[];
-  service_id: string;
-  name: string;
-  description: string;
-  price: string;
-  category: string;
-  is_active: boolean;
-  type: "Consultation" | "Testing";
-  testing_hours: {
-    morning?: { start: string; end: string };
-    afternoon?: { start: string; end: string };
-  } | null;
-  daily_capacity: number;
-  return_address: string | null;
-  return_phone: string | null;
-  available_modes: ("AT_HOME" | "AT_CLINIC")[];
-  created_at: string;
-  updated_at: string;
-  deleted_at: string | null;
-}
+  export interface ServicesListType {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    filter(arg0: (s: any) => boolean): ServicesListType[];
+    service_id: string;
+    name: string;
+    description: string;
+    price: string;
+    category: string;
+    is_active: boolean;
+    type: "Consultation" | "Testing";
+    testing_hours: {
+      morning?: { start: string; end: string };
+      afternoon?: { start: string; end: string };
+    } | null;
+    daily_capacity: number;
+    return_address: string | null;
+    return_phone: string | null;
+    available_modes: ("AT_HOME" | "AT_CLINIC")[];
+    created_at: string;
+    updated_at: string;
+    deleted_at: string | null;
+  }
