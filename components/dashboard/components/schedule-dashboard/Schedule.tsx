@@ -184,6 +184,33 @@ useEffect(() => {
     fetchSchedules();
   };
 
+
+  const getVietnameseStatus = (status: string) => {
+    switch (status.toLowerCase()) {
+      case "pending":
+        return "Đang chờ";
+      case "confirmed":
+        return "Đã xác nhận";
+      case "failed":
+        return "Thất bại";
+      default:
+        return status;
+    }
+  };
+
+  const getVietnamesePaymentStatus = (paymentStatus: string) => {
+    switch (paymentStatus.toLowerCase()) {
+      case "pending":
+        return "Đang chờ";
+      case "paid":
+        return "Đã thanh toán";
+      case "failed":
+        return "Thất bại";
+      default:
+        return paymentStatus;
+    }
+  };
+
   return (
     <div>
       <Card className="p-6">
@@ -238,8 +265,8 @@ useEffect(() => {
                   </div>
                   {schedule.appointmentStatus ? (
                     <div className="text-sm text-gray-600">
-                      <p><strong>Trạng thái:</strong> {schedule.appointmentStatus.status}</p>
-                      <p><strong>Trạng thái thanh toán:</strong> {schedule.appointmentStatus.payment_status}</p>
+                      <p><strong>Trạng thái:</strong> {getVietnameseStatus(schedule.appointmentStatus.status)}</p>
+                      <p><strong>Trạng thái thanh toán:</strong> {getVietnamesePaymentStatus(schedule.appointmentStatus.payment_status)}</p>
                     </div>
                   ) : (
                     <p className="text-sm text-gray-500">Chưa có thông tin lịch hẹn</p>
