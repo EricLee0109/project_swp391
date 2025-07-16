@@ -8,6 +8,7 @@ import { columns } from "./columns";
 import { getAllUsers } from "@/app/api/dashboard/user/action";
 import { PaginationDashboard } from "@/components/dashboard/PaginationDashboard";
 import { setSearchQueryForHighlight } from "./columns";
+import LoadingSkeleton from "@/app/(dashboard)/admin/dashboard/healthServices/loading";
 
 const UsersListingPage = () => {
   const [allUsers, setAllUsers] = useState<User[]>([]);
@@ -16,6 +17,7 @@ const UsersListingPage = () => {
   const [selectedRole, setSelectedRole] = useState("*");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   // ✅ Gộp logic lọc lại cho dễ tái sử dụng
   const filterUsers = (users: User[], query: string, role: string) => {
@@ -30,11 +32,14 @@ const UsersListingPage = () => {
   };
 
   const refreshUsers = async () => {
+    setIsLoading(false);
     try {
       const data = await getAllUsers();
       setAllUsers(data);
     } catch (err) {
       console.error("Lỗi khi làm mới danh sách người dùng", err);
+    } finally {
+      setIsLoading(true);
     }
   };
 
@@ -60,6 +65,15 @@ const UsersListingPage = () => {
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
+
+  if (!isLoading)
+    return (
+      <>
+        <LoadingSkeleton />
+        <LoadingSkeleton />
+        <LoadingSkeleton />
+      </>
+    );
 
   return (
     <div className="flex flex-col h-full">

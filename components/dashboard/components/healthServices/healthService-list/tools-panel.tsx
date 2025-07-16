@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Plus, Search } from "lucide-react";
+import { Search } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -11,7 +11,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import Link from "next/link";
 
 interface ToolsPanelProps {
   onSearch: (query: string) => void;
@@ -57,14 +56,14 @@ const ToolsPanel = ({ onSearch, onTypeChange }: ToolsPanelProps) => {
         </Select>
       </div>
 
-      <div className="col-span-2 flex">
+      {/* <div className="col-span-2 flex">
         <Link href={"/create-appointment"} className="w-full">
           <Button className="w-full flex gap-3 items-center">
             <Plus />
             Tạo mới
           </Button>
         </Link>
-      </div>
+      </div> */}
     </div>
   );
 };
