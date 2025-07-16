@@ -7,12 +7,36 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useDropzone } from "react-dropzone";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+
 import {
-  Form
+  Form,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormMessage,
 } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import {
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+} from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import { CalendarIcon } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
 
+import { cn, formatDate } from "@/lib/utils";
+import { updateConsultantProfile } from "@/app/api/dashboard/profile-dashboard/action";
 
-// --- Zod schema ---
 const formSchema = z.object({
   fullName: z.string().min(1),
   phoneNumber: z.string().optional(),
@@ -24,10 +48,14 @@ const formSchema = z.object({
     shareData: z.boolean(),
     showEmail: z.boolean(),
   }),
+  qualifications: z.string().optional(),
+  experience: z.string().optional(),
+  specialization: z.string().optional(),
 });
 
 export default function UpdateProfileDashboard() {
   const router = useRouter();
+  const [role, setRole] = useState<string | null>(null);
   const [imagePreview, setImagePreview] = useState<string>("");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
@@ -44,10 +72,12 @@ export default function UpdateProfileDashboard() {
         shareData: true,
         showEmail: true,
       },
+      qualifications: "",
+      experience: "",
+      specialization: "",
     },
   });
 
-  // Fetch profile
   const fetchProfile = useCallback(async () => {
     try {
       const res = await fetch("/api/profile/me");
@@ -57,19 +87,26 @@ export default function UpdateProfileDashboard() {
       const user = data?.user || {};
       const profile = data?.consultantProfile || data?.customerProfile || data;
 
+      setRole(user.role);
+      setImagePreview(user.image || "");
+
       form.reset({
         fullName: user.full_name || "",
         phoneNumber: user.phone_number || "",
         address: user.address || "",
-        dateOfBirth: profile.date_of_birth ? new Date(profile.date_of_birth) : undefined,
+        dateOfBirth: profile.date_of_birth
+          ? new Date(profile.date_of_birth)
+          : undefined,
         gender: profile.gender || "Other",
         medicalHistory: profile.medical_history || "",
-        privacySettings: typeof profile.privacy_settings === "string"
-          ? JSON.parse(profile.privacy_settings)
-          : { shareData: true, showEmail: true },
+        privacySettings:
+          typeof profile.privacy_settings === "string"
+            ? JSON.parse(profile.privacy_settings)
+            : { shareData: true, showEmail: true },
+        qualifications: profile.qualifications || "",
+        experience: profile.experience || "",
+        specialization: profile.specialization || "",
       });
-
-      setImagePreview(user.image || "");
     } catch (err) {
       console.error("❌ Không thể load profile:", err);
     }
@@ -79,7 +116,6 @@ export default function UpdateProfileDashboard() {
     fetchProfile();
   }, [fetchProfile]);
 
-  // Dropzone
   const onDrop = (acceptedFiles: File[]) => {
     const file = acceptedFiles[0];
     if (!file) return;
@@ -88,57 +124,46 @@ export default function UpdateProfileDashboard() {
     setImagePreview(URL.createObjectURL(file));
   };
 
-  const { getRootProps, getInputProps, isDragActive, isDragReject } = useDropzone({
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     multiple: false,
     accept: { "image/jpeg": [".jpg", ".jpeg"], "image/png": [".png"] },
   });
 
-  // Submit
- const onSubmit = async (values: z.infer<typeof formSchema>) => {
-  const formData = new FormData();
-  formData.append("fullName", values.fullName);
-  formData.append("phoneNumber", values.phoneNumber || "");
-  formData.append("address", values.address || "");
-  formData.append("dateOfBirth", values.dateOfBirth.toISOString());
-  formData.append("gender", values.gender);
-  formData.append("medicalHistory", values.medicalHistory || "");
-  formData.append("privacySettings", JSON.stringify(values.privacySettings));
-  if (selectedFile) formData.append("image", selectedFile);
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    const formData = new FormData();
+    formData.append("fullName", values.fullName);
+    formData.append("phoneNumber", values.phoneNumber || "");
+    formData.append("address", values.address || "");
+    formData.append("dateOfBirth", values.dateOfBirth.toISOString());
+    formData.append("gender", values.gender);
+    formData.append("medicalHistory", values.medicalHistory || "");
+    formData.append("privacySettings", JSON.stringify(values.privacySettings));
+    if (selectedFile) formData.append("image", selectedFile);
 
-  try {
-    const res = await fetch("/api/profile/me", {
-      method: "PATCH",
-      body: formData,
-    });
+    try {
+      const res = await fetch("/api/profile/me", {
+        method: "PATCH",
+        body: formData,
+      });
 
-    const result = await res.json();
-    if (!res.ok) throw new Error(result.error || "Cập nhật thất bại");
+      const result = await res.json();
+      if (!res.ok) throw new Error(result.error || "Cập nhật thất bại");
 
-    const role = result?.user?.role || result?.role; // fallback nếu server trả `role` trực tiếp
+      // Nếu là consultant → gọi API cập nhật thông tin chuyên môn
+      if (role === "Consultant") {
+        await updateConsultantProfile({
+          qualifications: values.qualifications,
+          experience: values.experience,
+          specialization: values.specialization,
+        });
+      }
 
-    // ✅ Điều hướng theo vai trò
-    switch (role) {
-      case "Manager":
-        router.push("/manager/dashboard/profile-dashboard");
-        break;
-      case "Admin":
-        router.push("/admin/dashboard/profile-dashboard");
-        break;
-      case "Staff":
-        router.push("/staff/dashboard/profile-dashboard");
-        break;
-      case "Consultant":
-        router.push("/consultant/dashboard/profile-dashboard");
-        break;
-      default:
-      
-        break;
+      router.push(`/${role?.toLowerCase()}/dashboard/profile-dashboard`);
+    } catch (err) {
+      console.error("❌ Lỗi cập nhật:", err);
     }
-  } catch (err) {
-    console.error("❌ Lỗi cập nhật:", err);
-  }
-};
+  };
 
   return (
     <div className="py-5">
@@ -149,14 +174,211 @@ export default function UpdateProfileDashboard() {
         <div className="grid grid-cols-12 gap-5">
           <div className="col-span-8">
             <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-4">
-                {/* Các field như form mẫu bạn đã đưa (fullName, dateOfBirth, gender, medicalHistory, privacySettings...) */}
-                {/* ... giữ nguyên như cũ ở phần bạn đã code ... */}
+              <form
+                onSubmit={form.handleSubmit(onSubmit)}
+                className="flex flex-col gap-4"
+              >
+                <FormField
+                  name="fullName"
+                  control={form.control}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Họ tên</FormLabel>
+                      <FormControl>
+                        <Input {...field} />
+                      </FormControl>
+                       <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  name="phoneNumber"
+                  control={form.control}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>SĐT</FormLabel>
+                      <FormControl>
+                        <Input {...field} />
+                      </FormControl>
+                       <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  name="address"
+                  control={form.control}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Địa chỉ</FormLabel>
+                      <FormControl>
+                        <Input {...field} />
+                      </FormControl>
+                       <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  name="dateOfBirth"
+                  control={form.control}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Ngày sinh</FormLabel>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <FormControl>
+                            <Button
+                              variant="outline"
+                              className={cn(
+                                "w-[240px] text-left",
+                                !field.value && "text-muted-foreground"
+                              )}
+                            >
+                              {field.value
+                                ? formatDate(field.value)
+                                : "Chọn ngày"}
+                              <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                            </Button>
+                          </FormControl>
+                        </PopoverTrigger>
+                        <PopoverContent align="start" className="p-0">
+                          <Calendar
+                            mode="single"
+                            selected={field.value}
+                            onSelect={field.onChange}
+                          />
+                        </PopoverContent>
+                      </Popover>
+                       <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  name="gender"
+                  control={form.control}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Giới tính</FormLabel>
+                      <Select
+                        value={field.value}
+                        onValueChange={field.onChange}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="Male">Nam</SelectItem>
+                          <SelectItem value="Female">Nữ</SelectItem>
+                          <SelectItem value="Other">Khác</SelectItem>
+                        </SelectContent>
+                      </Select>
+                       <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  name="medicalHistory"
+                  control={form.control}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Tiền sử bệnh</FormLabel>
+                      <FormControl>
+                        <Input {...field} />
+                      </FormControl>
+                       <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  name="privacySettings.shareData"
+                  control={form.control}
+                  render={({ field }) => (
+                    <FormItem className="flex items-center gap-2">
+                      <FormControl>
+                        <Checkbox
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                      <FormLabel className="!m-0">Chia sẻ dữ liệu</FormLabel>
+                       <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  name="privacySettings.showEmail"
+                  control={form.control}
+                  render={({ field }) => (
+                    <FormItem className="flex items-center gap-2">
+                      <FormControl>
+                        <Checkbox
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                      <FormLabel className="!m-0">Hiển thị email</FormLabel>
+                       <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Nếu là Consultant → hiển thị thông tin chuyên môn */}
+                {role === "Consultant" && (
+                  <>
+                    <FormField
+                      name="qualifications"
+                      control={form.control}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Bằng cấp</FormLabel>
+                          <FormControl>
+                            <Input {...field} />
+                          </FormControl>
+                           <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      name="experience"
+                      control={form.control}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Kinh nghiệm</FormLabel>
+                          <FormControl>
+                            <Input {...field} />
+                          </FormControl>
+                           <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      name="specialization"
+                      control={form.control}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Chuyên môn</FormLabel>
+                          <FormControl>
+                            <Input {...field} />
+                          </FormControl>
+                           <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </>
+                )}
+
+                <Button
+                  type="submit"
+                  className="bg-pink-500 text-white hover:bg-pink-600"
+                >
+                  Lưu thay đổi
+                </Button>
               </form>
             </Form>
           </div>
 
-          {/* Avatar preview + dropzone */}
+          {/* Avatar */}
           <div className="col-span-4 py-5">
             <div className="flex justify-center">
               <Image
@@ -167,19 +389,17 @@ export default function UpdateProfileDashboard() {
                 className="rounded-full object-cover"
               />
             </div>
-            <p className="text-center font-medium my-2">Cập nhật ảnh đại diện</p>
+            <p className="text-center font-medium my-2">
+              Cập nhật ảnh đại diện
+            </p>
             <div
               {...getRootProps()}
               className="border-dashed border-2 border-pink-500 p-3 text-center text-sm rounded-lg cursor-pointer"
             >
               <input {...getInputProps()} />
-              {isDragActive ? (
-                <p>Thả ảnh vào đây...</p>
-              ) : isDragReject ? (
-                <p className="text-red-500">File không hợp lệ</p>
-              ) : (
-                <p>Kéo và thả ảnh hoặc nhấp để chọn</p>
-              )}
+              <p>
+                {isDragActive ? "Thả ảnh vào đây..." : "Kéo thả hoặc chọn ảnh"}
+              </p>
             </div>
           </div>
         </div>
