@@ -120,12 +120,11 @@ export default function Schedule({
         return null;
       }
       const data: ConsultantAppointmentsResponse = await res.json();
-      
-      // Sửa phần so sánh schedule_id để chắc chắn so sánh chuỗi
+
       const appointment = data.appointments.find(
         (app) => app.schedule.schedule_id === scheduleId
       );
-      
+
       return appointment
         ? {
             appointment_id: appointment.appointment_id,
@@ -139,21 +138,24 @@ export default function Schedule({
     }
   };
 
+  const refreshData = async () => {
+    setLoading(true);
+    await fetchSchedules();
+    if (schedules) {
+      const updatedSchedules = await Promise.all(
+        schedules.map(async (schedule) => ({
+          ...schedule,
+          appointmentStatus: await fetchAppointmentStatus(schedule.schedule_id),
+        }))
+      );
+      setSchedules(updatedSchedules);
+    }
+    setLoading(false);
+  };
+
   useEffect(() => {
     const fetchAllData = async () => {
-      setLoading(true);
-      await fetchSchedules();
-      
-      if (schedules) {
-        const updatedSchedules = await Promise.all(
-          schedules.map(async (schedule) => ({
-            ...schedule,
-            appointmentStatus: await fetchAppointmentStatus(schedule.schedule_id),
-          }))
-        );
-        setSchedules(updatedSchedules);
-      }
-      setLoading(false);
+      await refreshData();
     };
 
     fetchAllData();
@@ -180,8 +182,7 @@ export default function Schedule({
   };
 
   const handleUpdated = () => {
-    setLoading(true);
-    fetchSchedules();
+    refreshData();
   };
 
   // Hàm chuyển đổi trạng thái sang tiếng Việt
@@ -194,7 +195,9 @@ export default function Schedule({
       case "failed":
         return "Thất bại";
       case "inprogress":
-        return "Đang diễn ra"
+        return "Đang diễn ra";
+      case "completed":
+        return "Hoàn thành";
       default:
         return status;
     }
@@ -223,8 +226,8 @@ export default function Schedule({
               {error
                 ? error
                 : schedules
-                ? `${filteredSchedules.length} lịch`
-                : "Đang tải..."}
+                  ? `${filteredSchedules.length} lịch`
+                  : "Đang tải..."}
             </span>
           </CardTitle>
         </CardHeader>

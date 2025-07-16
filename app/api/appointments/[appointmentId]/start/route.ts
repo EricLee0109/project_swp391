@@ -3,7 +3,7 @@ import { auth } from "@/auth";
 
 export async function POST(
   req: Request,
-  { params }: { params: { appointmentId: string } }
+  { params }: { params: Promise<{ appointmentId: string }> }
 ) {
   const session = await auth();
 
@@ -15,17 +15,20 @@ export async function POST(
   }
 
   try {
-    if (!params.appointmentId) {
+    const resolvedParams = await params;
+    const { appointmentId } = resolvedParams;
+
+    if (!appointmentId) {
       return NextResponse.json(
         { message: "Appointment ID is required" },
         { status: 400 }
       );
     }
 
-    console.log("API /appointments/[appointmentId]/start called with appointmentId:", params.appointmentId); // Debug log
+    console.log("API /appointments/[appointmentId]/start called with appointmentId:", appointmentId); // Debug log
 
     const beRes = await fetch(
-      `${process.env.BE_BASE_URL}/appointments/${params.appointmentId}/start`,
+      `${process.env.BE_BASE_URL}/appointments/${appointmentId}/start`,
       {
         method: "POST",
         headers,
