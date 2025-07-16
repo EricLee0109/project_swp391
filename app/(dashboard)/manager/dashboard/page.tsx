@@ -1,7 +1,13 @@
+import Statistics from "@/components/dashboard/components/statistics/Statistics";
+import Header from "@/components/dashboard/header";
+
 export default function DashboardPage() {
   return (
-    <div className="flex h-full w-full items-center justify-center">
-      <h1 className="text-2xl font-bold">Manager dashboard Page</h1>
+    <div className="flex flex-col h-screen">
+      <Header title="Dashboard" href="/" currentPage="Chi tiết" />
+      <div className="p-5 flex-1 overflow-auto">
+        <Statistics />
+      </div>
     </div>
   );
 }

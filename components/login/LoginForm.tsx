@@ -46,48 +46,6 @@ export function LoginForm({
   const router = useRouter();
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl") || "/";
-  // console.log(searchParams.get("callbackUrl"), "callback");
-
-  // const handleSubmit = (data: LoginFormValues) => {
-  //   setMessage("");
-  //   startTransition(async () => {
-  //     try {
-  //       if (loginType === "custom") {
-  //         const res = await fetch("/api/auth/login", {
-  //           method: "POST",
-  //           headers: { "Content-Type": "application/json" },
-  //           body: JSON.stringify(data),
-  //         });
-  //         if (!res.ok) {
-  //           let message = "Đăng nhập thất bại!";
-  //           try {
-  //             const errorData = await res.json();
-  //             message = errorData.message || message;
-  //           } catch (jsonError) {
-  //             // JSON parse failed (res might be 204 or HTML)
-  //             console.log("user 1", data);
-
-  //             console.error(
-  //               "Không parse được JSON từ response lỗi:",
-  //               jsonError
-  //             );
-  //           }
-  //           throw new Error(message);
-  //         }
-  //         notify("success", "Đăng nhập thành công!");
-  //         router.refresh(); // Gọi lại Server Component (Navbar)
-  //         router.push("/"); // Chuyển hướng đến trang dashboard
-  //       }
-  //       // Google & GitHub vẫn giữ nguyên
-  //     } catch (error: unknown) {
-  //       if (error instanceof Error) {
-  //         notify("error", error.message);
-  //       } else {
-  //         notify("error", "Đăng nhập thất bại");
-  //       }
-  //     }
-  //   });
-  // };
 
   const handleSubmit = async (data: LoginFormValues) => {
     const { email, password } = data;

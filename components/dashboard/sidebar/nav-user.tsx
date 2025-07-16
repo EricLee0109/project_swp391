@@ -85,17 +85,17 @@ export function NavUser({
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-            
-             <DropdownMenuItem asChild>
-  <Link
-    href={`/${user.role?.toLowerCase() || "default"}/dashboard/profile-dashboard`}
-    className="flex items-center gap-2"
-  >
-    <BadgeCheck className="w-4 h-4" />
-    Tài khoản
-  </Link>
-</DropdownMenuItem>
-
+              <DropdownMenuItem asChild>
+                <Link
+                  href={`/${
+                    user.role?.toLowerCase() || "default"
+                  }/dashboard/profile-dashboard`}
+                  className="flex items-center gap-2"
+                >
+                  <BadgeCheck className="w-4 h-4" />
+                  Tài khoản
+                </Link>
+              </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={handleLogout}>
