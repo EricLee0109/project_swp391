@@ -18,13 +18,15 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { EyeIcon } from "lucide-react"; // Icon xem chi tiết
+import DetailOrderDialog from "./DetailOrderDialog"; // Import dialog mới
 
 interface ApiAppointment {
   appointment_id: string;
   type: "Consultation" | "Testing";
   start_time: string;
   end_time: string;
-  status: "Pending" | "Completed" | "Confirmed" | "SampleCollected" | "Cancelled";
+  status: "Pending" | "Completed" | "Confirmed" | "SampleCollected" | "Cancelled" | "InProgress";
   payment_status: "Paid" | "Pending" | "Failed";
   location: string | null;
   mode: "AT_HOME" | "AT_CLINIC";
@@ -67,7 +69,7 @@ export default function OrderHistory() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 3; // Moved before totalPages
+  const itemsPerPage = 3;
   const [requestLoading, setRequestLoading] = useState<string | null>(null);
   const [requestSuccess, setRequestSuccess] = useState<string | null>(null);
   const [validateLoading, setValidateLoading] = useState<string | null>(null);
@@ -76,6 +78,8 @@ export default function OrderHistory() {
   const [feedbackRating, setFeedbackRating] = useState<number>(0);
   const [feedbackComment, setFeedbackComment] = useState<string>("");
   const [feedbackSubmitting, setFeedbackSubmitting] = useState<string | null>(null);
+  const [detailDialogOpen, setDetailDialogOpen] = useState<string | null>(null); // State cho dialog chi tiết
+  const [hasFeedback, setHasFeedback] = useState<{ [key: string]: boolean }>({});
 
   useEffect(() => {
     async function fetchAppointments() {
@@ -90,8 +94,7 @@ export default function OrderHistory() {
         } else {
           setError(data?.error || "Không thể tải lịch sử đặt hẹn.");
         }
-      } catch (err) {
-        console.error("Lỗi mạng khi tải lịch sử:", err);
+      } catch  {
         setError("Lỗi mạng. Vui lòng thử lại.");
       } finally {
         setLoading(false);
@@ -99,6 +102,21 @@ export default function OrderHistory() {
     }
     fetchAppointments();
   }, []);
+
+  useEffect(() => {
+    appointments.forEach((appt) => {
+      if (appt.type === "Consultation" && appt.status === "Completed" && hasFeedback[appt.appointment_id] === undefined) {
+        fetch(`/api/appointments/${appt.appointment_id}`, {
+          credentials: "include",
+        })
+          .then(res => res.json())
+          .then(data => {
+            setHasFeedback(prev => ({ ...prev, [appt.appointment_id]: data.feedbacks?.length > 0 }));
+          })
+          .catch(() => {});
+      }
+    });
+  }, [appointments, hasFeedback]);
 
   const totalPages = Math.ceil(appointments.length / itemsPerPage);
   const paginatedAppointments = appointments.slice(
@@ -181,8 +199,8 @@ export default function OrderHistory() {
       setFeedbackDialogOpen(null);
       setFeedbackRating(0);
       setFeedbackComment("");
+      setHasFeedback(prev => ({ ...prev, [appointmentId]: true }));
     } catch (error) {
-      console.error("Lỗi khi gửi đánh giá:", error);
       notify("error", (error as Error).message || "Lỗi mạng, vui lòng thử lại.");
     } finally {
       setFeedbackSubmitting(null);
@@ -232,8 +250,7 @@ export default function OrderHistory() {
               const canValidate = appt.type === "Testing" && appt.test_code;
               const isValidating = validateLoading === appt.appointment_id;
               const validateRes = validateResult[appt.appointment_id];
-              const canFeedback =
-                appt.type === "Consultation";
+              const canFeedback = appt.type === "Consultation" && appt.status === "Completed" && !hasFeedback[appt.appointment_id];
 
               return (
                 <div
@@ -299,9 +316,11 @@ export default function OrderHistory() {
                                   ? "Hoàn thành"
                                   : appt.status === "Confirmed"
                                     ? "Đã xác nhận"
-                                    : appt.status === "SampleCollected"
-                                      ? "Đã lấy mẫu"
-                                      : "Đã hủy")}
+                                    : appt.status === "InProgress"
+                                      ? "Đang diễn ra"
+                                      : appt.status === "SampleCollected"
+                                        ? "Đã lấy mẫu"
+                                        : "Đã hủy")}
                           </Badge>
                         }
                       />
@@ -312,7 +331,7 @@ export default function OrderHistory() {
                             variant={
                               appt.payment_status
                                 ? paymentStatusMap[appt.payment_status].variant || "default"
-                              : "outline"
+                                : "outline"
                             }
                           >
                             {appt.payment_status
@@ -337,37 +356,64 @@ export default function OrderHistory() {
                     </div>
                   </div>
 
-                  <div className="mt-4 flex justify-end gap-2">
-                    {canRequestReturn && (
-                      <Button
-                        variant={isRequested ? "default" : "outline"}
-                        disabled={isRequesting || isRequested}
-                        onClick={() => requestReturnSample(appt.appointment_id)}
-                      >
-                        {isRequesting ? "Đang gửi..." : isRequested ? "Đã gửi yêu cầu" : "Yêu cầu trả mẫu"}
-                      </Button>
-                    )}
-                    {canValidate && (
-                      <Button
-                        variant={validateRes ? "default" : "outline"}
-                        disabled={isValidating || !!validateRes}
-                        onClick={() => validateTestCode(appt.appointment_id, appt.test_code!)}
-                      >
-                        {isValidating ? "Đang kiểm tra..." : validateRes ? (validateRes.valid ? "Hợp lệ" : "Không hợp lệ") : "Kiểm tra tư vấn miễn phí"}
-                      </Button>
-                    )}
-                    {canFeedback && (
-                      <Button
-                        variant="outline"
-                        disabled={feedbackSubmitting === appt.appointment_id}
-                        onClick={() => setFeedbackDialogOpen(appt.appointment_id)}
-                      >
-                        {feedbackSubmitting === appt.appointment_id ? "Đang gửi..." : "Đánh giá buổi tư vấn"}
-                      </Button>
+                  <div className="mt-4 flex justify-between items-center">
+                    <div className="flex gap-2">
+                      {canRequestReturn && (
+                        <Button
+                          variant={isRequested ? "default" : "outline"}
+                          disabled={isRequesting || isRequested}
+                          onClick={() => requestReturnSample(appt.appointment_id)}
+                        >
+                          {isRequesting ? "Đang gửi..." : isRequested ? "Đã gửi yêu cầu" : "Yêu cầu trả mẫu"}
+                        </Button>
+                      )}
+                      {canValidate && (
+                        <Button
+                          variant={validateRes ? "default" : "outline"}
+                          disabled={isValidating || !!validateRes}
+                          onClick={() => validateTestCode(appt.appointment_id, appt.test_code!)}
+                        >
+                          {isValidating ? "Đang kiểm tra..." : validateRes ? (validateRes.valid ? "Hợp lệ" : "Không hợp lệ") : "Kiểm tra tư vấn miễn phí"}
+                        </Button>
+                      )}
+                      {canFeedback && (
+                        <Button
+                          variant="outline"
+                          disabled={feedbackSubmitting === appt.appointment_id}
+                          onClick={() => setFeedbackDialogOpen(appt.appointment_id)}
+                        >
+                          {feedbackSubmitting === appt.appointment_id ? "Đang gửi..." : "Đánh giá buổi tư vấn"}
+                        </Button>
+                      )}
+                    </div>
+                    {appt.type === "Consultation" && (
+                      <div className="relative">
+                        <EyeIcon
+                          className="w-6 h-6 text-muted-foreground cursor-pointer hover:text-primary"
+                          onClick={() => setDetailDialogOpen(appt.appointment_id)}
+                          onMouseEnter={(e) => {
+                            const tooltip = document.createElement("div");
+                            tooltip.innerText = "Xem chi tiết lịch hẹn";
+                            tooltip.style.position = "absolute";
+                            tooltip.style.backgroundColor = "#333";
+                            tooltip.style.color = "#fff";
+                            tooltip.style.padding = "4px 8px";
+                            tooltip.style.borderRadius = "4px";
+                            tooltip.style.top = "-30px";
+                            tooltip.style.right = "0";
+                            tooltip.style.zIndex = "10";
+                            e.currentTarget.appendChild(tooltip);
+                          }}
+                          onMouseLeave={(e) => {
+                            const tooltip = e.currentTarget.querySelector("div");
+                            if (tooltip) tooltip.remove();
+                          }}
+                        />
+                      </div>
                     )}
                   </div>
 
-                  {appt.type === "Testing" && (
+                  {appt.type=== "Testing" && (
                     <ResultTesting appointmentId={appt.appointment_id} />
                   )}
 
@@ -458,6 +504,11 @@ export default function OrderHistory() {
               </Button>
             </div>
           )}
+          <DetailOrderDialog
+            open={!!detailDialogOpen}
+            onOpenChange={(open) => setDetailDialogOpen(open ? detailDialogOpen : null)}
+            appointmentId={detailDialogOpen || ""}
+          />
         </CardContent>
       </Card>
     </div>
