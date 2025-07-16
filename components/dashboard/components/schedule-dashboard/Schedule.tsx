@@ -5,7 +5,7 @@ import { format } from "date-fns";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
-import { PaymentActionsDropdown } from "./action/PaymentActionsDropdown";
+import PaymentActionsDropdown from "./action/PaymentActionsDropdown";
 
 interface Service {
   service_id: string;
@@ -105,69 +105,69 @@ export default function Schedule({
     }
   };
 
-const fetchAppointmentStatus = async (scheduleId: string) => {
-  if (!serverAccessToken) return null;
+  const fetchAppointmentStatus = async (scheduleId: string) => {
+    if (!serverAccessToken) return null;
 
-  try {
-    const res = await fetch("/api/appointments/consultant-appointments", {
-      headers: {
-        Authorization: `Bearer ${serverAccessToken}`,
-      },
-    });
-    if (!res.ok) {
-      const err = await res.json();
-      console.error("Failed to fetch appointment status. Response:", err);
+    try {
+      const res = await fetch("/api/appointments/consultant-appointments", {
+        headers: {
+          Authorization: `Bearer ${serverAccessToken}`,
+        },
+      });
+      if (!res.ok) {
+        const err = await res.json();
+        console.error("Failed to fetch appointment status. Response:", err);
+        return null;
+      }
+      const data: ConsultantAppointmentsResponse = await res.json();
+      
+      // Sửa phần so sánh schedule_id để chắc chắn so sánh chuỗi
+      const appointment = data.appointments.find(
+        (app) => app.schedule.schedule_id === scheduleId
+      );
+      
+      return appointment
+        ? {
+            appointment_id: appointment.appointment_id,
+            status: appointment.status,
+            payment_status: appointment.payment_status,
+          }
+        : null;
+    } catch (error) {
+      console.error("Error fetching appointment status:", error);
       return null;
     }
-    const data: ConsultantAppointmentsResponse = await res.json();
-    
-    // Sửa phần so sánh schedule_id để chắc chắn so sánh chuỗi
-    const appointment = data.appointments.find(
-      (app) => app.schedule.schedule_id === scheduleId
-    );
-    
-    return appointment
-      ? {
-          appointment_id: appointment.appointment_id,
-          status: appointment.status,
-          payment_status: appointment.payment_status,
-        }
-      : null;
-  } catch (error) {
-    console.error("Error fetching appointment status:", error);
-    return null;
-  }
-};
-
-useEffect(() => {
-  const fetchAllData = async () => {
-    setLoading(true);
-    await fetchSchedules();
-    
-    if (schedules) {
-      const updatedSchedules = await Promise.all(
-        schedules.map(async (schedule) => ({
-          ...schedule,
-          appointmentStatus: await fetchAppointmentStatus(schedule.schedule_id),
-        }))
-      );
-      setSchedules(updatedSchedules);
-    }
-    setLoading(false);
   };
 
-  fetchAllData();
-// eslint-disable-next-line react-hooks/exhaustive-deps
-}, [serverAccessToken, reloadFlag, selectedDate]);
+  useEffect(() => {
+    const fetchAllData = async () => {
+      setLoading(true);
+      await fetchSchedules();
+      
+      if (schedules) {
+        const updatedSchedules = await Promise.all(
+          schedules.map(async (schedule) => ({
+            ...schedule,
+            appointmentStatus: await fetchAppointmentStatus(schedule.schedule_id),
+          }))
+        );
+        setSchedules(updatedSchedules);
+      }
+      setLoading(false);
+    };
 
- function isSameDay(dateStr: string, day: Date) {
-  const date = new Date(dateStr);
-  return (
-    date.getFullYear() === day.getFullYear() &&
-    date.getMonth() === day.getMonth() &&
-    date.getDate() === day.getDate()
-  );
-}
+    fetchAllData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [serverAccessToken, reloadFlag, selectedDate]);
+
+  function isSameDay(dateStr: string, day: Date) {
+    const date = new Date(dateStr);
+    return (
+      date.getFullYear() === day.getFullYear() &&
+      date.getMonth() === day.getMonth() &&
+      date.getDate() === day.getDate()
+    );
+  }
 
   const filteredSchedules =
     schedules?.filter((schedule) =>
@@ -184,7 +184,7 @@ useEffect(() => {
     fetchSchedules();
   };
 
-
+  // Hàm chuyển đổi trạng thái sang tiếng Việt
   const getVietnameseStatus = (status: string) => {
     switch (status.toLowerCase()) {
       case "pending":
@@ -193,6 +193,8 @@ useEffect(() => {
         return "Đã xác nhận";
       case "failed":
         return "Thất bại";
+      case "inprogress":
+        return "Đang diễn ra"
       default:
         return status;
     }

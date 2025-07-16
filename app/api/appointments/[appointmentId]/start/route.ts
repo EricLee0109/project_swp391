@@ -1,0 +1,56 @@
+import { NextResponse } from "next/server";
+import { auth } from "@/auth";
+
+export async function POST(
+  req: Request,
+  { params }: { params: { appointmentId: string } }
+) {
+  const session = await auth();
+
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+  };
+  if (session?.accessToken) {
+    headers["Authorization"] = `Bearer ${session.accessToken}`;
+  }
+
+  try {
+    if (!params.appointmentId) {
+      return NextResponse.json(
+        { message: "Appointment ID is required" },
+        { status: 400 }
+      );
+    }
+
+    console.log("API /appointments/[appointmentId]/start called with appointmentId:", params.appointmentId); // Debug log
+
+    const beRes = await fetch(
+      `${process.env.BE_BASE_URL}/appointments/${params.appointmentId}/start`,
+      {
+        method: "POST",
+        headers,
+      }
+    );
+
+    if (!beRes.ok) {
+      const errorData = await beRes.json();
+      console.error("Backend response error:", errorData);
+      return NextResponse.json(
+        { message: errorData.message || "Failed to start consultation" },
+        { status: beRes.status }
+      );
+    }
+
+    const data = await beRes.json();
+    return NextResponse.json(
+      { message: "Consultation started successfully", data },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.error("Error in POST /api/appointments/[appointmentId]/start:", error);
+    return NextResponse.json(
+      { message: "Internal server error" },
+      { status: 500 }
+    );
+  }
+}

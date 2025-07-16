@@ -1,5 +1,6 @@
 "use client";
 
+import React, { memo } from "react";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -68,7 +69,7 @@ interface PaymentActionsDropdownProps {
   appointmentId?: string;
 }
 
-export function PaymentActionsDropdown({
+const PaymentActionsDropdown = memo(function PaymentActionsDropdown({
   scheduleId,
   onDeleted,
   onUpdated,
@@ -85,6 +86,7 @@ export function PaymentActionsDropdown({
   const [initialData, setInitialData] = useState<ScheduleDetail | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const [showStartDialog, setShowStartDialog] = useState(false);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -97,7 +99,6 @@ export function PaymentActionsDropdown({
     },
   });
 
-  // Fetch schedule data and services
   useEffect(() => {
     let isMounted = true;
 
@@ -214,7 +215,7 @@ export function PaymentActionsDropdown({
     }
 
     try {
-      console.log("Confirming with appointmentId:", appointmentId); // Debug log
+      console.log("Confirming with appointmentId:", appointmentId);
       const res = await fetch(`/api/appointments/${appointmentId}/confirm`, {
         method: "PATCH",
         headers: {
@@ -225,7 +226,7 @@ export function PaymentActionsDropdown({
 
       if (!res.ok) {
         const err = await res.json();
-        console.error("Confirm API response:", err); // Debug lỗi
+        console.error("Confirm API response:", err);
         notify("error", err.message || "Xác nhận lịch hẹn thất bại.");
         return;
       }
@@ -238,6 +239,37 @@ export function PaymentActionsDropdown({
     }
   };
 
+  const handleStart = async () => {
+    if (!serverAccessToken || !appointmentId) {
+      notify("error", "Không tìm thấy token hoặc ID lịch hẹn.");
+      return;
+    }
+
+    try {
+      console.log("Starting consultation with appointmentId:", appointmentId);
+      const res = await fetch(`/api/appointments/${appointmentId}/start`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${serverAccessToken}`,
+        },
+      });
+
+      if (!res.ok) {
+        const err = await res.json();
+        console.error("Start API response:", err);
+        notify("error", err.message || "Bắt đầu tư vấn thất bại.");
+        return;
+      }
+
+      notify("success", "Bắt đầu tư vấn thành công!");
+      if (onUpdated) onUpdated();
+    } catch (error) {
+      console.error("Error starting consultation:", error);
+      notify("error", "Có lỗi xảy ra khi bắt đầu tư vấn.");
+    }
+  };
+
   const handleConfirmClick = () => {
     if (appointmentId) {
       setShowConfirmDialog(true);
@@ -246,10 +278,28 @@ export function PaymentActionsDropdown({
     }
   };
 
+  const handleStartClick = () => {
+    if (appointmentId) {
+      setShowStartDialog(true);
+    } else {
+      notify("error", "Không có lịch hẹn để bắt đầu.");
+    }
+  };
+
   const confirmAction = () => {
     setShowConfirmDialog(false);
     handleConfirm();
   };
+
+  const startAction = () => {
+    setShowStartDialog(false);
+    handleStart();
+  };
+
+  // Debug appointmentId
+  useEffect(() => {
+    console.log("PaymentActionsDropdown rendered with appointmentId:", appointmentId);
+  }, [appointmentId]);
 
   return (
     <div>
@@ -265,6 +315,9 @@ export function PaymentActionsDropdown({
           </DropdownMenuItem>
           <DropdownMenuItem onClick={handleConfirmClick} disabled={!appointmentId}>
             Xác nhận lịch hẹn
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={handleStartClick} disabled={!appointmentId}>
+            Bắt đầu tư vấn
           </DropdownMenuItem>
           <DropdownMenuItem asChild>
             <DeleteScheduleDialog
@@ -445,6 +498,26 @@ export function PaymentActionsDropdown({
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      <Dialog open={showStartDialog} onOpenChange={setShowStartDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Bắt đầu tư vấn</DialogTitle>
+          </DialogHeader>
+          <div className="py-4">
+            <p>Bạn có chắc chắn muốn bắt đầu buổi tư vấn này?</p>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowStartDialog(false)}>
+              Hủy
+            </Button>
+            <Button variant="destructive" onClick={startAction}>
+              Bắt đầu
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
-}
+});
+
+export default PaymentActionsDropdown;
