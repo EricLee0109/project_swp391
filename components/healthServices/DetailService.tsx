@@ -9,6 +9,8 @@ import {
   Consultant,
 } from "@/types/ServiceType/CustomServiceType";
 import LoadingSkeleton from "@/app/(dashboard)/admin/dashboard/healthServices/loading";
+import { getTypeBadgeVariant } from "@/components/dashboard/components/appointment/helpers";
+import { Badge } from "@/components/ui/badge";
 
 interface TestingHours {
   morning?: { start: string; end: string };
@@ -105,8 +107,14 @@ export default function DetailService({ serviceId }: { serviceId: string }) {
             <span className="bg-primary-100 text-primary-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded-full">
               {service.category}
             </span>
-            <span className="bg-green-100 text-green-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded-full">
-              {service.type}
+            <span>
+              <Badge
+                className={getTypeBadgeVariant(
+                  service.type as "Consultation" | "Testing"
+                )}
+              >
+                {service.type === "Consultation" ? "Tư vấn" : "Xét nghiệm"}
+              </Badge>
             </span>
           </div>
           <p className="text-gray-600 leading-relaxed mb-8">

@@ -5,6 +5,7 @@ import BlogDetailClient from "@/app/(root)/blog/[id]/BlogDetailClient";
 import BlogCommentClient from "@/app/(root)/blog-comments/[id]/BlogCommentClient";
 import { auth } from "@/auth";
 import RelatedBlogsSection from "@/components/blog/RelatedBlogCard";
+import Breadcrumb from "@/components/share/Breadcrumb";
 
 //Nextjs required PageProps
 interface BlogDetailPageProps {
@@ -62,6 +63,13 @@ export default async function BlogDetailPage({ params }: BlogDetailPageProps) {
   console.log(relatedBlogs, "relatedBlogs");
   return (
     <>
+      <Breadcrumb
+        items={[
+          { label: "Trang chủ", href: "/" },
+          { label: "Blogs", href: "/blog" },
+          { label: "Chi tiết", href: `/blog/` },
+        ]}
+      />
       <MaxWidthWrapper className="py-10">
         <div className="grid grid-cols-12 gap-5">
           {/* Blog Detail */}
