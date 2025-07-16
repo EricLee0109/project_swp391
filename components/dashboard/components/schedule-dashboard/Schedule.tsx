@@ -12,6 +12,21 @@ interface Service {
   name: string;
 }
 
+interface Appointment {
+  appointment_id: string;
+  status: string;
+  payment_status: string;
+  schedule: {
+    schedule_id: string;
+  };
+}
+
+interface ConsultantAppointmentsResponse {
+  appointments: Appointment[];
+  total: number;
+  message: string;
+}
+
 interface ScheduleItem {
   schedule_id: string;
   start_time: string;
@@ -21,6 +36,11 @@ interface ScheduleItem {
   updated_at: string;
   is_booked: boolean;
   service?: Service;
+  appointmentStatus?: {
+    appointment_id: string;
+    status: string;
+    payment_status: string;
+  } | null;
 }
 
 interface ScheduleProps {
@@ -42,26 +62,25 @@ export default function Schedule({
   const fetchSchedules = async () => {
     try {
       if (!serverAccessToken) throw new Error("No access token found");
+      console.log("Fetching schedules with token:", serverAccessToken.substring(0, 10) + "...");
 
-      const [schedulesRes, servicesRes] = await Promise.all([
-        fetch("/api/schedules", {
-          headers: {
-            Authorization: `Bearer ${serverAccessToken}`,
-          },
-        }),
-        fetch("/api/services"),
-      ]);
+      const res = await fetch("/api/schedules", {
+        headers: {
+          Authorization: `Bearer ${serverAccessToken}`,
+        },
+      });
 
-      if (!schedulesRes.ok) {
-        const errorData = await schedulesRes.json();
+      if (!res.ok) {
+        const errorData = await res.json();
         throw new Error(errorData.message || "Failed to fetch schedules");
       }
+
+      const schedulesData: ScheduleItem[] = await res.json();
+      const servicesRes = await fetch("/api/services");
       if (!servicesRes.ok) {
         const errorData = await servicesRes.json();
         throw new Error(errorData.message || "Failed to fetch services");
       }
-
-      const schedulesData: ScheduleItem[] = await schedulesRes.json();
       const servicesData: Service[] = await servicesRes.json();
 
       const schedulesWithServiceName = schedulesData.map((schedule) => ({
@@ -86,25 +105,68 @@ export default function Schedule({
     }
   };
 
-  useEffect(() => {
-    setLoading(true);
-    fetchSchedules();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [serverAccessToken, reloadFlag]);
+const fetchAppointmentStatus = async (scheduleId: string) => {
+  if (!serverAccessToken) return null;
 
-  // useEffect(() => {
-  //   setLoading(true);
-  //   fetchSchedules();
-  // }, [serverAccessToken, reloadFlag]);
-
-  function isSameDay(dateStr: string, day: Date) {
-    const date = new Date(dateStr);
-    return (
-      date.getFullYear() === day.getFullYear() &&
-      date.getMonth() === day.getMonth() &&
-      date.getDate() === day.getDate()
+  try {
+    const res = await fetch("/api/appointments/consultant-appointments", {
+      headers: {
+        Authorization: `Bearer ${serverAccessToken}`,
+      },
+    });
+    if (!res.ok) {
+      const err = await res.json();
+      console.error("Failed to fetch appointment status. Response:", err);
+      return null;
+    }
+    const data: ConsultantAppointmentsResponse = await res.json();
+    
+    // Sửa phần so sánh schedule_id để chắc chắn so sánh chuỗi
+    const appointment = data.appointments.find(
+      (app) => app.schedule.schedule_id === scheduleId
     );
+    
+    return appointment
+      ? {
+          appointment_id: appointment.appointment_id,
+          status: appointment.status,
+          payment_status: appointment.payment_status,
+        }
+      : null;
+  } catch (error) {
+    console.error("Error fetching appointment status:", error);
+    return null;
   }
+};
+
+useEffect(() => {
+  const fetchAllData = async () => {
+    setLoading(true);
+    await fetchSchedules();
+    
+    if (schedules) {
+      const updatedSchedules = await Promise.all(
+        schedules.map(async (schedule) => ({
+          ...schedule,
+          appointmentStatus: await fetchAppointmentStatus(schedule.schedule_id),
+        }))
+      );
+      setSchedules(updatedSchedules);
+    }
+    setLoading(false);
+  };
+
+  fetchAllData();
+}, [serverAccessToken, reloadFlag, selectedDate]); // Thêm selectedDate vào dependencies
+
+ function isSameDay(dateStr: string, day: Date) {
+  const date = new Date(dateStr);
+  return (
+    date.getFullYear() === day.getFullYear() &&
+    date.getMonth() === day.getMonth() &&
+    date.getDate() === day.getDate()
+  );
+}
 
   const filteredSchedules =
     schedules?.filter((schedule) =>
@@ -112,12 +174,12 @@ export default function Schedule({
     ) ?? [];
 
   const handleDeleted = () => {
-    setLoading(true); // Show loading while re-fetching
+    setLoading(true);
     fetchSchedules();
   };
 
   const handleUpdated = () => {
-    setLoading(true); // Show loading while re-fetching
+    setLoading(true);
     fetchSchedules();
   };
 
@@ -136,7 +198,6 @@ export default function Schedule({
             </span>
           </CardTitle>
         </CardHeader>
-
         <CardContent className="space-y-4">
           {loading && (
             <div className="space-y-3">
@@ -144,13 +205,11 @@ export default function Schedule({
               <Skeleton className="h-6 w-2/3" />
             </div>
           )}
-
           {!loading && filteredSchedules.length === 0 && !error && (
             <p className="text-muted-foreground">
               Không có lịch nào trong ngày này.
             </p>
           )}
-
           {!loading &&
             filteredSchedules.map((schedule) => (
               <div
@@ -176,11 +235,20 @@ export default function Schedule({
                       {schedule.is_booked ? "Đã đặt" : "Còn trống"}
                     </Badge>
                   </div>
+                  {schedule.appointmentStatus ? (
+                    <div className="text-sm text-gray-600">
+                      <p><strong>Trạng thái:</strong> {schedule.appointmentStatus.status}</p>
+                      <p><strong>Trạng thái thanh toán:</strong> {schedule.appointmentStatus.payment_status}</p>
+                    </div>
+                  ) : (
+                    <p className="text-sm text-gray-500">Chưa có thông tin lịch hẹn</p>
+                  )}
                   <PaymentActionsDropdown
                     scheduleId={schedule.schedule_id}
                     onDeleted={handleDeleted}
                     onUpdated={handleUpdated}
                     serverAccessToken={serverAccessToken}
+                    appointmentId={schedule.appointmentStatus?.appointment_id}
                   />
                 </div>
               </div>

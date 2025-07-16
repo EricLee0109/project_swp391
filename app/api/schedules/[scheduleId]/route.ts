@@ -5,6 +5,49 @@ interface RouteProps {
   params: Promise<{ scheduleId: string }>;
 }
 
+export async function GET(req: Request, { params }: { params: Promise<{ scheduleId?: string }> }) {
+  const session = await auth();
+
+  const headers: Record<string, string> = {};
+  if (session?.accessToken) {
+    headers["Authorization"] = `Bearer ${session.accessToken}`;
+  }
+
+  try {
+    const resolvedParams = await params; // Await params to resolve
+    if (!resolvedParams.scheduleId) {
+      return NextResponse.json(
+        { message: "Schedule ID is required" },
+        { status: 400 }
+      );
+    }
+
+    console.log("Fetching schedule with scheduleId:", resolvedParams.scheduleId); // Debug log
+    const beRes = await fetch(`${process.env.BE_BASE_URL}/schedules/${resolvedParams.scheduleId}`, {
+      method: "GET",
+      headers,
+    });
+
+    if (!beRes.ok) {
+      console.error("Backend response error:", await beRes.text());
+      return NextResponse.json(
+        { message: "Failed to fetch schedule" },
+        { status: beRes.status }
+      );
+    }
+
+    const data = await beRes.json();
+    // Ensure data is wrapped in "schedule" object if backend returns raw data
+    const responseData = { schedule: data.schedule || data };
+    return NextResponse.json(responseData, { status: 200 });
+  } catch (error) {
+    console.error("Fetch error:", error);
+    return NextResponse.json(
+      { message: "Internal server error" },
+      { status: 500 }
+    );
+  }
+}
 export async function DELETE(req: Request, props: RouteProps) {
   const session = await auth();
 
