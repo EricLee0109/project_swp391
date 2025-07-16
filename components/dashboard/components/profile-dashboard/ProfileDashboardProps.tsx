@@ -32,6 +32,7 @@ export default function ProfileDashboard() {
         if (!res.ok) throw new Error("Lỗi khi fetch profile");
         const result: FullProfile = await res.json();
         setData(result);
+        
       } catch (err) {
         console.error("Lỗi:", err);
         setData(null);
@@ -131,6 +132,8 @@ export default function ProfileDashboard() {
           </CardContent>
         </Card>
       )}
+   
     </div>
+    
   );
 }
