@@ -1,5 +1,7 @@
 "use client";
 
+import { getTypeBadgeVariant } from "@/components/dashboard/components/appointment/helpers";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { CustomService } from "@/types/ServiceType/CustomServiceType";
 import { Home, Hospital } from "lucide-react";
@@ -30,9 +32,18 @@ export const ServiceCard: React.FC<ServiceCardProps> = ({ service }) => {
         </div>
         <p className="text-gray-600 mb-4 h-12">{service.description}</p>
 
-        <div className="flex items-center text-sm text-gray-500 mb-4">
+        <div className="flex items-center text-sm text-gray-500 mb-4 gap-2">
           <span className="font-semibold mr-2">Loại dịch vụ:</span>
           <span>{service.category}</span>
+          <span>
+            <Badge
+              className={getTypeBadgeVariant(
+                service.type as "Consultation" | "Testing"
+              )}
+            >
+              {service.type === "Consultation" ? "Tư vấn" : "Xét nghiệm"}
+            </Badge>
+          </span>
         </div>
 
         <div className="flex items-center text-sm text-gray-500 mb-4">

@@ -20,7 +20,7 @@ export default async function ConsultantsPage() {
         ]}
       />
       <main className="container mx-auto px-4 py-8 md:py-12">
-      <ConsultantPageHeader />
+        <ConsultantPageHeader />
         <MaxWidthWrapper>
           <Consultant consultantProfiles={consultants || []} />
         </MaxWidthWrapper>

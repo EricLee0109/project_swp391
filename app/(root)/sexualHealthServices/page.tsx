@@ -11,9 +11,9 @@ export default function SexualHealthServicesPage() {
           { label: "Dịch vụ sức khỏe", href: "/sexualHealthServices" },
         ]}
       />
-      <MaxWidthWrapper>
-        <div className="min-h-screen font-sans">
-          <main className="container mx-auto px-4 py-8 md:py-12">
+      <main className="container mx-auto px-4 py-8 md:py-12">
+        <MaxWidthWrapper>
+          <div className="min-h-screen font-sans">
             <header className="text-center mb-12">
               <h1 className="text-4xl md:text-5xl font-extrabold text-gray-800 mb-2">
                 Các dịch vụ sức khỏe giới tính
@@ -26,9 +26,9 @@ export default function SexualHealthServicesPage() {
 
             {/* The stateful, interactive part is delegated to a Client Component */}
             <ServiceBrowser />
-          </main>
-        </div>
-      </MaxWidthWrapper>
+          </div>
+        </MaxWidthWrapper>
+      </main>
     </div>
   );
 }
