@@ -233,7 +233,7 @@ export default function UpdateProfileForm() {
                             </Button>
                           </FormControl>
                         </PopoverTrigger>
-                        <PopoverContent align="start" className="p-0">
+                        <PopoverContent align="start" className="bg-white-100">
                           <Calendar
                             mode="single"
                             selected={field.value}
@@ -241,6 +241,8 @@ export default function UpdateProfileForm() {
                             disabled={(date) =>
                               date > new Date() || date < new Date("1900-01-01")
                             }
+                            className="rounded-md border shadow-sm"
+                            captionLayout="dropdown" //easier to select month, year
                           />
                         </PopoverContent>
                       </Popover>
