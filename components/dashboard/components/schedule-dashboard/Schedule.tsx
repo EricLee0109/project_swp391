@@ -157,7 +157,8 @@ useEffect(() => {
   };
 
   fetchAllData();
-}, [serverAccessToken, reloadFlag, selectedDate]); // Thêm selectedDate vào dependencies
+// eslint-disable-next-line react-hooks/exhaustive-deps
+}, [serverAccessToken, reloadFlag, selectedDate]);
 
  function isSameDay(dateStr: string, day: Date) {
   const date = new Date(dateStr);
