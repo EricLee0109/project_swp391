@@ -31,3 +31,25 @@ export async function getAllUsers(): Promise<User[]> {
 
   return res.json();
 }
+
+export async function deleteUserById(userId: string): Promise<{ success: boolean; message: string }> {
+  const session = await auth();
+
+  if (!session?.accessToken) {
+    return { success: false, message: "Chưa đăng nhập hoặc thiếu token" };
+  }
+
+  const res = await fetch(`${BE_BASE_URL}/auth/users/${userId}`, {
+    method: "DELETE",
+    headers: {
+      Authorization: `Bearer ${session.accessToken}`,
+    },
+  });
+
+  if (!res.ok) {
+    const error = await res.json().catch(() => ({}));
+    return { success: false, message: error?.message || "Xóa thất bại" };
+  }
+
+  return { success: true, message: "Xóa người dùng thành công" };
+}

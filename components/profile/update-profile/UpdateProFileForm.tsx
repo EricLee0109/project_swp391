@@ -140,11 +140,11 @@ export default function UpdateProfileForm() {
       if (!res.ok) throw new Error(result.error || "Cập nhật thất bại");
 
       await fetchProfile(); // Lấy dữ liệu mới
-      router.push("/profile");
+      router.push("/manager/dashboard/profile-dashboard");
     } catch (err) {
       console.error("❌ Lỗi cập nhật:", err);
     }
-  }
+  } 
 
   const { getRootProps, getInputProps, isDragActive, isDragReject } =
     useDropzone({

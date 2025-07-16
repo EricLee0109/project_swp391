@@ -12,8 +12,10 @@ export interface User {
   role: "Admin" | "Staff" | "Manager" | "Consultant" | "Customer" | string;
   is_verified: boolean;
   is_active: boolean;
+  
   customerProfile?: CustomerProfile | null;
   consultantProfile?: ConsultantProfile | null;
+
 }
 
 export interface CustomerProfile {
@@ -34,7 +36,10 @@ export interface CustomerProfile {
 export interface CustomerDetailResponse {
   user: User;
   customerProfile: CustomerProfile | null;
-  consultantProfile: any | null; 
+  consultantProfile: ConsultantProfile | null; 
+  date_of_birth?: string;
+  gender?: string;
+  medical_history?: string;
 }
 
 
@@ -49,6 +54,7 @@ export interface ConsultantProfile {
   created_at: string; 
   updated_at: string; 
   deleted_at: string | null;
+  
 }
 
 // ✅ Xuất thêm type Consultant
