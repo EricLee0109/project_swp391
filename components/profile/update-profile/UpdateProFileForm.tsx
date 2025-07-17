@@ -54,7 +54,6 @@ export default function UpdateProfileForm() {
   const router = useRouter();
   const [imagePreview, setImagePreview] = useState<string>("");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -140,7 +139,7 @@ export default function UpdateProfileForm() {
       if (!res.ok) throw new Error(result.error || "Cập nhật thất bại");
 
       await fetchProfile(); // Lấy dữ liệu mới
-      router.push("/manager/dashboard/profile-dashboard");
+            router.push(`/profile`);
     } catch (err) {
       console.error("❌ Lỗi cập nhật:", err);
     }
