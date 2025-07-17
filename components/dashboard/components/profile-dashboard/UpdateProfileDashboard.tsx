@@ -187,7 +187,7 @@ export default function UpdateProfileDashboard() {
                       <FormControl>
                         <Input {...field} />
                       </FormControl>
-                       <FormMessage />
+                      <FormMessage />
                     </FormItem>
                   )}
                 />
@@ -200,7 +200,7 @@ export default function UpdateProfileDashboard() {
                       <FormControl>
                         <Input {...field} />
                       </FormControl>
-                       <FormMessage />
+                      <FormMessage />
                     </FormItem>
                   )}
                 />
@@ -213,7 +213,7 @@ export default function UpdateProfileDashboard() {
                       <FormControl>
                         <Input {...field} />
                       </FormControl>
-                       <FormMessage />
+                      <FormMessage />
                     </FormItem>
                   )}
                 />
@@ -221,7 +221,7 @@ export default function UpdateProfileDashboard() {
                   name="dateOfBirth"
                   control={form.control}
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="flex flex-col">
                       <FormLabel>Ngày sinh</FormLabel>
                       <Popover>
                         <PopoverTrigger asChild>
@@ -229,26 +229,31 @@ export default function UpdateProfileDashboard() {
                             <Button
                               variant="outline"
                               className={cn(
-                                "w-[240px] text-left",
+                                "w-[240px] pl-3 text-left font-normal",
                                 !field.value && "text-muted-foreground"
                               )}
                             >
                               {field.value
                                 ? formatDate(field.value)
-                                : "Chọn ngày"}
+                                : "Chọn ngày sinh"}
                               <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                             </Button>
                           </FormControl>
                         </PopoverTrigger>
-                        <PopoverContent align="start" className="p-0">
+                        <PopoverContent align="start" className="bg-white-100">
                           <Calendar
                             mode="single"
                             selected={field.value}
                             onSelect={field.onChange}
+                            disabled={(date) =>
+                              date > new Date() || date < new Date("1900-01-01")
+                            }
+                            className="rounded-md border shadow-sm"
+                            captionLayout="dropdown" //easier to select month, year
                           />
                         </PopoverContent>
                       </Popover>
-                       <FormMessage />
+                      <FormMessage />
                     </FormItem>
                   )}
                 />
@@ -264,7 +269,7 @@ export default function UpdateProfileDashboard() {
                       >
                         <FormControl>
                           <SelectTrigger>
-                            <SelectValue />
+                            <SelectValue placeholder="Chọn giới tính" />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
@@ -273,7 +278,7 @@ export default function UpdateProfileDashboard() {
                           <SelectItem value="Other">Khác</SelectItem>
                         </SelectContent>
                       </Select>
-                       <FormMessage />
+                      <FormMessage />
                     </FormItem>
                   )}
                 />
@@ -286,7 +291,7 @@ export default function UpdateProfileDashboard() {
                       <FormControl>
                         <Input {...field} />
                       </FormControl>
-                       <FormMessage />
+                      <FormMessage />
                     </FormItem>
                   )}
                 />
@@ -302,7 +307,7 @@ export default function UpdateProfileDashboard() {
                         />
                       </FormControl>
                       <FormLabel className="!m-0">Chia sẻ dữ liệu</FormLabel>
-                       <FormMessage />
+                      <FormMessage />
                     </FormItem>
                   )}
                 />
@@ -318,7 +323,7 @@ export default function UpdateProfileDashboard() {
                         />
                       </FormControl>
                       <FormLabel className="!m-0">Hiển thị email</FormLabel>
-                       <FormMessage />
+                      <FormMessage />
                     </FormItem>
                   )}
                 />
@@ -335,7 +340,7 @@ export default function UpdateProfileDashboard() {
                           <FormControl>
                             <Input {...field} />
                           </FormControl>
-                           <FormMessage />
+                          <FormMessage />
                         </FormItem>
                       )}
                     />
@@ -348,7 +353,7 @@ export default function UpdateProfileDashboard() {
                           <FormControl>
                             <Input {...field} />
                           </FormControl>
-                           <FormMessage />
+                          <FormMessage />
                         </FormItem>
                       )}
                     />
@@ -361,7 +366,7 @@ export default function UpdateProfileDashboard() {
                           <FormControl>
                             <Input {...field} />
                           </FormControl>
-                           <FormMessage />
+                          <FormMessage />
                         </FormItem>
                       )}
                     />
