@@ -8,17 +8,25 @@ import { columns } from "./columns";
 import { PaginationDashboard } from "@/components/dashboard/PaginationDashboard";
 import { setSearchQueryForHighlight } from "./columns";
 import { getAllConsultantProfiles } from "@/app/api/consultant/action";
+import LoadingSkeleton from "@/app/(dashboard)/admin/dashboard/healthServices/loading";
 
 const ConsultantListingPage = () => {
   const [allConsultants, setAllConsultants] = useState<ConsultantGetAll[]>([]);
-  const [filteredConsultants, setFilteredConsultants] = useState<ConsultantGetAll[]>([]);
+  const [filteredConsultants, setFilteredConsultants] = useState<
+    ConsultantGetAll[]
+  >([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedRole, setSelectedRole] = useState("*");
   const [selectedSpecialization, setSelectedSpecialization] = useState("*");
   const [selectedQualification, setSelectedQualification] = useState("*");
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  const [specializationOptions, setSpecializationOptions] = useState<string[]>([]);
-  const [qualificationOptions, setQualificationOptions] = useState<string[]>([]);
+  const [specializationOptions, setSpecializationOptions] = useState<string[]>(
+    []
+  );
+  const [qualificationOptions, setQualificationOptions] = useState<string[]>(
+    []
+  );
 
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
@@ -35,9 +43,11 @@ const ConsultantListingPage = () => {
     return consultants.filter((consultant) => {
       const matchRole = role === "*" || consultant.role === role;
       const matchSpec =
-        specialization === "*" || consultant.consultant?.specialization === specialization;
+        specialization === "*" ||
+        consultant.consultant?.specialization === specialization;
       const matchQual =
-        qualification === "*" || consultant.consultant?.qualifications === qualification;
+        qualification === "*" ||
+        consultant.consultant?.qualifications === qualification;
       const matchQuery =
         consultant.email.toLowerCase().includes(lowerQuery) ||
         consultant.full_name.toLowerCase().includes(lowerQuery);
@@ -47,6 +57,7 @@ const ConsultantListingPage = () => {
   };
 
   const refreshConsultants = async () => {
+    setIsLoading(false);
     try {
       const data = await getAllConsultantProfiles();
       if (data) {
@@ -64,6 +75,8 @@ const ConsultantListingPage = () => {
       }
     } catch (err) {
       console.error("Lỗi khi làm mới danh sách tư vấn viên", err);
+    } finally {
+      setIsLoading(true);
     }
   };
 
@@ -82,12 +95,27 @@ const ConsultantListingPage = () => {
     );
     setFilteredConsultants(result);
     setCurrentPage(1);
-  }, [allConsultants, searchQuery, selectedRole, selectedSpecialization, selectedQualification]);
+  }, [
+    allConsultants,
+    searchQuery,
+    selectedRole,
+    selectedSpecialization,
+    selectedQualification,
+  ]);
 
   const currentData = filteredConsultants.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
+
+  if (!isLoading)
+    return (
+      <>
+        <LoadingSkeleton />
+        <LoadingSkeleton />
+        <LoadingSkeleton />
+      </>
+    );
 
   return (
     <div className="flex flex-col h-full">
