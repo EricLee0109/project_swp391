@@ -7,9 +7,14 @@ import {
   stiFormServiceSchema,
 } from "@/types/schemas/FormSchemas";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Home, Hospital } from "lucide-react";
+import { Home, Hospital, Loader2 } from "lucide-react";
 import { useForm } from "react-hook-form";
-import { CustomService, CreateStiAppointmentDto } from "@/types/ServiceType/CustomServiceType";
+import {
+  CustomService,
+  CreateStiAppointmentDto,
+} from "@/types/ServiceType/CustomServiceType";
+import { Button } from "@/components/ui/button";
+import { useState } from "react";
 
 export function StiTestBookingForm({
   service,
@@ -35,15 +40,20 @@ export function StiTestBookingForm({
       ward: undefined,
     },
   });
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
   const selectedMode = form.watch("selected_mode");
 
   async function onSubmit(data: StiFormServiceValues) {
+    setIsSubmitting(true);
     const payload: CreateStiAppointmentDto = {
       serviceId: data.serviceId,
       date: formatDate(data.date),
       session: data.session,
-      location: data.selected_mode === "AT_HOME" ? "Tại nhà" : service.return_address || "Tại phòng khám",
+      location:
+        data.selected_mode === "AT_HOME"
+          ? "Tại nhà"
+          : service.return_address || "Tại phòng khám",
       category: "STI",
       selected_mode: data.selected_mode,
       contact_name: data.contact_name,
@@ -55,37 +65,42 @@ export function StiTestBookingForm({
     };
 
     try {
-    const response = await fetch("/api/appointments/sti", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(payload),
-    });
+      const response = await fetch("/api/appointments/sti", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
 
-    const responseData = await response.json();
+      const responseData = await response.json();
 
-    if (!response.ok) {
-      throw new Error(responseData.error || "Không thể lưu thiết lập!");
-    }
+      if (!response.ok) {
+        throw new Error(responseData.error || "Không thể lưu thiết lập!");
+      }
 
-    const appointmentId = responseData.data?.appointment?.appointment_id;
-    if (appointmentId) {
-      setStiAppointmentId(appointmentId);
-      notify("success", `Đặt lịch xét nghiệm STI thành công! Mã lịch hẹn: ${appointmentId}`);
-    } else {
-      notify("success", "Đặt lịch xét nghiệm STI thành công!");
-    }
+      const appointmentId = responseData.data?.appointment?.appointment_id;
+      if (appointmentId) {
+        setStiAppointmentId(appointmentId);
+        notify(
+          "success",
+          `Đặt lịch xét nghiệm STI thành công! Mã lịch hẹn: ${appointmentId}`
+        );
+      } else {
+        notify("success", "Đặt lịch xét nghiệm STI thành công!");
+      }
 
-    const checkoutUrl = responseData.data?.paymentLink;
-    if (checkoutUrl) {
-      window.location.href = checkoutUrl;
-      return;
-    }
-    onClose();
-  } catch (error) {
-    console.error("Lỗi khi đặt lịch xét nghiệm STI:", error);
-    notify("error", (error as Error).message);
+      const checkoutUrl = responseData.data?.paymentLink;
+      if (checkoutUrl) {
+        window.location.href = checkoutUrl;
+        return;
+      }
+      onClose();
+    } catch (error) {
+      console.error("Lỗi khi đặt lịch xét nghiệm STI:", error);
+      notify("error", (error as Error).message);
+    } finally {
+      setIsSubmitting(false);
     }
   }
 
@@ -111,8 +126,9 @@ export function StiTestBookingForm({
               {service.available_modes.map((mode) => (
                 <label
                   key={mode}
-                  className={`flex items-center gap-2 p-4 border rounded-lg cursor-pointer flex-1 ${selectedMode === mode ? "border-teal-500 bg-teal-50" : ""
-                    }`}
+                  className={`flex items-center gap-2 p-4 border rounded-lg cursor-pointer flex-1 ${
+                    selectedMode === mode ? "border-teal-500 bg-teal-50" : ""
+                  }`}
                 >
                   <input
                     type="radio"
@@ -125,7 +141,9 @@ export function StiTestBookingForm({
                   ) : (
                     <Home size={20} />
                   )}
-                  <span>{mode === "AT_CLINIC" ? "Tại phòng khám" : "Tại nhà"}</span>
+                  <span>
+                    {mode === "AT_CLINIC" ? "Tại phòng khám" : "Tại nhà"}
+                  </span>
                 </label>
               ))}
             </div>
@@ -161,8 +179,9 @@ export function StiTestBookingForm({
               >
                 <option value="">Chọn buổi</option>
                 <option value="morning">Buổi sáng (7:00 AM - 11:00 AM)</option>
-                <option value="afternoon">Buổi chiều (1:00 PM - 5:00 PM)</option>
-
+                <option value="afternoon">
+                  Buổi chiều (1:00 PM - 5:00 PM)
+                </option>
               </select>
               {form.formState.errors.session && (
                 <p className="text-red-500 text-sm">
@@ -276,12 +295,21 @@ export function StiTestBookingForm({
             </div>
           )}
 
-          <button
-            type="submit"
-            className="w-full bg-primary text-white font-bold py-3 px-4 rounded-lg hover:bg-primary-600 transition-colors duration-300 shadow-lg"
-          >
-            Đặt lịch xét nghiệm
-          </button>
+          <div className="flex justify-end">
+            <Button
+              disabled={isSubmitting}
+              type="submit"
+              className="w-1/2 bg-primary mr-0 text-white font-bold py-3 px-4 rounded-lg hover:bg-red-600 hover:text-red-100 transition-colors duration-300 shadow-lg"
+            >
+              {!isSubmitting ? (
+                <div>Đặt lịch xét nghiệm</div>
+              ) : (
+                <div>
+                  <Loader2 size={15} className="animate-spin" />
+                </div>
+              )}
+            </Button>
+          </div>
         </form>
       </div>
     </div>
