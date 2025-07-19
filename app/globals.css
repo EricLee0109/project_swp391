@@ -351,6 +351,10 @@
     .form-container-inner{
         @apply bg-white rounded-lg shadow-2xl p-8 w-full max-w-2xl relative
     }
+
+    .animate-title {
+        @apply font-semibold text-lg mb-2 bg-gradient-to-r from-yellow-300 via-yellow-200 to-yellow-100 p-2 rounded shadow text-yellow-900 border border-yellow-400
+    }
 }
 
 .w-md-editor-toolbar {

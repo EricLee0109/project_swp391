@@ -15,7 +15,7 @@ function normalizeUser(raw: RawUser): User {
     email: raw.email || "example@gmail.com",
     phone_number: raw.phone_number || "",
     address: raw.address || "",
-    image: raw.avatar || raw.image || "/shadcn.png",
+    image: raw.avatar || raw.image || "/defaultAvatar.png",
     role: raw.role || "Customer",
     is_verified: raw.is_verified ?? false,
     is_active: raw.is_active ?? true,

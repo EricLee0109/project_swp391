@@ -20,8 +20,8 @@ export const ServiceCard: React.FC<ServiceCardProps> = ({ service }) => {
   }).format(parseInt(service.price, 10));
 
   return (
-    <div className="bg-white rounded-2xl shadow-lg overflow-hidden transition-transform duration-300 ease-in-out hover:scale-[1.02] hover:shadow-2xl">
-      <div className="p-6">
+    <div className="bg-white rounded-2xl shadow-lg border-red-200 overflow-hidden transition-transform duration-300 ease-in-out hover:scale-[1.02] hover:shadow-2xl">
+      <div className="p-5">
         <div className="flex justify-between items-start">
           <h3 className="text-xl font-bold text-gray-800 mb-2 line-clamp-1">
             {service.name}
@@ -63,9 +63,11 @@ export const ServiceCard: React.FC<ServiceCardProps> = ({ service }) => {
             )}
           </div>
         </div>
+      </div>
 
+      <div className="max-h-24 overflow-hidden bg-gray-50">
         <Button
-          className="w-full bg-primary text-white font-bold py-3 px-4 rounded-lg hover:bg-primary-600 transition-colors duration-300 mt-4"
+          className="w-full bg-primary text-white font-bold rounded-sm hover:bg-red-600 hover:text-red-100 transition-colors duration-300"
           asChild
         >
           <Link

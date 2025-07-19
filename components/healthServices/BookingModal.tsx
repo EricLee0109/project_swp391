@@ -85,7 +85,7 @@ export function BookingModal({
       const responseData = await response.json();
 
       notify("success", "Đặt lịch hẹn thành công!");
-      
+
       if (stiAppointmentId) {
         // If stiAppointmentId is provided (assumed valid), redirect to /profile/order
         window.location.href = "/profile/order";

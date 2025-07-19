@@ -5,7 +5,7 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { CalendarIcon, Home, Hospital, MapPin, Star } from "lucide-react";
-import { formatDateVN } from "@/lib/utils";
+import { cn, formatCurrency, formatDateVN } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { shippingStatusMap, paymentStatusMap } from "./helper";
 import { notify } from "@/lib/toastNotify";
@@ -20,13 +20,20 @@ import {
 import { Input } from "@/components/ui/input";
 import { EyeIcon } from "lucide-react"; // Icon xem chi tiết
 import DetailOrderDialog from "./DetailOrderDialog"; // Import dialog mới
+import { getStatusPaymentBadgeColors } from "@/components/dashboard/components/appointment/helpers";
 
 interface ApiAppointment {
   appointment_id: string;
   type: "Consultation" | "Testing";
   start_time: string;
   end_time: string;
-  status: "Pending" | "Completed" | "Confirmed" | "SampleCollected" | "Cancelled" | "InProgress";
+  status:
+    | "Pending"
+    | "Completed"
+    | "Confirmed"
+    | "SampleCollected"
+    | "Cancelled"
+    | "InProgress";
   payment_status: "Paid" | "Pending" | "Failed";
   location: string | null;
   mode: "AT_HOME" | "AT_CLINIC";
@@ -73,13 +80,21 @@ export default function OrderHistory() {
   const [requestLoading, setRequestLoading] = useState<string | null>(null);
   const [requestSuccess, setRequestSuccess] = useState<string | null>(null);
   const [validateLoading, setValidateLoading] = useState<string | null>(null);
-  const [validateResult, setValidateResult] = useState<{ [key: string]: { valid: boolean; message: string } }>({});
-  const [feedbackDialogOpen, setFeedbackDialogOpen] = useState<string | null>(null);
+  const [validateResult, setValidateResult] = useState<{
+    [key: string]: { valid: boolean; message: string };
+  }>({});
+  const [feedbackDialogOpen, setFeedbackDialogOpen] = useState<string | null>(
+    null
+  );
   const [feedbackRating, setFeedbackRating] = useState<number>(0);
   const [feedbackComment, setFeedbackComment] = useState<string>("");
-  const [feedbackSubmitting, setFeedbackSubmitting] = useState<string | null>(null);
+  const [feedbackSubmitting, setFeedbackSubmitting] = useState<string | null>(
+    null
+  );
   const [detailDialogOpen, setDetailDialogOpen] = useState<string | null>(null); // State cho dialog chi tiết
-  const [hasFeedback, setHasFeedback] = useState<{ [key: string]: boolean }>({});
+  const [hasFeedback, setHasFeedback] = useState<{ [key: string]: boolean }>(
+    {}
+  );
 
   useEffect(() => {
     async function fetchAppointments() {
@@ -94,7 +109,7 @@ export default function OrderHistory() {
         } else {
           setError(data?.error || "Không thể tải lịch sử đặt hẹn.");
         }
-      } catch  {
+      } catch {
         setError("Lỗi mạng. Vui lòng thử lại.");
       } finally {
         setLoading(false);
@@ -105,13 +120,20 @@ export default function OrderHistory() {
 
   useEffect(() => {
     appointments.forEach((appt) => {
-      if (appt.type === "Consultation" && appt.status === "Completed" && hasFeedback[appt.appointment_id] === undefined) {
+      if (
+        appt.type === "Consultation" &&
+        appt.status === "Completed" &&
+        hasFeedback[appt.appointment_id] === undefined
+      ) {
         fetch(`/api/appointments/${appt.appointment_id}`, {
           credentials: "include",
         })
-          .then(res => res.json())
-          .then(data => {
-            setHasFeedback(prev => ({ ...prev, [appt.appointment_id]: data.feedbacks?.length > 0 }));
+          .then((res) => res.json())
+          .then((data) => {
+            setHasFeedback((prev) => ({
+              ...prev,
+              [appt.appointment_id]: data.feedbacks?.length > 0,
+            }));
           })
           .catch(() => {});
       }
@@ -135,10 +157,13 @@ export default function OrderHistory() {
     setRequestLoading(appointmentId);
     setRequestSuccess(null);
     try {
-      const res = await fetch(`/api/shipping/appointments/${appointmentId}/return-request`, {
-        method: "POST",
-        credentials: "include",
-      });
+      const res = await fetch(
+        `/api/shipping/appointments/${appointmentId}/return-request`,
+        {
+          method: "POST",
+          credentials: "include",
+        }
+      );
       if (res.ok) {
         setRequestSuccess(appointmentId);
         notify("success", "Yêu cầu trả mẫu đã được gửi thành công.");
@@ -155,9 +180,12 @@ export default function OrderHistory() {
   async function validateTestCode(appointmentId: string, testCode: string) {
     setValidateLoading(appointmentId);
     try {
-      const res = await fetch(`/api/appointments/validate-test-code/${testCode}`, {
-        credentials: "include",
-      });
+      const res = await fetch(
+        `/api/appointments/validate-test-code/${testCode}`,
+        {
+          credentials: "include",
+        }
+      );
       const data = await res.json();
       setValidateResult((prev) => ({ ...prev, [appointmentId]: data }));
       notify(data.valid ? "success" : "error", data.message);
@@ -199,9 +227,12 @@ export default function OrderHistory() {
       setFeedbackDialogOpen(null);
       setFeedbackRating(0);
       setFeedbackComment("");
-      setHasFeedback(prev => ({ ...prev, [appointmentId]: true }));
+      setHasFeedback((prev) => ({ ...prev, [appointmentId]: true }));
     } catch (error) {
-      notify("error", (error as Error).message || "Lỗi mạng, vui lòng thử lại.");
+      notify(
+        "error",
+        (error as Error).message || "Lỗi mạng, vui lòng thử lại."
+      );
     } finally {
       setFeedbackSubmitting(null);
     }
@@ -234,7 +265,9 @@ export default function OrderHistory() {
       <Card>
         <CardHeader>
           <CardTitle className="text-xl">Lịch sử đặt hẹn</CardTitle>
-          <p className="text-sm text-muted-foreground">Danh sách các lịch hẹn của bạn</p>
+          <p className="text-sm text-muted-foreground">
+            Danh sách các lịch hẹn của bạn
+          </p>
         </CardHeader>
         <CardContent className="space-y-6">
           {paginatedAppointments.length === 0 ? (
@@ -250,8 +283,11 @@ export default function OrderHistory() {
               const canValidate = appt.type === "Testing" && appt.test_code;
               const isValidating = validateLoading === appt.appointment_id;
               const validateRes = validateResult[appt.appointment_id];
-              const canFeedback = appt.type === "Consultation" && appt.status === "Completed" && !hasFeedback[appt.appointment_id];
-
+              const canFeedback =
+                appt.type === "Consultation" &&
+                appt.status === "Completed" &&
+                !hasFeedback[appt.appointment_id];
+              console.log(appt, "Order History");
               return (
                 <div
                   key={appt.appointment_id}
@@ -259,68 +295,103 @@ export default function OrderHistory() {
                 >
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <Info label="Mã hẹn" value={appt.test_code || appt.appointment_id} />
+                      <Info
+                        label="Mã hẹn"
+                        value={appt.test_code || appt.appointment_id}
+                      />
                       <Info label="Dịch vụ" value={appt.service.name} />
                       <Info
                         label="Ngày hẹn"
                         value={formatDateVN(appt.start_time)}
-                        icon={<CalendarIcon className="w-4 h-4 text-muted-foreground" />}
+                        icon={
+                          <CalendarIcon className="w-4 h-4 text-muted-foreground" />
+                        }
                       />
                       <Info
                         label="Thời gian"
-                        value={`${new Date(appt.start_time).toLocaleTimeString("vi-VN", {
-                          timeZone: "Asia/Ho_Chi_Minh",
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })} - ${new Date(appt.end_time).toLocaleTimeString("vi-VN", {
-                          timeZone: "Asia/Ho_Chi_Minh",
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })}`}
+                        value={`${new Date(appt.start_time).toLocaleTimeString(
+                          "vi-VN",
+                          {
+                            timeZone: "Asia/Ho_Chi_Minh",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          }
+                        )} - ${new Date(appt.end_time).toLocaleTimeString(
+                          "vi-VN",
+                          {
+                            timeZone: "Asia/Ho_Chi_Minh",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          }
+                        )}`}
                       />
                       {appt.shipping_info && (
                         <Info
                           label="Địa chỉ giao hàng"
                           value={`${appt.shipping_info.shipping_address}, ${appt.shipping_info.ward}, ${appt.shipping_info.district}, ${appt.shipping_info.province}`}
-                          icon={<MapPin className="w-4 h-4 text-muted-foreground" />}
+                          icon={<MapPin size={15} />}
                         />
                       )}
                     </div>
                     <div>
-                      <Info
-                        label="Hình thức"
-                        value={appt.mode === "AT_HOME" ? "Tại nhà" : "Tại phòng khám"}
-                        icon={
-                          appt.mode === "AT_HOME" ? (
-                            <Home className="w-4 h-4 text-teal-600" />
-                          ) : (
-                            <Hospital className="w-4 h-4 text-indigo-600" />
-                          )
-                        }
-                      />
+                      <p className="text-sm text-muted-foreground">Hình thức</p>
+                      <div
+                        className={cn(
+                          "flex flex-between gap-1 px-2 py-1 rounded-full text-xs w-1/2",
+                          appt.mode !== "AT_HOME"
+                            ? "bg-indigo-50 text-indigo-700"
+                            : "bg-teal-50 text-teal-700"
+                        )}
+                      >
+                        <Info
+                          value={
+                            appt.mode === "AT_HOME"
+                              ? "Tại nhà"
+                              : "Tại phòng khám"
+                          }
+                          icon={
+                            appt.mode === "AT_HOME" ? (
+                              <Home
+                                size={14}
+                                className="w-4 h-4 text-teal-600"
+                              />
+                            ) : (
+                              <Hospital
+                                size={14}
+                                className="w-4 h-4 text-indigo-600"
+                              />
+                            )
+                          }
+                        />
+                      </div>
+
                       <Info
                         label="Trạng thái"
                         value={
                           <Badge
                             variant={
                               appt.shipping_info
-                                ? shippingStatusMap[appt.shipping_info.shipping_status]?.variant || "default"
+                                ? shippingStatusMap[
+                                    appt.shipping_info.shipping_status
+                                  ]?.variant || "default"
                                 : "outline"
                             }
                           >
                             {appt.shipping_info
-                              ? shippingStatusMap[appt.shipping_info.shipping_status]?.label || appt.shipping_info.shipping_status
-                              : (appt.status === "Pending"
-                                ? "Đang chờ"
-                                : appt.status === "Completed"
-                                  ? "Hoàn thành"
-                                  : appt.status === "Confirmed"
-                                    ? "Đã xác nhận"
-                                    : appt.status === "InProgress"
-                                      ? "Đang diễn ra"
-                                      : appt.status === "SampleCollected"
-                                        ? "Đã lấy mẫu"
-                                        : "Đã hủy")}
+                              ? shippingStatusMap[
+                                  appt.shipping_info.shipping_status
+                                ]?.label || appt.shipping_info.shipping_status
+                              : appt.status === "Pending"
+                              ? "Đang chờ"
+                              : appt.status === "Completed"
+                              ? "Hoàn thành"
+                              : appt.status === "Confirmed"
+                              ? "Đã xác nhận"
+                              : appt.status === "InProgress"
+                              ? "Đang diễn ra"
+                              : appt.status === "SampleCollected"
+                              ? "Đã lấy mẫu"
+                              : "Đã hủy"}
                           </Badge>
                         }
                       />
@@ -328,29 +399,53 @@ export default function OrderHistory() {
                         label="Thanh toán"
                         value={
                           <Badge
-                            variant={
+                            className={getStatusPaymentBadgeColors(
                               appt.payment_status
-                                ? paymentStatusMap[appt.payment_status].variant || "default"
-                                : "outline"
-                            }
+                            )}
                           >
                             {appt.payment_status
-                              ? paymentStatusMap[appt.payment_status].label || appt.payment_status
+                              ? paymentStatusMap[appt.payment_status].label ||
+                                appt.payment_status
                               : "Không xác định"}
                           </Badge>
                         }
                       />
                       {appt.consultant_name && (
-                        <Info label="Bác sĩ tư vấn" value={appt.consultant_name} />
+                        <Info
+                          label="Bác sĩ tư vấn"
+                          value={appt.consultant_name}
+                        />
                       )}
                       {appt.test_result_status && (
                         <Info
                           label="Kết quả xét nghiệm"
-                          value={appt.test_result_status === "Pending"
-                            ? "Đang chờ"
-                            : appt.test_result_status === "Completed"
-                              ? "Hoàn thành"
-                              : appt.test_result_status}
+                          value={
+                            <div
+                              className={
+                                (cn("text-sm font-semibold"),
+                                appt.test_result_status === "Pending"
+                                  ? "text-blue-600"
+                                  : "text-green-600")
+                              }
+                            >
+                              {appt.test_result_status === "Pending"
+                                ? "Đang chờ"
+                                : appt.test_result_status === "Completed"
+                                ? "Hoàn thành"
+                                : appt.test_result_status}
+                            </div>
+                          }
+                        />
+                      )}
+                      {appt.payments && (
+                        <Info
+                          label="Chi phí"
+                          value={
+                            <div className="text-lg font-semibold text-primary bg-red-200 px-2 rounded-sm">
+                              {formatCurrency(appt.payments[0]?.amount) ||
+                                "Chưa thanh toán"}
+                            </div>
+                          }
                         />
                       )}
                     </div>
@@ -362,27 +457,48 @@ export default function OrderHistory() {
                         <Button
                           variant={isRequested ? "default" : "outline"}
                           disabled={isRequesting || isRequested}
-                          onClick={() => requestReturnSample(appt.appointment_id)}
+                          onClick={() =>
+                            requestReturnSample(appt.appointment_id)
+                          }
                         >
-                          {isRequesting ? "Đang gửi..." : isRequested ? "Đã gửi yêu cầu" : "Yêu cầu trả mẫu"}
+                          {isRequesting
+                            ? "Đang gửi..."
+                            : isRequested
+                            ? "Đã gửi yêu cầu"
+                            : "Yêu cầu trả mẫu"}
                         </Button>
                       )}
                       {canValidate && (
                         <Button
                           variant={validateRes ? "default" : "outline"}
                           disabled={isValidating || !!validateRes}
-                          onClick={() => validateTestCode(appt.appointment_id, appt.test_code!)}
+                          onClick={() =>
+                            validateTestCode(
+                              appt.appointment_id,
+                              appt.test_code!
+                            )
+                          }
                         >
-                          {isValidating ? "Đang kiểm tra..." : validateRes ? (validateRes.valid ? "Hợp lệ" : "Không hợp lệ") : "Kiểm tra tư vấn miễn phí"}
+                          {isValidating
+                            ? "Đang kiểm tra..."
+                            : validateRes
+                            ? validateRes.valid
+                              ? "Hợp lệ"
+                              : "Không hợp lệ"
+                            : "Kiểm tra tư vấn miễn phí"}
                         </Button>
                       )}
                       {canFeedback && (
                         <Button
                           variant="outline"
                           disabled={feedbackSubmitting === appt.appointment_id}
-                          onClick={() => setFeedbackDialogOpen(appt.appointment_id)}
+                          onClick={() =>
+                            setFeedbackDialogOpen(appt.appointment_id)
+                          }
                         >
-                          {feedbackSubmitting === appt.appointment_id ? "Đang gửi..." : "Đánh giá buổi tư vấn"}
+                          {feedbackSubmitting === appt.appointment_id
+                            ? "Đang gửi..."
+                            : "Đánh giá buổi tư vấn"}
                         </Button>
                       )}
                     </div>
@@ -390,7 +506,9 @@ export default function OrderHistory() {
                       <div className="relative">
                         <EyeIcon
                           className="w-6 h-6 text-muted-foreground cursor-pointer hover:text-primary"
-                          onClick={() => setDetailDialogOpen(appt.appointment_id)}
+                          onClick={() =>
+                            setDetailDialogOpen(appt.appointment_id)
+                          }
                           onMouseEnter={(e) => {
                             const tooltip = document.createElement("div");
                             tooltip.innerText = "Xem chi tiết lịch hẹn";
@@ -405,7 +523,8 @@ export default function OrderHistory() {
                             e.currentTarget.appendChild(tooltip);
                           }}
                           onMouseLeave={(e) => {
-                            const tooltip = e.currentTarget.querySelector("div");
+                            const tooltip =
+                              e.currentTarget.querySelector("div");
                             if (tooltip) tooltip.remove();
                           }}
                         />
@@ -413,7 +532,7 @@ export default function OrderHistory() {
                     )}
                   </div>
 
-                  {appt.type=== "Testing" && (
+                  {appt.type === "Testing" && (
                     <ResultTesting appointmentId={appt.appointment_id} />
                   )}
 
@@ -438,7 +557,11 @@ export default function OrderHistory() {
                             {[1, 2, 3, 4, 5].map((star) => (
                               <Star
                                 key={star}
-                                className={`w-6 h-6 cursor-pointer ${feedbackRating >= star ? "text-yellow-400 fill-yellow-400" : "text-gray-300"}`}
+                                className={`w-6 h-6 cursor-pointer ${
+                                  feedbackRating >= star
+                                    ? "text-yellow-400 fill-yellow-400"
+                                    : "text-gray-300"
+                                }`}
                                 onClick={() => setFeedbackRating(star)}
                               />
                             ))}
@@ -468,7 +591,9 @@ export default function OrderHistory() {
                           onClick={() => submitFeedback(appt.appointment_id)}
                           disabled={feedbackSubmitting === appt.appointment_id}
                         >
-                          {feedbackSubmitting === appt.appointment_id ? "Đang gửi..." : "Gửi đánh giá"}
+                          {feedbackSubmitting === appt.appointment_id
+                            ? "Đang gửi..."
+                            : "Gửi đánh giá"}
                         </Button>
                       </DialogFooter>
                     </DialogContent>
@@ -486,15 +611,17 @@ export default function OrderHistory() {
               >
                 Trước
               </Button>
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                <Button
-                  key={page}
-                  variant={currentPage === page ? "default" : "outline"}
-                  onClick={() => handlePageChange(page)}
-                >
-                  {page}
-                </Button>
-              ))}
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                (page) => (
+                  <Button
+                    key={page}
+                    variant={currentPage === page ? "default" : "outline"}
+                    onClick={() => handlePageChange(page)}
+                  >
+                    {page}
+                  </Button>
+                )
+              )}
               <Button
                 variant="outline"
                 disabled={currentPage === totalPages}
@@ -506,7 +633,9 @@ export default function OrderHistory() {
           )}
           <DetailOrderDialog
             open={!!detailDialogOpen}
-            onOpenChange={(open) => setDetailDialogOpen(open ? detailDialogOpen : null)}
+            onOpenChange={(open) =>
+              setDetailDialogOpen(open ? detailDialogOpen : null)
+            }
             appointmentId={detailDialogOpen || ""}
           />
         </CardContent>
@@ -520,7 +649,7 @@ function Info({
   value,
   icon,
 }: {
-  label: string;
+  label?: string;
   value: React.ReactNode;
   icon?: React.ReactNode;
 }) {
@@ -528,7 +657,8 @@ function Info({
     <div className="mb-2">
       <p className="text-sm text-muted-foreground">{label}</p>
       <p className="font-medium flex items-center gap-1">
-        {value} {icon}
+        {icon}
+        {value}
       </p>
     </div>
   );

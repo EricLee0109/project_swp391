@@ -29,3 +29,13 @@ export function formatDateVN(date: string | Date): string {
     timeZone: "Asia/Ho_Chi_Minh",
   });
 }
+
+export function formatCurrency(value: number | string): string {
+  const numberValue = typeof value === "string" ? parseFloat(value) : value;
+  if (isNaN(numberValue)) return "0 đ";
+  return new Intl.NumberFormat("vi-VN", {
+    style: "currency",
+    currency: "VND",
+    maximumFractionDigits: 0,
+  }).format(numberValue);
+}

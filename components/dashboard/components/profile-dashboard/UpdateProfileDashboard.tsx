@@ -24,7 +24,7 @@ import {
   PopoverContent,
 } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
-import { CalendarIcon } from "lucide-react";
+import { CalendarIcon, Loader2 } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -58,6 +58,7 @@ export default function UpdateProfileDashboard() {
   const [role, setRole] = useState<string | null>(null);
   const [imagePreview, setImagePreview] = useState<string>("");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -131,6 +132,7 @@ export default function UpdateProfileDashboard() {
   });
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    setIsSubmitting(true);
     const formData = new FormData();
     formData.append("fullName", values.fullName);
     formData.append("phoneNumber", values.phoneNumber || "");
@@ -162,6 +164,8 @@ export default function UpdateProfileDashboard() {
       router.push(`/${role?.toLowerCase()}/dashboard/profile-dashboard`);
     } catch (err) {
       console.error("❌ Lỗi cập nhật:", err);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -373,12 +377,18 @@ export default function UpdateProfileDashboard() {
                   </>
                 )}
 
-                <Button
-                  type="submit"
-                  className="bg-pink-500 text-white hover:bg-pink-600"
-                >
-                  Lưu thay đổi
-                </Button>
+                {!isSubmitting ? (
+                  <Button
+                    type="submit"
+                    className="bg-pink-500 text-white hover:bg-pink-600"
+                  >
+                    Lưu thay đổi
+                  </Button>
+                ) : (
+                  <Button>
+                    <Loader2 className="animate-spin" size={10} /> Đang Lưu...
+                  </Button>
+                )}
               </form>
             </Form>
           </div>
@@ -387,7 +397,7 @@ export default function UpdateProfileDashboard() {
           <div className="col-span-4 py-5">
             <div className="flex justify-center">
               <Image
-                src={imagePreview || "https://github.com/shadcn.png"}
+                src={imagePreview || "/defaultAvatar.png"}
                 alt="avatar"
                 width={144}
                 height={144}

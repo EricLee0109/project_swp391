@@ -44,8 +44,6 @@ export const getStatusPaymentBadgeVariant = (status: PaymentStatusEnums) => {
       return "secondary";
     case "Failed":
       return "secondary";
-    case "Pending":
-      return "outline";
     default:
       return "default";
   }
@@ -72,5 +70,35 @@ export const getQuestionStatusBadgeVariant = (
       return "bg-green-100 text-green-800";
     default:
       return "bg-red-100 text-red-800";
+  }
+};
+
+export const getStatusPaymentBadgeColors = (status: PaymentStatusEnums) => {
+  switch (status) {
+    case "Pending":
+      return "bg-blue-100 text-blue-800 hover:bg-blue-200 hover:text-blue-900";
+    case "Paid":
+      return "bg-green-100 text-green-800 hover:bg-green-200 hover:text-green-900";
+    case "Failed":
+      return "bg-red-100 text-red-800 hover:bg-red-200 hover:text-red-900";
+    default:
+      return "bg-gray-100 text-gray-800 hover:bg-gray-200 hover:text-gray-900";
+  }
+};
+
+export const getResultStatusBadgeColors = (status: StatusTypeEnums) => {
+  switch (status) {
+    case "Confirmed":
+      return "bg-teal-100 text-teal-800 hover:bg-teal-200 hover:text-teal-900";
+    case "SampleCollected":
+      return "bg-yellow-100 text-yellow-800 hover:bg-yellow-200 hover:text-yellow-900";
+    case "Completed":
+      return "bg-green-100 text-green-800 hover:bg-green-200 hover:text-green-900";
+    case "Cancelled":
+      return "bg-red-100 text-red-800 hover:bg-red-200 hover:text-red-900";
+    case "Pending":
+      return "bg-blue-100 text-blue-800 hover:bg-blue-200 hover:text-blue-900";
+    default:
+      return "bg-gray-100 text-gray-800 hover:bg-gray-200 hover:text-gray-900";
   }
 };
