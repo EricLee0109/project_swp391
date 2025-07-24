@@ -14,7 +14,26 @@ import {
   CreateStiAppointmentDto,
 } from "@/types/ServiceType/CustomServiceType";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
+interface LocationType {
+  code: string;
+  name: string;
+  label: string;
+  path: string;
+  name_with_type?: string;
+  parent_code: string;
+  path_with_type?: string;
+  slug?: string;
+  type?: string;
+}
 
 export function StiTestBookingForm({
   service,
@@ -44,8 +63,25 @@ export function StiTestBookingForm({
 
   const selectedMode = form.watch("selected_mode");
 
+  // State for location data
+  const [provinces, setProvinces] = useState<LocationType[]>([]);
+  const [selectedProvince, setSelectedProvince] = useState<string | null>(null);
+  const [selectedDistrict, setSelectedDistrict] = useState<string | null>(null);
+  const [districts, setDistricts] = useState<LocationType[]>([]);
+  const [wards, setWards] = useState<LocationType[]>([]);
+
   async function onSubmit(data: StiFormServiceValues) {
     setIsSubmitting(true);
+
+    //Convert province, district, and ward codes to names
+    const convertedProvince = provinces.find(
+      (province) => province.code === data.province
+    );
+    const convertedDistrict = districts.find(
+      (district) => district.code === data.district
+    );
+    const convertedWard = wards.find((ward) => ward.code === data.ward);
+
     const payload: CreateStiAppointmentDto = {
       serviceId: data.serviceId,
       date: formatDate(data.date),
@@ -59,9 +95,9 @@ export function StiTestBookingForm({
       contact_name: data.contact_name,
       contact_phone: data.contact_phone,
       shipping_address: data.shipping_address,
-      province: data.province,
-      district: data.district,
-      ward: data.ward,
+      province: convertedProvince?.name,
+      district: convertedDistrict?.name,
+      ward: convertedWard?.name,
     };
 
     try {
@@ -103,6 +139,103 @@ export function StiTestBookingForm({
       setIsSubmitting(false);
     }
   }
+
+  //Select location handler
+  useEffect(() => {
+    // Fetch provinces data from external API
+    const fetchProvinces = async () => {
+      if (provinces.length > 0) return; // Avoid fetching if already loaded
+      try {
+        const response = await fetch(
+          "https://raw.githubusercontent.com/madnh/hanhchinhvn/master/dist/tinh_tp.json"
+        );
+        const data: Record<string, LocationType> = await response.json();
+        const mapper: LocationType[] = Object.values(data).map((e) => ({
+          code: e?.code,
+          name: e?.name,
+          label: e?.name,
+          path: e?.path, // Ensure 'path' is included
+          name_with_type: e?.name_with_type, // Include 'name_with_type' if
+          parent_code: e?.parent_code, // Include 'parent_code' if needed
+        }));
+        setProvinces(mapper);
+      } catch (error) {
+        console.error("Error fetching provinces:", error);
+      }
+    };
+    fetchProvinces();
+  }, [provinces.length]);
+  console.log(provinces, "provinces");
+
+  useEffect(() => {
+    const fetchDistricts = async () => {
+      if (selectedProvince) {
+        try {
+          const response = await fetch(
+            "https://raw.githubusercontent.com/madnh/hanhchinhvn/master/dist/quan_huyen.json"
+          );
+          const data: Record<string, LocationType> = await response.json();
+
+          const districtsData = Object.values(data).filter((district) =>
+            district?.parent_code.includes(selectedProvince)
+          );
+          const mapper: LocationType[] = districtsData.map((e) => {
+            return {
+              code: e?.code,
+              name: e?.name,
+              label: e?.name,
+              path: e?.path, // Ensure 'path' is included
+              name_with_type: e?.name_with_type, // Include 'name_with_type' if
+              parent_code: e?.parent_code, // Include 'parent_code' if needed
+            };
+          });
+          setDistricts(mapper);
+        } catch (e) {
+          console.error("Error fetching districts:", e);
+        }
+      } else {
+        setDistricts([]);
+        setWards([]);
+      }
+    };
+    fetchDistricts();
+  }, [selectedProvince]);
+
+  useEffect(() => {
+    const fetchWards = async () => {
+      if (selectedDistrict) {
+        try {
+          const response = await fetch(
+            "https://raw.githubusercontent.com/madnh/hanhchinhvn/master/dist/xa_phuong.json"
+          );
+          const data: Record<string, LocationType> = await response.json();
+
+          const wardsData = Object.values(data).filter((ward) =>
+            ward.parent_code.includes(selectedDistrict)
+          );
+          const mapper: LocationType[] = wardsData.map((e) => {
+            return {
+              code: e?.code,
+              name: e?.name,
+              label: e?.name,
+              path: e?.path, // Ensure 'path' is included
+              name_with_type: e?.name_with_type, // Include 'name_with_type' if
+              parent_code: e?.parent_code, // Include 'parent_code' if needed
+            };
+          });
+          setWards(mapper);
+        } catch (e) {
+          console.error("Error fetching wards:", e);
+        }
+      } else {
+        setWards([]);
+      }
+    };
+    fetchWards();
+  }, [selectedDistrict]);
+
+  console.log(selectedProvince, "selectedProvince");
+  console.log(selectedDistrict, "selectedDistrict");
 
   return (
     <div className="form-container mt-16">
@@ -231,12 +364,30 @@ export function StiTestBookingForm({
                   <label htmlFor="province" className="font-semibold">
                     Tỉnh/Thành phố
                   </label>
-                  <input
-                    id="province"
-                    {...form.register("province")}
-                    placeholder="VD: TP.HCM"
-                    className="w-full p-2 border rounded-md"
-                  />
+                  <Select
+                    value={form.watch("province") || ""}
+                    onValueChange={(value) => {
+                      form.setValue("province", value);
+                      setSelectedProvince(value);
+                      setSelectedDistrict(null);
+                      form.setValue("district", "");
+                      form.setValue("ward", "");
+                    }}
+                  >
+                    <SelectTrigger
+                      className="w-full p-2 border rounded-md"
+                      id="province"
+                    >
+                      <SelectValue placeholder="Chọn tỉnh/thành phố" />
+                    </SelectTrigger>
+                    <SelectContent className="max-h-80 overflow-y-auto bg-white">
+                      {provinces.map((province) => (
+                        <SelectItem key={province.code} value={province.code}>
+                          {province.name_with_type}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                   {form.formState.errors.province && (
                     <p className="text-red-500 text-sm">
                       {form.formState.errors.province.message}
@@ -247,12 +398,29 @@ export function StiTestBookingForm({
                   <label htmlFor="district" className="font-semibold">
                     Quận/Huyện
                   </label>
-                  <input
-                    id="district"
-                    {...form.register("district")}
-                    placeholder="VD: Quận 1"
-                    className="w-full p-2 border rounded-md"
-                  />
+                  <Select
+                    value={form.watch("district") || ""}
+                    onValueChange={(value) => {
+                      form.setValue("district", value);
+                      setSelectedDistrict(value);
+                      form.setValue("ward", "");
+                    }}
+                    disabled={!districts.length}
+                  >
+                    <SelectTrigger
+                      className="w-full p-2 border rounded-md"
+                      id="district"
+                    >
+                      <SelectValue placeholder="Chọn quận/huyện" />
+                    </SelectTrigger>
+                    <SelectContent className="max-h-80 overflow-y-auto bg-white">
+                      {districts.map((district) => (
+                        <SelectItem key={district.code} value={district.code}>
+                          {district.name_with_type}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                   {form.formState.errors.district && (
                     <p className="text-red-500 text-sm">
                       {form.formState.errors.district.message}
@@ -263,12 +431,25 @@ export function StiTestBookingForm({
                   <label htmlFor="ward" className="font-semibold">
                     Phường/Xã
                   </label>
-                  <input
-                    id="ward"
-                    {...form.register("ward")}
-                    placeholder="VD: Phường 1"
-                    className="w-full p-2 border rounded-md"
-                  />
+                  <Select
+                    value={form.watch("ward") || ""}
+                    onValueChange={(value) => form.setValue("ward", value)}
+                    disabled={!wards.length}
+                  >
+                    <SelectTrigger
+                      className="w-full p-2 border rounded-md"
+                      id="ward"
+                    >
+                      <SelectValue placeholder="Chọn phường/xã" />
+                    </SelectTrigger>
+                    <SelectContent className="max-h-80 overflow-y-auto bg-white">
+                      {wards.map((ward) => (
+                        <SelectItem key={ward.code} value={ward.code}>
+                          {ward.name_with_type}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                   {form.formState.errors.ward && (
                     <p className="text-red-500 text-sm">
                       {form.formState.errors.ward.message}
