@@ -14,7 +14,6 @@ import { Button } from "@/components/ui/button";
 import { ArrowUpDown, Home, Hospital } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-// Định nghĩa function columns nhận props
 export function columns({
   onDeleted,
   onUpdated,
@@ -39,7 +38,22 @@ export function columns({
     },
     {
       accessorKey: "type",
-      header: "Loại hẹn",
+      header: ({ column }) => (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className="h-auto p-0 hover:bg-transparent"
+        >
+          Loại hẹn
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      ),
+      enableSorting: true,
+      sortingFn: (rowA, rowB) => {
+        const labelA = rowA.original.type === "Consultation" ? "Tư vấn" : "Xét nghiệm";
+        const labelB = rowB.original.type === "Consultation" ? "Tư vấn" : "Xét nghiệm";
+        return labelA.localeCompare(labelB, "vi");
+      },
       cell: ({ row }) => (
         <Badge className={getTypeBadgeVariant(row.original.type)}>
           {row.original.type === "Consultation" ? "Tư vấn" : "Xét nghiệm"}
@@ -48,18 +62,16 @@ export function columns({
     },
     {
       accessorKey: "status",
-      header: ({ column }) => {
-        return (
-          <Button
-            variant="ghost"
-            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-            className="h-auto p-0 hover:bg-transparent"
-          >
-            Trạng thái
-            <ArrowUpDown className="ml-2 h-4 w-4" />
-          </Button>
-        );
-      },
+      header: ({ column }) => (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className="h-auto p-0 hover:bg-transparent"
+        >
+          Trạng thái
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      ),
       enableSorting: true,
       sortingFn: (rowA, rowB) => {
         const labelA = statusMap[rowA.original.status] || "";
@@ -76,9 +88,7 @@ export function columns({
       accessorKey: "payment_status",
       header: "Thanh toán",
       cell: ({ row }) => (
-        <Badge
-          className={getStatusPaymentBadgeColors(row.original.payment_status)}
-        >
+        <Badge className={getStatusPaymentBadgeColors(row.original.payment_status)}>
           {statusPaymentMap[row.original.payment_status]}
         </Badge>
       ),
@@ -87,28 +97,26 @@ export function columns({
       accessorKey: "mode",
       header: "Hình thức",
       cell: ({ row }) => (
-        <>
-          <Badge
-            className={cn(
-              "flex items-center gap-1 px-2 py-1 rounded-full text-xs",
-              row.original.mode.includes("AT_HOME")
-                ? "bg-teal-50 text-teal-700 hover:bg-teal-100 hover:text-teal-800"
-                : "bg-indigo-50 text-indigo-700 hover:bg-indigo-100 hover:text-indigo-800"
-            )}
-          >
-            {row.original.mode.includes("AT_HOME") ? (
-              <>
-                <Home size={14} />
-                <span>Tại nhà</span>
-              </>
-            ) : (
-              <>
-                <Hospital size={14} />
-                <span>Tại phòng khám</span>
-              </>
-            )}
-          </Badge>
-        </>
+        <Badge
+          className={cn(
+            "flex items-center gap-1 px-2 py-1 rounded-full text-xs",
+            row.original.mode.includes("AT_HOME")
+              ? "bg-teal-50 text-teal-700 hover:bg-teal-100 hover:text-teal-800"
+              : "bg-indigo-50 text-indigo-700 hover:bg-indigo-100 hover:text-indigo-800"
+          )}
+        >
+          {row.original.mode.includes("AT_HOME") ? (
+            <>
+              <Home size={14} />
+              <span>Tại nhà</span>
+            </>
+          ) : (
+            <>
+              <Hospital size={14} />
+              <span>Tại phòng khám</span>
+            </>
+          )}
+        </Badge>
       ),
     },
     {

@@ -33,7 +33,6 @@ export default function StatusUpdateDialog({
   const [notes, setNotes] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // hàm handleSubmit đã sửa đúng chuẩn
   const handleSubmit = async () => {
     setLoading(true);
     try {
@@ -99,36 +98,37 @@ export default function StatusUpdateDialog({
               </label>
             )
           )}
-          {selectedStatus === "Completed" ? (
-            <div className="mt-2">
-              <label className="flex items-center gap-2 py-1 cursor-pointer">
-                <input
-                  type="radio"
-                  name="notes"
-                  value="Positive"
-                  checked={notes === "Positive"}
-                  onChange={() => setNotes("Positive")}
-                />
-                <span>Positive</span>
-              </label>
-              <label className="flex items-center gap-2 py-1 cursor-pointer">
-                <input
-                  type="radio"
-                  name="notes"
-                  value="Negative"
-                  checked={notes === "Negative"}
-                  onChange={() => setNotes("Negative")}
-                />
-                <span>Negative</span>
-              </label>
-            </div>
-          ) : (
-            <textarea
-              className="w-full mt-2 border rounded p-2"
-              placeholder="Ghi chú (tuỳ chọn)"
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-            />
+          {selectedStatus === "Completed" && (
+            <>
+              <div className="mt-2">
+                {/* <label className="flex items-center gap-2 py-1 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="notes"
+                    value="Positive"
+                    checked={notes === "Positive"}
+                    onChange={() => setNotes("Positive")}
+                  />
+                  <span>Positive</span>
+                </label> */}
+                {/* <label className="flex items-center gap-2 py-1 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="notes"
+                    value="Negative"
+                    checked={notes === "Negative"}
+                    onChange={() => setNotes("Negative")}
+                  />
+                  <span>Negative</span>
+                </label> */}
+              </div>
+              <textarea
+                className="w-full mt-2 border rounded p-2"
+                placeholder="Ghi chú (tuỳ chọn)"
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+              />
+            </>
           )}
         </div>
         <DialogFooter>
