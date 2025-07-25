@@ -7,6 +7,7 @@ import {
 } from "@/types/enums/HealthServiceEnums";
 
 export interface AppointmentListType {
+  shippingInfo: any;
   appointment_id: string;
   user_id: string;
   consultant_id?: string | null;

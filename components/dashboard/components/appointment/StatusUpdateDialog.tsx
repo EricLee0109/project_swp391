@@ -124,7 +124,7 @@ export default function StatusUpdateDialog({
               </div>
               <textarea
                 className="w-full mt-2 border rounded p-2"
-                placeholder="Ghi chú (tuỳ chọn)"
+                placeholder="Kết quả xét nghiệm"
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
               />
