@@ -16,6 +16,30 @@ export async function PATCH(
       );
     }
 
+    // Parse request body
+    const body = await request.json();
+    const { notes, meeting_link } = body;
+
+    console.log("Received body:", body); // Debug log
+
+    // Validate required fields
+    if (!notes || notes.trim() === "") {
+      return NextResponse.json(
+        { error: "Ghi chú là bắt buộc." },
+        { status: 400 }
+      );
+    }
+
+    // Prepare request body
+    const requestBody: { notes: string; meeting_link?: string } = {
+      notes: notes.trim(),
+    };
+
+    // Chỉ thêm meeting_link nếu có giá trị
+    if (meeting_link && meeting_link.trim()) {
+      requestBody.meeting_link = meeting_link.trim();
+    }
+
     const headers: Record<string, string> = {
       "Content-Type": "application/json",
       Authorization: `Bearer ${session.accessToken}`,
@@ -25,6 +49,7 @@ export async function PATCH(
     const beRes = await fetch(url, {
       method: "PATCH",
       headers,
+      body: JSON.stringify(requestBody),
     });
 
     if (!beRes.ok) {

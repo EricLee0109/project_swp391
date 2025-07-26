@@ -1,8 +1,6 @@
 "use client";
 import { useState } from "react";
-// import { useRouter } from "next/navigation";
-// import Link from "next/link";
-import { MoreHorizontal, CheckCircle, Trash2 } from "lucide-react";
+import { MoreHorizontal, Trash2, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -31,23 +29,6 @@ export default function CellActions({
   const [deleteOpenDialog, setDeleteOpenDialog] = useState<boolean>(false);
   const [verifyOpenDialog, setVerifyOpenDialog] = useState<boolean>(false);
 
-  const handleVerifyAppointment = async () => {
-    try {
-      const res = await fetch(
-        `/api/appointments/${appointment.appointment_id}/confirm`,
-        {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ notes: "Xác nhận lịch hẹn" }),
-        }
-      );
-      if (!res.ok) throw new Error("Xác nhận thất bại");
-      notify("success", "Xác nhận thành công!");
-    } catch (err) {
-      notify("error", (err as Error).message);
-    }
-  };
-
   const handleDelete = async () => {
     try {
       const res = await fetch(
@@ -67,6 +48,16 @@ export default function CellActions({
     }
   };
 
+  const handleVerifySuccess = (updatedAppointment: AppointmentListType) => {
+    notify("success", "Xác nhận lịch hẹn thành công!");
+    onUpdated(updatedAppointment);
+    setVerifyOpenDialog(false);
+  };
+
+  // Kiểm tra điều kiện hiển thị nút xác nhận
+  const canVerify = appointment.type === "Consultation" && 
+                   appointment.status === "Pending";
+
   return (
     <>
       <DropdownMenu>
@@ -77,28 +68,20 @@ export default function CellActions({
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="bg-white">
           <DropdownMenuLabel>Thao tác</DropdownMenuLabel>
-          {/* {appointment.type === "Testing" &&
-            appointment.status === "Pending" && (
-              <Link
-                href={`/dashboard/shipping/create/${appointment.appointment_id}`}
-                passHref
-              >
-                <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                  <TestTube2 className="mr-2 h-4 w-4" /> Tạo vận chuyển mẫu
-                </DropdownMenuItem>
-              </Link>
-            )} */}
-          {appointment.type === "Consultation" &&
-            appointment.status === "Pending" && (
-              <DropdownMenuItem
-                onSelect={(e) => {
-                  e.preventDefault();
-                  setVerifyOpenDialog(true);
-                }}
-              >
-                <CheckCircle className="mr-2 h-4 w-4" /> Xác nhận cuộc hẹn
-              </DropdownMenuItem>
-            )}
+          
+          {/* Hiển thị nút xác nhận cho Consultation và status Pending */}
+          {canVerify && (
+            <DropdownMenuItem
+              onSelect={(e) => {
+                e.preventDefault();
+                setVerifyOpenDialog(true);
+              }}
+            >
+              <CheckCircle className="mr-2 h-4 w-4" /> 
+              Xác nhận cuộc hẹn
+            </DropdownMenuItem>
+          )}
+          
           <DropdownMenuItem
             onSelect={(e) => {
               e.preventDefault();
@@ -107,6 +90,7 @@ export default function CellActions({
           >
             Thay đổi trạng thái
           </DropdownMenuItem>
+          
           <DropdownMenuItem
             onClick={() =>
               navigator.clipboard.writeText(appointment.appointment_id)
@@ -114,6 +98,9 @@ export default function CellActions({
           >
             Sao chép mã cuộc hẹn
           </DropdownMenuItem>
+          
+          <DropdownMenuSeparator />
+          
           <DropdownMenuItem
             className="text-red-600 focus:bg-red-50"
             onSelect={(e) => {
@@ -124,25 +111,30 @@ export default function CellActions({
             <Trash2 className="mr-2 h-4 w-4" />
             <span>Xoá lịch hẹn</span>
           </DropdownMenuItem>
-          <DropdownMenuSeparator />
         </DropdownMenuContent>
       </DropdownMenu>
+
+      {/* Verify Dialog */}
       <VerifyDialog
         open={verifyOpenDialog}
         setOpenChange={setVerifyOpenDialog}
-        handleVerify={handleVerifyAppointment}
+        appointment={appointment}
+        onSuccess={handleVerifySuccess}
       />
+
+      {/* Delete Dialog */}
       <DeleteDialog
         open={deleteOpenDialog}
         setOpenChange={setDeleteOpenDialog}
         handleDelete={handleDelete}
       />
+
+      {/* Status Update Dialog */}
       <StatusUpdateDialog
         appointment={appointment}
         open={openDialog}
         setOpen={setOpenDialog}
         onSuccess={(updatedAppointment) => {
-          // Gọi callback cập nhật bảng
           if (updatedAppointment) {
             onUpdated(updatedAppointment);
           }

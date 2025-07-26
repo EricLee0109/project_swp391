@@ -11,7 +11,7 @@ import {
 } from "./helpers";
 import CellActions from "./CellActions";
 import { Button } from "@/components/ui/button";
-import { ArrowUpDown, Home, Hospital } from "lucide-react";
+import { ArrowUpDown, Globe, Home, Hospital } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export function columns({
@@ -100,20 +100,27 @@ export function columns({
         <Badge
           className={cn(
             "flex items-center gap-1 px-2 py-1 rounded-full text-xs",
-            row.original.mode.includes("AT_HOME")
+            row.original.mode === "AT_HOME"
               ? "bg-teal-50 text-teal-700 hover:bg-teal-100 hover:text-teal-800"
-              : "bg-indigo-50 text-indigo-700 hover:bg-indigo-100 hover:text-indigo-800"
+              : row.original.mode === "AT_CLINIC"
+                ? "bg-indigo-50 text-indigo-700 hover:bg-indigo-100 hover:text-indigo-800"
+                : "bg-purple-50 text-purple-700 hover:bg-purple-100 hover:text-purple-800" // Style cho ONLINE
           )}
         >
-          {row.original.mode.includes("AT_HOME") ? (
+          {row.original.mode === "AT_HOME" ? (
             <>
               <Home size={14} />
               <span>Tại nhà</span>
             </>
-          ) : (
+          ) : row.original.mode === "AT_CLINIC" ? (
             <>
               <Hospital size={14} />
               <span>Tại phòng khám</span>
+            </>
+          ) : (
+            <>
+              <Globe size={14} />
+              <span>Trực tuyến</span>
             </>
           )}
         </Badge>
