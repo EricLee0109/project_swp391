@@ -1,8 +1,8 @@
 "use client";
 import { useState } from "react";
 // import { useRouter } from "next/navigation";
-import Link from "next/link";
-import { MoreHorizontal, TestTube2, CheckCircle, Trash2 } from "lucide-react";
+// import Link from "next/link";
+import { MoreHorizontal, CheckCircle, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -77,7 +77,7 @@ export default function CellActions({
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="bg-white">
           <DropdownMenuLabel>Thao tác</DropdownMenuLabel>
-          {appointment.type === "Testing" &&
+          {/* {appointment.type === "Testing" &&
             appointment.status === "Pending" && (
               <Link
                 href={`/dashboard/shipping/create/${appointment.appointment_id}`}
@@ -87,7 +87,7 @@ export default function CellActions({
                   <TestTube2 className="mr-2 h-4 w-4" /> Tạo vận chuyển mẫu
                 </DropdownMenuItem>
               </Link>
-            )}
+            )} */}
           {appointment.type === "Consultation" &&
             appointment.status === "Pending" && (
               <DropdownMenuItem

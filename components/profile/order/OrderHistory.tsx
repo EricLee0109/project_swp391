@@ -18,8 +18,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { EyeIcon } from "lucide-react"; // Icon xem chi tiết
-import DetailOrderDialog from "./DetailOrderDialog"; // Import dialog mới
+import { EyeIcon } from "lucide-react";
+import DetailOrderDialog from "./DetailOrderDialog";
 import { getStatusPaymentBadgeColors } from "@/components/dashboard/components/appointment/helpers";
 
 interface ApiAppointment {
@@ -91,7 +91,7 @@ export default function OrderHistory() {
   const [feedbackSubmitting, setFeedbackSubmitting] = useState<string | null>(
     null
   );
-  const [detailDialogOpen, setDetailDialogOpen] = useState<string | null>(null); // State cho dialog chi tiết
+  const [detailDialogOpen, setDetailDialogOpen] = useState<string | null>(null);
   const [hasFeedback, setHasFeedback] = useState<{ [key: string]: boolean }>(
     {}
   );
@@ -260,6 +260,15 @@ export default function OrderHistory() {
     );
   }
 
+  const testResultStatusMap: Record<
+    string,
+    { label: string; color: string }
+  > = {
+    Pending: { label: "Đang chờ", color: "bg-yellow-100 text-yellow-800" },
+    Processing: { label: "Đang xét nghiệm", color: "bg-orange-100 text-orange-800" },
+    Completed: { label: "Hoàn thành", color: "bg-green-100 text-green-800" },
+  };
+
   return (
     <div className="py-5">
       <Card>
@@ -420,20 +429,15 @@ export default function OrderHistory() {
                         <Info
                           label="Kết quả xét nghiệm"
                           value={
-                            <div
+                            <Badge
                               className={
-                                (cn("text-sm font-semibold"),
-                                appt.test_result_status === "Pending"
-                                  ? "text-blue-600"
-                                  : "text-green-600")
+                                testResultStatusMap[appt.test_result_status]?.color ||
+                                "bg-gray-100 text-gray-800"
                               }
                             >
-                              {appt.test_result_status === "Pending"
-                                ? "Đang chờ"
-                                : appt.test_result_status === "Completed"
-                                ? "Hoàn thành"
-                                : appt.test_result_status}
-                            </div>
+                              {testResultStatusMap[appt.test_result_status]?.label ||
+                                appt.test_result_status}
+                            </Badge>
                           }
                         />
                       )}
@@ -572,6 +576,7 @@ export default function OrderHistory() {
                             Nhận xét
                           </label>
                           <Input
+
                             value={feedbackComment}
                             onChange={(e) => setFeedbackComment(e.target.value)}
                             placeholder="Nhập nhận xét của bạn"
