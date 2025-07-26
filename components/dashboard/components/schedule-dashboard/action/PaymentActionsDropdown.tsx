@@ -88,6 +88,7 @@ const PaymentActionsDropdown = memo(function PaymentActionsDropdown({
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [showStartDialog, setShowStartDialog] = useState(false);
   const [showCompleteDialog, setShowCompleteDialog] = useState(false);
+  const [meetingLink, setMeetingLink] = useState<string | null>(null);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -108,7 +109,7 @@ const PaymentActionsDropdown = memo(function PaymentActionsDropdown({
 
       setIsLoading(true);
       try {
-        console.log("Fetching schedule data for scheduleId:", scheduleId);
+        // console.log("Fetching schedule data for scheduleId:", scheduleId);
         const res = await fetch(`/api/schedules/${scheduleId}`, {
           headers: {
             Authorization: `Bearer ${serverAccessToken}`,
@@ -164,6 +165,27 @@ const PaymentActionsDropdown = memo(function PaymentActionsDropdown({
       isMounted = false;
     };
   }, [scheduleId, serverAccessToken, form]);
+
+  useEffect(() => {
+    if (initialData?.is_booked && serverAccessToken) {
+      const fetchAppointments = async () => {
+        try {
+          const res = await fetch("/api/appointments/consultant-appointments", {
+            headers: { Authorization: `Bearer ${serverAccessToken}` },
+          });
+          if (res.ok) {
+            const { appointments } = await res.json();
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const app = appointments.find((a: any) => a.schedule.schedule_id === scheduleId);
+            if (app) setMeetingLink(app.meeting_link);
+          }
+        } catch (error) {
+          console.error("Error fetching appointments:", error);
+        }
+      };
+      fetchAppointments();
+    }
+  }, [initialData, serverAccessToken, scheduleId]);
 
   const onSubmit = async (values: FormValues) => {
     if (!serverAccessToken) {
@@ -302,13 +324,13 @@ const handleConfirm = async () => {
     }
   };
 
-  const handleConfirmClick = () => {
-    if (appointmentId) {
-      setShowConfirmDialog(true);
-    } else {
-      notify("error", "Không có lịch hẹn để xác nhận.");
-    }
-  };
+  // const handleConfirmClick = () => {
+  //   if (appointmentId) {
+  //     setShowConfirmDialog(true);
+  //   } else {
+  //     notify("error", "Không có lịch hẹn để xác nhận.");
+  //   }
+  // };
 
   const handleStartClick = () => {
     if (appointmentId) {
@@ -358,8 +380,17 @@ const handleConfirm = async () => {
           <DropdownMenuItem onClick={() => setOpenUpdateDialog(true)}>
             Cập nhật
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={handleConfirmClick} disabled={!appointmentId}>
+          {/* <DropdownMenuItem onClick={handleConfirmClick} disabled={!appointmentId}>
             Xác nhận lịch hẹn
+          </DropdownMenuItem> */}
+          <DropdownMenuItem
+            onClick={() => {
+              if (meetingLink) navigator.clipboard.writeText(meetingLink);
+              else notify("error", "Không có meeting link.");
+            }}
+            disabled={!meetingLink}
+          >
+            Sao chép Meeting Link
           </DropdownMenuItem>
           <DropdownMenuItem onClick={handleStartClick} disabled={!appointmentId}>
             Bắt đầu tư vấn
