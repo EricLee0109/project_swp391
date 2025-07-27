@@ -2,8 +2,9 @@
 export enum AvailableModeEnums {
   AT_HOME = "AT_HOME",
   AT_CLINIC = "AT_CLINIC",
+  ONLINE ="ONLINE"
 }
-export type AvailableMode = "AT_HOME" | "AT_CLINIC";
+export type AvailableMode = "AT_HOME" | "AT_CLINIC" | "ONLINE";
 
 // Service Enums
 export enum ServiceTypeEnums {

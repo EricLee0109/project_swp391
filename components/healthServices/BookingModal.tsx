@@ -3,7 +3,7 @@
 import { StiTestBookingForm } from "@/components/healthServices/appoinmentBookingType/StiServiceForm";
 import { notify } from "@/lib/toastNotify";
 import { formatDate } from "@/lib/utils";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Users, Video } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
 import {
@@ -25,38 +25,47 @@ export function BookingModal({
   onClose: () => void;
 }) {
   const [step, setStep] = useState(1);
-  const [appointment, setAppointment] = useState<Partial<CreateAppointmentDto>>(
-    {
-      service_id: service.service_id,
-      type: service.type,
-      test_code: null,
-      location: "Tại phòng khám",
-    }
-  );
+  const [appointment, setAppointment] = useState<Partial<CreateAppointmentDto>>({
+    service_id: service.service_id,
+    type: service.type,
+    test_code: null,
+    location: "Tại phòng khám",
+    mode: undefined, // Thêm field mode
+  });
   const [selectedTime, setSelectedTime] = useState("");
   const [selectedDate, setSelectedDate] = useState("");
   const [stiAppointmentId, setStiAppointmentId] = useState<string>("");
+
+  const handleModeSelect = (mode: "AT_CLINIC" | "ONLINE") => {
+    setAppointment((prev) => ({
+      ...prev,
+      mode,
+      location: mode === "AT_CLINIC" ? "Tại phòng khám" : "Tư vấn online",
+    }));
+    setStep(2);
+  };
 
   const handleConsultantSelect = (consultant: Consultant) => {
     setAppointment((prev) => ({
       ...prev,
       consultant_id: consultant.consultant_id,
     }));
-    setStep(2);
+    setStep(3);
   };
 
   const handleScheduleSelect = (schedule: Schedule, time: string) => {
     setAppointment((prev) => ({ ...prev, schedule_id: schedule.schedule_id }));
     setSelectedTime(time);
     setSelectedDate(schedule.start_time);
-    setStep(3);
+    setStep(4);
   };
 
   const createAppointment = async () => {
     if (
       !appointment.consultant_id ||
       !appointment.schedule_id ||
-      !appointment.location
+      !appointment.location ||
+      !appointment.mode
     ) {
       notify(
         "error",
@@ -142,11 +151,67 @@ export function BookingModal({
           </button>
         )}
 
+        {/* Step 1: Chọn hình thức tư vấn */}
         {step === 1 && (
+          <div>
+            <h2 className="text-2xl font-bold mb-6 text-center">
+              Chọn hình thức tư vấn
+            </h2>
+            <div className="space-y-4 max-w-md mx-auto">
+              <div
+                onClick={() => handleModeSelect("AT_CLINIC")}
+                className="flex items-center p-6 border-2 rounded-lg cursor-pointer hover:bg-gray-50 hover:border-teal-500 transition-all duration-200 group"
+              >
+                <div className="w-12 h-12 bg-teal-100 rounded-full flex items-center justify-center mr-4 group-hover:bg-teal-200">
+                  <Users className="w-6 h-6 text-teal-600" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-lg">Tại phòng khám</h3>
+                  <p className="text-sm text-gray-600">
+                    Gặp trực tiếp tư vấn viên tại phòng khám
+                  </p>
+                </div>
+              </div>
+              
+              <div
+                onClick={() => handleModeSelect("ONLINE")}
+                className="flex items-center p-6 border-2 rounded-lg cursor-pointer hover:bg-gray-50 hover:border-blue-500 transition-all duration-200 group"
+              >
+                <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mr-4 group-hover:bg-blue-200">
+                  <Video className="w-6 h-6 text-blue-600" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-lg">Tư vấn online</h3>
+                  <p className="text-sm text-gray-600">
+                    Tư vấn qua video call từ xa
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Step 2: Chọn tư vấn viên */}
+        {step === 2 && (
           <div>
             <h2 className="text-2xl font-bold mb-6 text-center">
               Chọn tư vấn viên
             </h2>
+            <div className="mb-4 text-center">
+              <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-800">
+                {appointment.mode === "AT_CLINIC" ? (
+                  <>
+                    <Users className="w-4 h-4 mr-1" />
+                    Tại phòng khám
+                  </>
+                ) : (
+                  <>
+                    <Video className="w-4 h-4 mr-1" />
+                    Tư vấn online
+                  </>
+                )}
+              </span>
+            </div>
             <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-2">
               {consultants.map((c) => (
                 <div
@@ -171,14 +236,30 @@ export function BookingModal({
           </div>
         )}
 
-        {step === 2 && selectedConsultant && (
+        {/* Step 3: Chọn thời gian */}
+        {step === 3 && selectedConsultant && (
           <div>
             <h2 className="text-2xl font-bold mb-6 text-center">
               Chọn thời gian tư vấn
             </h2>
-            <h3 className="text-lg font-semibold text-center mb-4">
-              {selectedConsultant.full_name}
-            </h3>
+            <div className="mb-4 text-center space-y-2">
+              <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-800">
+                {appointment.mode === "AT_CLINIC" ? (
+                  <>
+                    <Users className="w-4 h-4 mr-1" />
+                    Tại phòng khám
+                  </>
+                ) : (
+                  <>
+                    <Video className="w-4 h-4 mr-1" />
+                    Tư vấn online
+                  </>
+                )}
+              </span>
+              <h3 className="text-lg font-semibold">
+                {selectedConsultant.full_name}
+              </h3>
+            </div>
             <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-2">
               {consultantSchedules.length > 0 ? (
                 consultantSchedules.map((s) => (
@@ -211,7 +292,8 @@ export function BookingModal({
           </div>
         )}
 
-        {step === 3 && selectedConsultant && (
+        {/* Step 4: Xác nhận lịch hẹn */}
+        {step === 4 && selectedConsultant && (
           <div>
             <h2 className="text-2xl font-bold mb-6 text-center">
               Xác nhận lịch hẹn
@@ -222,8 +304,20 @@ export function BookingModal({
                 <span className="font-bold">{service.name}</span>
               </p>
               <p>
-                <span>Địa điểm:</span>{" "}
-                <span className="font-bold">Tại phòng khám</span>
+                <span>Hình thức:</span>{" "}
+                <span className="font-bold inline-flex items-center">
+                  {appointment.mode === "AT_CLINIC" ? (
+                    <>
+                      <Users className="w-4 h-4 mr-1" />
+                      Tại phòng khám
+                    </>
+                  ) : (
+                    <>
+                      <Video className="w-4 h-4 mr-1" />
+                      Tư vấn online
+                    </>
+                  )}
+                </span>
               </p>
               <p>
                 <span>Tư vấn viên:</span>{" "}

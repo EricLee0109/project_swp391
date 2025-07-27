@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { CalendarIcon, Home, Hospital, MapPin, Star } from "lucide-react";
+import { CalendarIcon, Globe, Home, Hospital, MapPin, Star } from "lucide-react";
 import { cn, formatCurrency, formatDateVN } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { shippingStatusMap, paymentStatusMap } from "./helper";
@@ -28,15 +28,15 @@ interface ApiAppointment {
   start_time: string;
   end_time: string;
   status:
-    | "Pending"
-    | "Completed"
-    | "Confirmed"
-    | "SampleCollected"
-    | "Cancelled"
-    | "InProgress";
+  | "Pending"
+  | "Completed"
+  | "Confirmed"
+  | "SampleCollected"
+  | "Cancelled"
+  | "InProgress";
   payment_status: "Paid" | "Pending" | "Failed";
   location: string | null;
-  mode: "AT_HOME" | "AT_CLINIC";
+  mode: "AT_HOME" | "AT_CLINIC" | "ONLINE";
   service: {
     service_id: string;
     name: string;
@@ -135,7 +135,7 @@ export default function OrderHistory() {
               [appt.appointment_id]: data.feedbacks?.length > 0,
             }));
           })
-          .catch(() => {});
+          .catch(() => { });
       }
     });
   }, [appointments, hasFeedback]);
@@ -347,32 +347,33 @@ export default function OrderHistory() {
                       <div
                         className={cn(
                           "flex flex-between gap-1 px-2 py-1 rounded-full text-xs w-1/2",
-                          appt.mode !== "AT_HOME"
-                            ? "bg-indigo-50 text-indigo-700"
-                            : "bg-teal-50 text-teal-700"
+                          appt.mode === "AT_HOME"
+                            ? "bg-teal-50 text-teal-700"
+                            : appt.mode === "ONLINE"
+                              ? "bg-yellow-50 text-yellow-700"
+                              : "bg-indigo-50 text-indigo-700" // AT_CLINIC mặc định
                         )}
                       >
                         <Info
                           value={
                             appt.mode === "AT_HOME"
                               ? "Tại nhà"
-                              : "Tại phòng khám"
+                              : appt.mode === "ONLINE"
+                                ? "Trực tuyến"
+                                : "Tại phòng khám"
                           }
                           icon={
                             appt.mode === "AT_HOME" ? (
-                              <Home
-                                size={14}
-                                className="w-4 h-4 text-teal-600"
-                              />
+                              <Home size={14} className="w-4 h-4 text-teal-600" />
+                            ) : appt.mode === "ONLINE" ? (
+                              <Globe size={14} className="w-4 h-4 text-yellow-600" />
                             ) : (
-                              <Hospital
-                                size={14}
-                                className="w-4 h-4 text-indigo-600"
-                              />
+                              <Hospital size={14} className="w-4 h-4 text-indigo-600" />
                             )
                           }
                         />
                       </div>
+
 
                       <Info
                         label="Trạng thái"
@@ -381,26 +382,26 @@ export default function OrderHistory() {
                             variant={
                               appt.shipping_info
                                 ? shippingStatusMap[
-                                    appt.shipping_info.shipping_status
-                                  ]?.variant || "default"
+                                  appt.shipping_info.shipping_status
+                                ]?.variant || "default"
                                 : "outline"
                             }
                           >
                             {appt.shipping_info
                               ? shippingStatusMap[
-                                  appt.shipping_info.shipping_status
-                                ]?.label || appt.shipping_info.shipping_status
+                                appt.shipping_info.shipping_status
+                              ]?.label || appt.shipping_info.shipping_status
                               : appt.status === "Pending"
-                              ? "Đang chờ"
-                              : appt.status === "Completed"
-                              ? "Hoàn thành"
-                              : appt.status === "Confirmed"
-                              ? "Đã xác nhận"
-                              : appt.status === "InProgress"
-                              ? "Đang diễn ra"
-                              : appt.status === "SampleCollected"
-                              ? "Đã lấy mẫu"
-                              : "Đã hủy"}
+                                ? "Đang chờ"
+                                : appt.status === "Completed"
+                                  ? "Hoàn thành"
+                                  : appt.status === "Confirmed"
+                                    ? "Đã xác nhận"
+                                    : appt.status === "InProgress"
+                                      ? "Đang diễn ra"
+                                      : appt.status === "SampleCollected"
+                                        ? "Đã lấy mẫu"
+                                        : "Đã hủy"}
                           </Badge>
                         }
                       />
@@ -414,7 +415,7 @@ export default function OrderHistory() {
                           >
                             {appt.payment_status
                               ? paymentStatusMap[appt.payment_status].label ||
-                                appt.payment_status
+                              appt.payment_status
                               : "Không xác định"}
                           </Badge>
                         }
@@ -468,8 +469,8 @@ export default function OrderHistory() {
                           {isRequesting
                             ? "Đang gửi..."
                             : isRequested
-                            ? "Đã gửi yêu cầu"
-                            : "Yêu cầu trả mẫu"}
+                              ? "Đã gửi yêu cầu"
+                              : "Yêu cầu trả mẫu"}
                         </Button>
                       )}
                       {canValidate && (
@@ -486,10 +487,10 @@ export default function OrderHistory() {
                           {isValidating
                             ? "Đang kiểm tra..."
                             : validateRes
-                            ? validateRes.valid
-                              ? "Hợp lệ"
-                              : "Không hợp lệ"
-                            : "Kiểm tra tư vấn miễn phí"}
+                              ? validateRes.valid
+                                ? "Hợp lệ"
+                                : "Không hợp lệ"
+                              : "Kiểm tra tư vấn miễn phí"}
                         </Button>
                       )}
                       {canFeedback && (
@@ -561,11 +562,10 @@ export default function OrderHistory() {
                             {[1, 2, 3, 4, 5].map((star) => (
                               <Star
                                 key={star}
-                                className={`w-6 h-6 cursor-pointer ${
-                                  feedbackRating >= star
+                                className={`w-6 h-6 cursor-pointer ${feedbackRating >= star
                                     ? "text-yellow-400 fill-yellow-400"
                                     : "text-gray-300"
-                                }`}
+                                  }`}
                                 onClick={() => setFeedbackRating(star)}
                               />
                             ))}

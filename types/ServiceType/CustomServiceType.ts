@@ -44,6 +44,7 @@ export interface CreateAppointmentDto {
   contact_name?: string;
   contact_phone?: string;
   shipping_address?: string;
+  mode: string;
 }
 
 export interface CreateStiAppointmentDto {
