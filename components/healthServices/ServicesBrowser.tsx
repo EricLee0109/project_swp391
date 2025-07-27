@@ -17,8 +17,8 @@ import { useSearchParams } from "next/navigation";
 type RawService = Omit<Service, "price"> & { price: string };
 
 export function ServiceBrowser() {
-   const searchParams = useSearchParams();
-   const initialCategory = searchParams.get("category") || "All";
+  const searchParams = useSearchParams();
+  const initialCategory = searchParams.get("category") || "All";
   const [services, setServices] = useState<Service[]>([]);
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [activeFilter, setActiveFilter] = useState<string>(initialCategory);
@@ -90,7 +90,7 @@ export function ServiceBrowser() {
           />
         </div>
       </div>
- 
+
       <div className="mb-10 flex justify-center flex-wrap gap-3">
         {categories.map((category) => (
           <FilterPill
@@ -110,6 +110,9 @@ export function ServiceBrowser() {
               service={{
                 ...service,
                 type: service.type as string, // Chuyển type để khớp với CustomService
+                available_modes: service.available_modes.map((mode) =>
+                  mode === AvailableModeEnums.AT_HOME ? "AT_HOME" : "AT_CLINIC"
+                ),
               }}
             />
           ))
