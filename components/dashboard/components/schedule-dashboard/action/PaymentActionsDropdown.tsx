@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { notify } from "@/lib/toastNotify";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -35,7 +36,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { ChevronDownIcon } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 
-// Validation schema
+// Validation schema for update
 const formSchema = z.object({
   startDate: z.date({ required_error: "Chọn ngày bắt đầu" }),
   startTime: z.string().min(1, "Chọn giờ bắt đầu"),
@@ -44,7 +45,15 @@ const formSchema = z.object({
   serviceId: z.string().min(1, "Chọn dịch vụ"),
 });
 
+// Validation schema for consultation notes
+const notesSchema = z.object({
+  consultation_notes: z.string()
+    .min(10, "Ghi chú phải có ít nhất 10 ký tự")
+    .max(1000, "Ghi chú không được vượt quá 1000 ký tự"),
+});
+
 type FormValues = z.infer<typeof formSchema>;
+type NotesFormValues = z.infer<typeof notesSchema>;
 
 interface ScheduleDetail {
   schedule_id: string;
@@ -89,6 +98,7 @@ const PaymentActionsDropdown = memo(function PaymentActionsDropdown({
   const [showStartDialog, setShowStartDialog] = useState(false);
   const [showCompleteDialog, setShowCompleteDialog] = useState(false);
   const [meetingLink, setMeetingLink] = useState<string | null>(null);
+  const [isSubmittingComplete, setIsSubmittingComplete] = useState(false);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -101,6 +111,13 @@ const PaymentActionsDropdown = memo(function PaymentActionsDropdown({
     },
   });
 
+  const notesForm = useForm<NotesFormValues>({
+    resolver: zodResolver(notesSchema),
+    defaultValues: {
+      consultation_notes: "",
+    },
+  });
+
   useEffect(() => {
     let isMounted = true;
 
@@ -109,7 +126,6 @@ const PaymentActionsDropdown = memo(function PaymentActionsDropdown({
 
       setIsLoading(true);
       try {
-        // console.log("Fetching schedule data for scheduleId:", scheduleId);
         const res = await fetch(`/api/schedules/${scheduleId}`, {
           headers: {
             Authorization: `Bearer ${serverAccessToken}`,
@@ -231,7 +247,7 @@ const PaymentActionsDropdown = memo(function PaymentActionsDropdown({
     }
   };
 
-const handleConfirm = async () => {
+  const handleConfirm = async () => {
     if (!serverAccessToken || !appointmentId) {
       notify("error", "Không tìm thấy token hoặc ID lịch hẹn.");
       return;
@@ -293,12 +309,13 @@ const handleConfirm = async () => {
     }
   };
 
-  const handleComplete = async () => {
+  const handleComplete = async (values: NotesFormValues) => {
     if (!serverAccessToken || !appointmentId) {
       notify("error", "Không tìm thấy token hoặc ID lịch hẹn.");
       return;
     }
 
+    setIsSubmittingComplete(true);
     try {
       console.log("Completing consultation with appointmentId:", appointmentId);
       const res = await fetch(`/api/appointments/${appointmentId}/complete`, {
@@ -307,6 +324,9 @@ const handleConfirm = async () => {
           "Content-Type": "application/json",
           Authorization: `Bearer ${serverAccessToken}`,
         },
+        body: JSON.stringify({
+          consultation_notes: values.consultation_notes,
+        }),
       });
 
       if (!res.ok) {
@@ -317,20 +337,16 @@ const handleConfirm = async () => {
       }
 
       notify("success", "Hoàn thành tư vấn thành công!");
+      setShowCompleteDialog(false);
+      notesForm.reset();
       if (onUpdated) onUpdated();
     } catch (error) {
       console.error("Error completing consultation:", error);
       notify("error", "Có lỗi xảy ra khi hoàn thành tư vấn.");
+    } finally {
+      setIsSubmittingComplete(false);
     }
   };
-
-  // const handleConfirmClick = () => {
-  //   if (appointmentId) {
-  //     setShowConfirmDialog(true);
-  //   } else {
-  //     notify("error", "Không có lịch hẹn để xác nhận.");
-  //   }
-  // };
 
   const handleStartClick = () => {
     if (appointmentId) {
@@ -344,7 +360,7 @@ const handleConfirm = async () => {
     if (appointmentId) {
       setShowCompleteDialog(true);
     } else {
-      notify("error", "Không có lịch hẹn để bắt đầu.");
+      notify("error", "Không có lịch hẹn để hoàn thành.");
     }
   };
 
@@ -356,11 +372,6 @@ const handleConfirm = async () => {
   const startAction = () => {
     setShowStartDialog(false);
     handleStart();
-  };
-
-  const completeAction = () => {
-    setShowCompleteDialog(false);
-    handleComplete();
   };
 
   // Debug appointmentId
@@ -380,13 +391,14 @@ const handleConfirm = async () => {
           <DropdownMenuItem onClick={() => setOpenUpdateDialog(true)}>
             Cập nhật
           </DropdownMenuItem>
-          {/* <DropdownMenuItem onClick={handleConfirmClick} disabled={!appointmentId}>
-            Xác nhận lịch hẹn
-          </DropdownMenuItem> */}
           <DropdownMenuItem
             onClick={() => {
-              if (meetingLink) navigator.clipboard.writeText(meetingLink);
-              else notify("error", "Không có meeting link.");
+              if (meetingLink) {
+                navigator.clipboard.writeText(meetingLink);
+                notify("success", "Đã sao chép Meeting Link!");
+              } else {
+                notify("error", "Không có meeting link.");
+              }
             }}
             disabled={!meetingLink}
           >
@@ -407,6 +419,8 @@ const handleConfirm = async () => {
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
+
+      {/* Update Schedule Dialog */}
       <Dialog open={openUpdateDialog} onOpenChange={setOpenUpdateDialog}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
@@ -425,10 +439,7 @@ const handleConfirm = async () => {
                   <Label>Ngày bắt đầu</Label>
                   <div className="flex gap-4">
                     <div className="flex flex-col gap-2">
-                      <Popover
-                        open={form.formState.isDirty || !initialData ? undefined : false}
-                        onOpenChange={form.formState.isDirty || !initialData ? undefined : () => { }}
-                      >
+                      <Popover>
                         <PopoverTrigger asChild>
                           <Button
                             variant="outline"
@@ -475,10 +486,7 @@ const handleConfirm = async () => {
                   <Label>Ngày kết thúc</Label>
                   <div className="flex gap-4">
                     <div className="flex flex-col gap-2">
-                      <Popover
-                        open={form.formState.isDirty || !initialData ? undefined : false}
-                        onOpenChange={form.formState.isDirty || !initialData ? undefined : () => { }}
-                      >
+                      <Popover>
                         <PopoverTrigger asChild>
                           <Button
                             variant="outline"
@@ -559,6 +567,8 @@ const handleConfirm = async () => {
           </form>
         </DialogContent>
       </Dialog>
+
+      {/* Confirm Dialog */}
       <Dialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
@@ -577,6 +587,8 @@ const handleConfirm = async () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Start Dialog */}
       <Dialog open={showStartDialog} onOpenChange={setShowStartDialog}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
@@ -595,22 +607,54 @@ const handleConfirm = async () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Complete Dialog with Consultation Notes */}
       <Dialog open={showCompleteDialog} onOpenChange={setShowCompleteDialog}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-lg">
           <DialogHeader>
             <DialogTitle>Hoàn thành tư vấn</DialogTitle>
           </DialogHeader>
-          <div className="py-4">
-            <p>Bạn có chắc chắn  buổi tư vấn này đã hoàn thành?</p>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowCompleteDialog(false)}>
-              Hủy
-            </Button>
-            <Button variant="destructive" onClick={completeAction}>
-              Hoàn thành
-            </Button>
-          </DialogFooter>
+          <form onSubmit={notesForm.handleSubmit(handleComplete)} className="grid gap-4 py-4">
+            <div className="grid gap-2">
+              <Label htmlFor="consultation_notes">
+                Ghi chú tư vấn <span className="text-red-500">*</span>
+              </Label>
+              <Textarea
+                id="consultation_notes"
+                placeholder="Nhập ghi chú về buổi tư vấn (ví dụ: Sức khỏe không được tốt cần đặt dịch vụ khám bệnh)"
+                rows={4}
+                {...notesForm.register("consultation_notes")}
+                className="resize-none"
+              />
+              {notesForm.formState.errors.consultation_notes && (
+                <p className="text-sm text-red-500">
+                  {notesForm.formState.errors.consultation_notes.message}
+                </p>
+              )}
+              <p className="text-sm text-gray-500">
+                Ghi chú từ 10-1000 ký tự về tình trạng sức khỏe và khuyến nghị cho khách hàng
+              </p>
+            </div>
+            <DialogFooter>
+              <Button 
+                variant="outline" 
+                onClick={() => {
+                  setShowCompleteDialog(false);
+                  notesForm.reset();
+                }}
+                disabled={isSubmittingComplete}
+              >
+                Hủy
+              </Button>
+              <Button 
+                type="submit" 
+                variant="destructive"
+                disabled={isSubmittingComplete}
+              >
+                {isSubmittingComplete ? "Đang hoàn thành..." : "Hoàn thành tư vấn"}
+              </Button>
+            </DialogFooter>
+          </form>
         </DialogContent>
       </Dialog>
     </div>
