@@ -6,6 +6,7 @@ import { authJWT } from "@/lib/auth";
 // Import type chính xác
 import { User } from "@/types/user/User";
 import Breadcrumb from "@/components/share/Breadcrumb";
+import { redirect } from "next/navigation";
 
 // Chỉ lấy field cần thiết để dùng cho UI
 type ProfileUserType = {
@@ -18,7 +19,7 @@ export default async function Layout({ children }: { children: ReactNode }) {
   const session = await authJWT();
 
   if (!session?.user) {
-    return <div>Không tìm thấy thông tin người dùng.</div>;
+    return redirect("/");
   }
 
   const fullUser = session.user as User;
@@ -36,7 +37,6 @@ export default async function Layout({ children }: { children: ReactNode }) {
         items={[
           { label: "Trang chủ", href: "/" },
           { label: "Trang cá nhân", href: "/profile" },
-          // { label: "Chi tiết", href: `/blog/` },
         ]}
       />
       <ProfileLayout user={profileUser} type="jwt">
