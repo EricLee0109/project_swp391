@@ -7,6 +7,7 @@ import {
 } from "@/types/enums/HealthServiceEnums";
 
 export interface AppointmentListType {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   shippingInfo: any;
   appointment_id: string;
   user_id: string;
@@ -63,7 +64,7 @@ export interface AppointmentListType {
     daily_capacity: number;
     return_address: string | null;
     return_phone: string | null;
-    available_modes: ("AT_HOME" | "AT_CLINIC")[];
+    available_modes: ("AT_HOME" | "AT_CLINIC" | "ONLINE")[];
     created_at: string;
     updated_at: string;
     deleted_at: string | null;

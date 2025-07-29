@@ -168,6 +168,7 @@ export const columns: ColumnDef<ServicesListType>[] = [
         : [];
       const hasHomeMode = available_modes.includes("AT_HOME");
       const hasClinicMode = available_modes.includes("AT_CLINIC");
+      const hasOnlineMode = available_modes.includes("ONLINE");
       return (
         <div className="inline-flex gap-1 flex-nowrap items-center">
           {hasHomeMode && (
@@ -186,7 +187,13 @@ export const columns: ColumnDef<ServicesListType>[] = [
               <span>Tại phòng khám</span>
             </div>
           )}
-          {!hasHomeMode && !hasClinicMode && <span>Không có</span>}
+          {hasOnlineMode && (
+            <div className="flex items-center gap-1 bg-indigo-50 text-indigo-700 px-2 py-1 rounded-full text-xs">
+              <Hospital size={14} />
+              <span>Trực tuyến</span>
+            </div>
+          )}
+          {!hasHomeMode && !hasClinicMode && !hasOnlineMode &&<span>Không có</span>}
         </div>
       );
     },
