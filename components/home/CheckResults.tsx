@@ -139,12 +139,14 @@ export default function CheckResults() {
                 />
               </div>
               {error && <p className="text-red-500 text-sm">{error}</p>}
-              <Button
-                type="submit"
-                className="w-full bg-pink-500 hover:bg-pink-600 text-white"
-              >
-                Kiểm tra kết quả
-              </Button>
+              <div className="flex justify-end">
+                <Button
+                  type="submit"
+                  className="font-semibold bg-primary hover:bg-primary-500 hover:text-white transition-colors duration-300 shadow-lg px-6 py-2 rounded-lg"
+                >
+                  Kiểm tra kết quả
+                </Button>
+              </div>
             </form>
           </CardContent>
         </Card>

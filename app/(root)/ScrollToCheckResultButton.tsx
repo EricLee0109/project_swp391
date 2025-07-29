@@ -10,7 +10,7 @@ export default function ScrollToCheckResultButton() {
           el.scrollIntoView({ behavior: "smooth" });
         }
       }}
-      className="px-6 py-2 bg-white-100 text-pink-500 font-semibold rounded hover:bg-pink-500 hover:text-white transition"
+      className="font-semibold text-black-100 bg-white hover:bg-primary-500 hover:text-white transition-colors duration-300 shadow-lg w-full py-3 rounded-lg"
     >
       Kiểm tra kết quả xét nghiệm ngay
     </Button>

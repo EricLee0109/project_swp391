@@ -105,7 +105,7 @@ export function ServiceBrowser() {
           />
           <input
             type="text"
-            placeholder="Search for a service..."
+            placeholder="Tìm dịch vụ..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full pl-12 pr-4 py-3 rounded-full border-2 border-gray-200 focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-shadow duration-300 font-work-sans"

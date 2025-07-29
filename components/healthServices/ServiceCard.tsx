@@ -67,7 +67,7 @@ export const ServiceCard: React.FC<ServiceCardProps> = ({ service }) => {
 
       <div className="max-h-24 overflow-hidden bg-gray-50">
         <Button
-          className="w-full bg-primary text-white font-bold rounded-sm hover:bg-red-600 hover:text-red-100 transition-colors duration-300"
+          className="w-full bg-primary text-white font-bold rounded-sm hover:bg-primary-100 hover:text-primary-500 transition-colors duration-300"
           asChild
         >
           <Link
