@@ -54,6 +54,7 @@ const categories = [
   { value: "Nutrition", label: "Dinh dưỡng" },
   { value: "Pregnancy", label: "Thai kỳ và sinh nở" },
   { value: "General Medicine", label: "Khám tổng quát" },
+  { value: "Gynecology", label: "Phụ Khoa" },
 ];
 
 // Mock previous questions for demonstration
