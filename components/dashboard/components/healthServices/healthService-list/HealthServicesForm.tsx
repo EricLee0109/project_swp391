@@ -25,6 +25,18 @@ interface HealthServicesFormProps {
   serviceToEdit?: ServicesListType;
 }
 
+// Define available modes for each service type
+const SERVICE_MODE_OPTIONS = {
+  Testing: [
+    { value: "AT_HOME", label: "Tại nhà" },
+    { value: "AT_CLINIC", label: "Tại phòng khám" }
+  ],
+  Consultation: [
+    { value: "ONLINE", label: "Trực tuyến" },
+    { value: "AT_CLINIC", label: "Tại phòng khám" }
+  ]
+} as const;
+
 export default function HealthServicesForm({
   isOpen,
   onClose,
@@ -58,7 +70,16 @@ export default function HealthServicesForm({
     }
   }, [serviceToEdit]);
 
-  const handleCheckboxChange = (mode: "AT_HOME" | "AT_CLINIC") => {
+  // Handle service type change - reset available_modes when type changes
+  const handleTypeChange = (newType: "Testing" | "Consultation") => {
+    setFormData({ 
+      ...formData, 
+      type: newType,
+      available_modes: [] // Reset available modes when type changes
+    });
+  };
+
+  const handleCheckboxChange = (mode: "AT_HOME" | "AT_CLINIC" | "ONLINE") => {
     const current = formData.available_modes || [];
     if (current.includes(mode)) {
       setFormData({
@@ -72,6 +93,13 @@ export default function HealthServicesForm({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validation: Check if at least one mode is selected
+    if (!formData.available_modes || formData.available_modes.length === 0) {
+      notify("error", "Vui lòng chọn ít nhất một hình thức dịch vụ");
+      return;
+    }
+
     const method = serviceToEdit ? "PATCH" : "POST";
     const url = serviceToEdit
       ? `/api/services/${serviceToEdit.service_id}`
@@ -108,6 +136,9 @@ export default function HealthServicesForm({
       notify("error", "Lỗi mạng. Vui lòng thử lại.");
     }
   };
+
+  // Get available options based on current service type
+  const availableOptions = SERVICE_MODE_OPTIONS[formData.type as keyof typeof SERVICE_MODE_OPTIONS] || SERVICE_MODE_OPTIONS.Testing;
 
   return (
     <Dialog
@@ -208,15 +239,12 @@ export default function HealthServicesForm({
               </select>
             </div>
             <div>
-              <Label htmlFor="type">Loại</Label>
+              <Label htmlFor="type">Loại dịch vụ</Label>
               <select
                 id="type"
                 value={formData.type || "Testing"}
                 onChange={(e) =>
-                  setFormData({
-                    ...formData,
-                    type: e.target.value as "Testing" | "Consultation",
-                  })
+                  handleTypeChange(e.target.value as "Testing" | "Consultation")
                 }
                 className="w-full border p-2 rounded"
               >
@@ -225,50 +253,91 @@ export default function HealthServicesForm({
               </select>
             </div>
             <div className="md:col-span-2">
-              <Label>Hình thức</Label>
-              <div className="flex items-center gap-4 mt-1">
-                <label className="flex items-center gap-2">
-                  <Checkbox
-                    checked={formData.available_modes?.includes("AT_HOME")}
-                    onCheckedChange={() => handleCheckboxChange("AT_HOME")}
-                  />
-                  Tại nhà
-                </label>
-                <label className="flex items-center gap-2">
-                  <Checkbox
-                    checked={formData.available_modes?.includes("AT_CLINIC")}
-                    onCheckedChange={() => handleCheckboxChange("AT_CLINIC")}
-                  />
-                  Tại phòng khám
-                </label>
+              <Label>
+                Hình thức dịch vụ <span className="text-red-500">*</span>
+              </Label>
+              <div className="flex items-center gap-4 mt-2">
+                {availableOptions.map((option) => (
+                  <label key={option.value} className="flex items-center gap-2">
+                    <Checkbox
+                      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                      checked={formData.available_modes?.includes(option.value as any)}
+                      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                      onCheckedChange={() => handleCheckboxChange(option.value as any)}
+                    />
+                    <span className="text-sm">{option.label}</span>
+                  </label>
+                ))}
               </div>
-            </div>
-            <div>
-              <Label htmlFor="return_address">Địa chỉ trả kết quả</Label>
-              <Input
-                id="return_address"
-                value={formData.return_address || ""}
-                onChange={(e) =>
-                  setFormData({ ...formData, return_address: e.target.value })
+              <p className="text-xs text-gray-500 mt-1">
+                {formData.type === "Consultation" 
+                  ? "Dịch vụ tư vấn có thể thực hiện trực tuyến hoặc tại phòng khám"
+                  : "Dịch vụ xét nghiệm có thể thực hiện tại nhà hoặc tại phòng khám"
                 }
-              />
+              </p>
+              {formData.available_modes && formData.available_modes.length === 0 && (
+                <p className="text-sm text-red-500 mt-1">
+                  Vui lòng chọn ít nhất một hình thức dịch vụ
+                </p>
+              )}
             </div>
-            <div>
-              <Label htmlFor="return_phone">Số điện thoại trả kết quả</Label>
-              <Input
-                id="return_phone"
-                value={formData.return_phone || ""}
-                onChange={(e) =>
-                  setFormData({ ...formData, return_phone: e.target.value })
-                }
-              />
-            </div>
+            
+            {/* Show return address/phone only for Testing services */}
+            {formData.type === "Testing" && (
+              <>
+                <div>
+                  <Label htmlFor="return_address">Địa chỉ trả kết quả</Label>
+                  <Input
+                    id="return_address"
+                    value={formData.return_address || ""}
+                    onChange={(e) =>
+                      setFormData({ ...formData, return_address: e.target.value })
+                    }
+                    placeholder="Địa chỉ trả kết quả xét nghiệm"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="return_phone">Số điện thoại trả kết quả</Label>
+                  <Input
+                    id="return_phone"
+                    value={formData.return_phone || ""}
+                    onChange={(e) =>
+                      setFormData({ ...formData, return_phone: e.target.value })
+                    }
+                    placeholder="Số điện thoại liên hệ trả kết quả"
+                  />
+                </div>
+              </>
+            )}
           </div>
+          
+          {/* Service type specific information */}
+          <div className="p-3 bg-gray-50 rounded-lg border">
+            <h4 className="font-medium text-sm mb-2">
+              Thông tin loại dịch vụ: {formData.type === "Consultation" ? "Tư vấn" : "Xét nghiệm"}
+            </h4>
+            <ul className="text-xs text-gray-600 space-y-1">
+              {formData.type === "Consultation" ? (
+                <>
+                  <li>• Trực tuyến: Tư vấn qua video call hoặc chat</li>
+                  <li>• Tại phòng khám: Tư vấn trực tiếp với bác sĩ</li>
+                </>
+              ) : (
+                <>
+                  <li>• Tại nhà: Nhân viên sẽ gửi bộ kit xét nghiệm</li>
+                  <li>• Tại phòng khám: Khách hàng đến phòng khám để xét nghiệm</li>
+                </>
+              )}
+            </ul>
+          </div>
+
           <div className="flex justify-end gap-2 mt-4">
             <Button variant="outline" type="button" onClick={onClose}>
               Hủy
             </Button>
-            <Button type="submit">Lưu</Button>
+            <Button type="submit">
+              {serviceToEdit ? "Cập nhật" : "Tạo dịch vụ"}
+            </Button>
           </div>
         </form>
       </DialogContent>
