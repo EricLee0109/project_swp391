@@ -66,6 +66,7 @@ export default function HealthServicesForm({
         daily_capacity: 10,
         return_address: "",
         return_phone: "",
+
       });
     }
   }, [serviceToEdit]);
@@ -140,6 +141,12 @@ export default function HealthServicesForm({
   // Get available options based on current service type
   const availableOptions = SERVICE_MODE_OPTIONS[formData.type as keyof typeof SERVICE_MODE_OPTIONS] || SERVICE_MODE_OPTIONS.Testing;
 
+  // Check if return address should be shown (for AT_CLINIC mode or Testing services)
+  const shouldShowReturnAddress = formData.available_modes?.includes("AT_CLINIC") || formData.type === "Testing";
+  
+  // Check if return phone should be shown (for AT_CLINIC mode or Testing services)
+  const shouldShowReturnPhone = formData.available_modes?.includes("AT_CLINIC") || formData.type === "Testing";
+
   return (
     <Dialog
       open={isOpen}
@@ -153,7 +160,8 @@ export default function HealthServicesForm({
           Tạo dịch vụ mới
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+
         <DialogHeader>
           <DialogTitle>
             {serviceToEdit ? "Chỉnh sửa dịch vụ" : "Tạo dịch vụ mới"}
@@ -282,32 +290,39 @@ export default function HealthServicesForm({
               )}
             </div>
             
-            {/* Show return address/phone only for Testing services */}
-            {formData.type === "Testing" && (
-              <>
-                <div>
-                  <Label htmlFor="return_address">Địa chỉ trả kết quả</Label>
-                  <Input
-                    id="return_address"
-                    value={formData.return_address || ""}
-                    onChange={(e) =>
-                      setFormData({ ...formData, return_address: e.target.value })
-                    }
-                    placeholder="Địa chỉ trả kết quả xét nghiệm"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="return_phone">Số điện thoại trả kết quả</Label>
-                  <Input
-                    id="return_phone"
-                    value={formData.return_phone || ""}
-                    onChange={(e) =>
-                      setFormData({ ...formData, return_phone: e.target.value })
-                    }
-                    placeholder="Số điện thoại liên hệ trả kết quả"
-                  />
-                </div>
-              </>
+            {/* Show return address for Testing services or any service with AT_CLINIC mode */}
+            {shouldShowReturnAddress && (
+              <div>
+                <Label htmlFor="return_address">
+                  {formData.type === "Testing" ? "Địa chỉ trả kết quả" : "Địa chỉ phòng khám"} <span className="text-red-500">*</span>
+                </Label>
+                <Input
+                  id="return_address"
+                  value={formData.return_address || ""}
+                  onChange={(e) =>
+                    setFormData({ ...formData, return_address: e.target.value })
+                  }
+                  placeholder={formData.type === "Testing" ? "Địa chỉ trả kết quả xét nghiệm" : "Nhập địa chỉ phòng khám"}
+                  required
+                />
+              </div>
+            )}
+            
+            {/* Show return phone for Testing services or any service with AT_CLINIC mode */}
+            {shouldShowReturnPhone && (
+              <div>
+                <Label htmlFor="return_phone">
+                  {formData.type === "Testing" ? "Số điện thoại trả kết quả" : "Số điện thoại phòng khám"}
+                </Label>
+                <Input
+                  id="return_phone"
+                  value={formData.return_phone || ""}
+                  onChange={(e) =>
+                    setFormData({ ...formData, return_phone: e.target.value })
+                  }
+                  placeholder={formData.type === "Testing" ? "Số điện thoại liên hệ trả kết quả" : "Số điện thoại liên hệ phòng khám"}
+                />
+              </div>
             )}
           </div>
           
@@ -320,7 +335,7 @@ export default function HealthServicesForm({
               {formData.type === "Consultation" ? (
                 <>
                   <li>• Trực tuyến: Tư vấn qua video call hoặc chat</li>
-                  <li>• Tại phòng khám: Tư vấn trực tiếp với bác sĩ</li>
+                  <li>• Tại phòng khám: Tư vấn trực tiếp với bác sĩ tại địa chỉ phòng khám</li>
                 </>
               ) : (
                 <>
