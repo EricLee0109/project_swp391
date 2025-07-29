@@ -26,7 +26,8 @@ const UsersListingPage = () => {
       const matchRole = role === "*" || user.role === role;
       const matchQuery =
         user.email.toLowerCase().includes(lowerQuery) ||
-        user.full_name.toLowerCase().includes(lowerQuery);
+        user.full_name.toLowerCase().includes(lowerQuery) ||
+        user?.phone_number?.includes(lowerQuery);
       return matchRole && matchQuery;
     });
   };

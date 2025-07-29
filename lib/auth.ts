@@ -14,7 +14,7 @@ export async function authJWT() {
   if (!token) return null;
 
   try {
-    const decoded = jwt.verify(token, JWT_SECRET) as User;
+    const decoded = jwt?.verify(token, JWT_SECRET) as User;
 
     return { user: decoded || null };
   } catch (err) {

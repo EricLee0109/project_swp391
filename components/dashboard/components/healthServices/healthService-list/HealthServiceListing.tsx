@@ -75,15 +75,6 @@ const HealthServiceListingPage = () => {
           onSearch={(q) => setSearchQuery(q)}
           onTypeChange={(cat) => setSelectedCategory(cat)}
         />
-        <DataTable
-          columns={columns}
-          data={currentData}
-          pageIndex={currentPage - 1}
-          pageSize={itemsPerPage}
-          onUpdateServices={handleUpdateServices}
-          setIsCreateDialogOpen={setIsCreateDialogOpen}
-          setServiceToEdit={setServiceToEdit}
-        />
         <div className="flex justify-end mb-4">
           <HealthServicesForm
             isOpen={isCreateDialogOpen}
@@ -97,6 +88,15 @@ const HealthServiceListingPage = () => {
             serviceToEdit={serviceToEdit}
           />
         </div>
+        <DataTable
+          columns={columns}
+          data={currentData}
+          pageIndex={currentPage - 1}
+          pageSize={itemsPerPage}
+          onUpdateServices={handleUpdateServices}
+          setIsCreateDialogOpen={setIsCreateDialogOpen}
+          setServiceToEdit={setServiceToEdit}
+        />
       </div>
       <div>
         <PaginationDashboard

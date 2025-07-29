@@ -86,22 +86,34 @@ export const columns = (onRoleChanged: () => void): ColumnDef<User>[] => [
         <ArrowUpDown className="ml-2 h-4 w-4" />
       </Button>
     ),
-    cell: ({ row }) => row.original.phone_number || "—",
-  },
-  {
-    accessorKey: "address",
-    header: ({ column }) => (
-      <Button
-        variant="ghost"
-        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        className="p-0 m-0 w-full justify-start"
-      >
-        Địa chỉ
-        <ArrowUpDown className="ml-2 h-4 w-4" />
-      </Button>
+    cell: ({ row }) => (
+      <>
+        {row.original.phone_number ? (
+          <div
+            dangerouslySetInnerHTML={{
+              __html: highlight(row.original.phone_number),
+            }}
+          />
+        ) : (
+          <span className="text-gray-500">—</span>
+        )}
+      </>
     ),
-    cell: ({ row }) => row.original.address || "—",
   },
+  // {
+  //   accessorKey: "address",
+  //   header: ({ column }) => (
+  //     <Button
+  //       variant="ghost"
+  //       onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+  //       className="p-0 m-0 w-full justify-start"
+  //     >
+  //       Địa chỉ
+  //       <ArrowUpDown className="ml-2 h-4 w-4" />
+  //     </Button>
+  //   ),
+  //   cell: ({ row }) => row.original.address || "—",
+  // },
   {
     accessorKey: "role",
     header: ({ column }) => (
@@ -138,7 +150,7 @@ export const columns = (onRoleChanged: () => void): ColumnDef<User>[] => [
             <Badge className="bg-yellow-500 hover:bg-yellow-400">Quản lý</Badge>
           );
         default:
-          return <Badge>{role}</Badge>;
+          return <Badge variant={"secondary"}>{role}</Badge>;
       }
     },
   },
@@ -149,22 +161,22 @@ export const columns = (onRoleChanged: () => void): ColumnDef<User>[] => [
     cell: ({ row }) => row.original.customerProfile?.gender || "—",
   },
 
- {
-  accessorKey: "created_at",
-  header: "Ngày tạo",
-  cell: ({ row }) => {
-    const createdAt = row.original.customerProfile?.created_at;
-    return createdAt ? new Date(createdAt).toLocaleDateString("vi-VN") : "-";
+  {
+    accessorKey: "created_at",
+    header: "Ngày tạo",
+    cell: ({ row }) => {
+      const createdAt = row.original.customerProfile?.created_at;
+      return createdAt ? new Date(createdAt).toLocaleDateString("vi-VN") : "-";
+    },
   },
-},
-{
-  accessorKey: "updated_at",
-  header: "Ngày cập nhật",
-  cell: ({ row }) => {
-    const updatedAt = row.original.customerProfile?.updated_at;
-    return updatedAt ? new Date(updatedAt).toLocaleDateString("vi-VN") : "-";
+  {
+    accessorKey: "updated_at",
+    header: "Ngày cập nhật",
+    cell: ({ row }) => {
+      const updatedAt = row.original.customerProfile?.updated_at;
+      return updatedAt ? new Date(updatedAt).toLocaleDateString("vi-VN") : "-";
+    },
   },
-},
 
   {
     accessorKey: "is_active",
@@ -191,6 +203,8 @@ export const columns = (onRoleChanged: () => void): ColumnDef<User>[] => [
   },
   {
     id: "actions",
-    cell: ({ row }) => <ActionUser user={row.original} onRoleChanged={onRoleChanged} />,
+    cell: ({ row }) => (
+      <ActionUser user={row.original} onRoleChanged={onRoleChanged} />
+    ),
   },
 ];

@@ -61,7 +61,10 @@ export default function HealthServicesForm({
   const handleCheckboxChange = (mode: "AT_HOME" | "AT_CLINIC") => {
     const current = formData.available_modes || [];
     if (current.includes(mode)) {
-      setFormData({ ...formData, available_modes: current.filter((m) => m !== mode) });
+      setFormData({
+        ...formData,
+        available_modes: current.filter((m) => m !== mode),
+      });
     } else {
       setFormData({ ...formData, available_modes: [...current, mode] });
     }
@@ -86,7 +89,7 @@ export default function HealthServicesForm({
         const updatedService = data.data || formData;
         if (method === "POST") {
           onSave([...services, updatedService as ServicesListType]);
-          notify("success","Tạo dịch vụ thành công!");
+          notify("success", "Tạo dịch vụ thành công!");
         } else if (method === "PATCH") {
           onSave(
             services.map((s) =>
@@ -95,14 +98,14 @@ export default function HealthServicesForm({
                 : s
             )
           );
-          notify("success","Cập nhật dịch vụ thành công!");
+          notify("success", "Cập nhật dịch vụ thành công!");
         }
         onClose();
       } else {
         toast.error(data?.error || "Không thể lưu dịch vụ.");
       }
     } catch {
-      notify("error","Lỗi mạng. Vui lòng thử lại.");
+      notify("error", "Lỗi mạng. Vui lòng thử lại.");
     }
   };
 
@@ -115,44 +118,108 @@ export default function HealthServicesForm({
       }}
     >
       <DialogTrigger asChild>
-        <Button>Tạo dịch vụ mới</Button>
+        <Button className="bg-blue-200 text-blue-500 hover:bg-blue-100 hover:text-blue-600">
+          Tạo dịch vụ mới
+        </Button>
       </DialogTrigger>
       <DialogContent className="max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>{serviceToEdit ? "Chỉnh sửa dịch vụ" : "Tạo dịch vụ mới"}</DialogTitle>
+          <DialogTitle>
+            {serviceToEdit ? "Chỉnh sửa dịch vụ" : "Tạo dịch vụ mới"}
+          </DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4 py-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <Label htmlFor="name">Tên dịch vụ</Label>
-              <Input id="name" value={formData.name || ""} onChange={(e) => setFormData({ ...formData, name: e.target.value })} required />
+              <Input
+                id="name"
+                value={formData.name || ""}
+                onChange={(e) =>
+                  setFormData({ ...formData, name: e.target.value })
+                }
+                required
+              />
             </div>
             <div>
               <Label htmlFor="description">Mô tả</Label>
-              <Input id="description" value={formData.description || ""} onChange={(e) => setFormData({ ...formData, description: e.target.value })} required />
+              <Input
+                id="description"
+                value={formData.description || ""}
+                onChange={(e) =>
+                  setFormData({ ...formData, description: e.target.value })
+                }
+                required
+              />
             </div>
             <div>
               <Label htmlFor="price">Giá</Label>
-              <Input id="price" type="number" value={formData.price || ""} onChange={(e) => setFormData({ ...formData, price: e.target.value })} required />
+              <Input
+                id="price"
+                type="number"
+                value={formData.price || ""}
+                onChange={(e) =>
+                  setFormData({ ...formData, price: e.target.value })
+                }
+                required
+              />
             </div>
             <div>
               <Label htmlFor="category">Danh mục</Label>
-              <Input id="category" value={formData.category || ""} onChange={(e) => setFormData({ ...formData, category: e.target.value })} required />
+              <Input
+                id="category"
+                value={formData.category || ""}
+                onChange={(e) =>
+                  setFormData({ ...formData, category: e.target.value })
+                }
+                required
+              />
             </div>
             <div>
               <Label htmlFor="daily_capacity">Số lượng tối đa mỗi ngày</Label>
-              <Input id="daily_capacity" type="number" value={formData.daily_capacity || ""} onChange={(e) => setFormData({ ...formData, daily_capacity: parseInt(e.target.value, 10) || 0 })} required />
+              <Input
+                id="daily_capacity"
+                type="number"
+                value={formData.daily_capacity || ""}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    daily_capacity: parseInt(e.target.value, 10) || 0,
+                  })
+                }
+                required
+              />
             </div>
             <div>
               <Label htmlFor="is_active">Trạng thái</Label>
-              <select id="is_active" value={formData.is_active ? "true" : "false"} onChange={(e) => setFormData({ ...formData, is_active: e.target.value === "true" })} className="w-full border p-2 rounded">
+              <select
+                id="is_active"
+                value={formData.is_active ? "true" : "false"}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    is_active: e.target.value === "true",
+                  })
+                }
+                className="w-full border p-2 rounded"
+              >
                 <option value="true">Hoạt động</option>
                 <option value="false">Ngưng hoạt động</option>
               </select>
             </div>
             <div>
               <Label htmlFor="type">Loại</Label>
-              <select id="type" value={formData.type || "Testing"} onChange={(e) => setFormData({ ...formData, type: e.target.value as "Testing" | "Consultation" })} className="w-full border p-2 rounded">
+              <select
+                id="type"
+                value={formData.type || "Testing"}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    type: e.target.value as "Testing" | "Consultation",
+                  })
+                }
+                className="w-full border p-2 rounded"
+              >
                 <option value="Consultation">Tư vấn</option>
                 <option value="Testing">Xét nghiệm</option>
               </select>
@@ -178,15 +245,29 @@ export default function HealthServicesForm({
             </div>
             <div>
               <Label htmlFor="return_address">Địa chỉ trả kết quả</Label>
-              <Input id="return_address" value={formData.return_address || ""} onChange={(e) => setFormData({ ...formData, return_address: e.target.value })} />
+              <Input
+                id="return_address"
+                value={formData.return_address || ""}
+                onChange={(e) =>
+                  setFormData({ ...formData, return_address: e.target.value })
+                }
+              />
             </div>
             <div>
               <Label htmlFor="return_phone">Số điện thoại trả kết quả</Label>
-              <Input id="return_phone" value={formData.return_phone || ""} onChange={(e) => setFormData({ ...formData, return_phone: e.target.value })} />
+              <Input
+                id="return_phone"
+                value={formData.return_phone || ""}
+                onChange={(e) =>
+                  setFormData({ ...formData, return_phone: e.target.value })
+                }
+              />
             </div>
           </div>
           <div className="flex justify-end gap-2 mt-4">
-            <Button variant="outline" type="button" onClick={onClose}>Hủy</Button>
+            <Button variant="outline" type="button" onClick={onClose}>
+              Hủy
+            </Button>
             <Button type="submit">Lưu</Button>
           </div>
         </form>

@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ActionConsultant } from "./ActionConsultant";
 
-
 let currentSearchQuery = "";
 
 export function setSearchQueryForHighlight(query: string) {
@@ -28,13 +27,16 @@ export const columns = (
     id: "stt",
     header: "STT",
     cell: ({ row, table }) => {
-      const meta = table.options.meta as { pageIndex: number; pageSize: number };
+      const meta = table.options.meta as {
+        pageIndex: number;
+        pageSize: number;
+      };
       const pageIndex = meta?.pageIndex ?? 0;
       const pageSize = meta?.pageSize ?? 10;
       return pageIndex * pageSize + row.index + 1;
     },
   },
- 
+
   {
     accessorKey: "email",
     header: ({ column }) => (
@@ -78,9 +80,21 @@ export const columns = (
   {
     accessorKey: "phone_number",
     header: "SĐT",
-    cell: ({ row }) => row.original.phone_number || "—",
+    cell: ({ row }) => (
+      <>
+        {row.original.phone_number ? (
+          <div
+            dangerouslySetInnerHTML={{
+              __html: highlight(row.original.phone_number),
+            }}
+          />
+        ) : (
+          <span className="text-gray-500">-</span>
+        )}
+      </>
+    ),
   },
- 
+
   {
     accessorKey: "consultant.specialization",
     header: "Chuyên môn",

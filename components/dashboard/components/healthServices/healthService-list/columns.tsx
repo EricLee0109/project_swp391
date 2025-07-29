@@ -171,14 +171,20 @@ export const columns: ColumnDef<ServicesListType>[] = [
       return (
         <div className="inline-flex gap-1 flex-nowrap items-center">
           {hasHomeMode && (
-            <span className="flex items-center gap-1 px-1 py-0.5 bg-blue-100 rounded text-xs whitespace-nowrap">
-              <Home size={12} /> Tại nhà
-            </span>
+            // <span className="flex items-center gap-1 px-1 py-0.5 bg-blue-100 rounded text-xs whitespace-nowrap">
+            //   <Home size={12} /> Tại nhà
+            // </span>
+
+            <div className="flex items-center gap-1 bg-teal-50 text-teal-700 px-2 py-1 rounded-full text-xs">
+              <Home size={14} />
+              <span>Tại nhà</span>
+            </div>
           )}
           {hasClinicMode && (
-            <span className="flex items-center gap-1 px-1 py-0.5 bg-blue-100 rounded text-xs whitespace-nowrap">
-              <Hospital size={12} /> Tại phòng khám
-            </span>
+            <div className="flex items-center gap-1 bg-indigo-50 text-indigo-700 px-2 py-1 rounded-full text-xs">
+              <Hospital size={14} />
+              <span>Tại phòng khám</span>
+            </div>
           )}
           {!hasHomeMode && !hasClinicMode && <span>Không có</span>}
         </div>
