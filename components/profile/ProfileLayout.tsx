@@ -32,10 +32,10 @@ interface ProfileLayoutProps {
 
 const navItems = [
   { title: "Hồ sơ", icon: CircleUser, href: "/profile" },
-  { title: "Danh sách", icon: Heart, href: "/profile/favourite" },
+  { title: "Danh sách", icon: Heart, href: "/profile/ComingSoon" },
   { title: "Lịch sử", icon: ClipboardList, href: "/profile/order" },
   { title: "Câu hỏi", icon: MessageCircleQuestion, href: "/profile/questions" },
-  { title: "Thông báo", icon: Bell, href: "/profile/notification" },
+  { title: "Thông báo", icon: Bell, href: "/profile/ComingSoon" },
   { title: "Cài đặt", icon: Settings, href: "/profile/settings" },
 ];
 export default function ProfileLayout({ children }: ProfileLayoutProps) {
