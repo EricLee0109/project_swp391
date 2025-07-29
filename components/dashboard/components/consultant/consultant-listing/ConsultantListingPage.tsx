@@ -50,7 +50,8 @@ const ConsultantListingPage = () => {
         consultant.consultant?.qualifications === qualification;
       const matchQuery =
         consultant.email.toLowerCase().includes(lowerQuery) ||
-        consultant.full_name.toLowerCase().includes(lowerQuery);
+        consultant.full_name.toLowerCase().includes(lowerQuery) ||
+        consultant.phone_number.includes(lowerQuery);
 
       return matchRole && matchSpec && matchQual && matchQuery;
     });
