@@ -36,7 +36,7 @@ export function BookingTrigger({
     <>
       <Button
         onClick={handleBooking}
-        className="w-full bg-primary text-white font-bold py-3 px-4 rounded-lg hover:bg-red-600 hover:text-red-100 transition-colors duration-300 shadow-lg"
+        className="w-full bg-primary text-white font-bold rounded-sm hover:bg-primary-100 hover:text-primary-500 transition-colors duration-300 shadow-lg"
         suppressHydrationWarning
       >
         Đặt lịch hẹn

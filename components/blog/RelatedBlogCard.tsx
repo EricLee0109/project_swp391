@@ -18,7 +18,7 @@ const RelatedBlogCard = ({ blog }: RelatedBlogCardProps) => {
   const formattedUpdateDate = formatDate(blog.updated_at);
 
   return (
-    <Card className="group hover:shadow-md transition-all duration-300 border-l-4 border-l-pink-500">
+    <Card className="group hover:shadow-md transition-all duration-300 border-l-4 border-l-primary-500">
       <CardContent className="p-4">
         <div className="space-y-3">
           {/* Blog Image */}
@@ -37,7 +37,7 @@ const RelatedBlogCard = ({ blog }: RelatedBlogCardProps) => {
           {/* Blog Content */}
           <div className="space-y-2">
             <a href={`/blog/${blog.post_id}`}>
-              <h4 className="text-sm font-semibold text-gray-900 line-clamp-2 group-hover:text-pink-600 transition-colors">
+              <h4 className="text-sm font-semibold text-gray-900 line-clamp-2 group-hover:text-primary transition-colors">
                 {blog.title}
               </h4>
             </a>
@@ -85,7 +85,7 @@ const RelatedBlogsSection = ({ relatedBlogs }: RelatedBlogsSectionProps) => {
   return (
     <div className="bg-white border-l-2 border-gray-200 overflow-hidden">
       {/* Header */}
-      <div className="bg-gradient-to-r from-pink-500 to-pink-600 p-4">
+      <div className="bg-gradient-to-r from-primary-500 to-primary p-4">
         <h3 className="text-lg font-bold text-white flex items-center gap-2">
           <span>Các bài đăng liên quan</span>
           <ArrowRight className="w-4 h-4" />
@@ -110,7 +110,7 @@ const RelatedBlogsSection = ({ relatedBlogs }: RelatedBlogsSectionProps) => {
                 <Button
                   variant="outline"
                   size="sm"
-                  className="text-pink-600 border-pink-600 hover:bg-pink-50"
+                  className="text-primary-500 border-primary-500 hover:bg-green-50"
                 >
                   Xem thêm ({relatedBlogs.length - 5} bài viết)
                 </Button>
@@ -136,7 +136,7 @@ const RelatedBlogsCompact = ({ relatedBlogs }: RelatedBlogsSectionProps) => {
     <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
       {/* Header */}
       <div className="bg-gray-50 border-b border-gray-200 p-4">
-        <h3 className="text-lg font-bold text-gray-800 border-b-2 border-pink-500 pb-2 inline-block">
+        <h3 className="text-lg font-bold text-gray-800 border-b-2 border-primary-500 pb-2 inline-block">
           Các bài đăng liên quan
         </h3>
       </div>
@@ -166,7 +166,7 @@ const RelatedBlogsCompact = ({ relatedBlogs }: RelatedBlogsSectionProps) => {
 
                 <div className="flex-1 min-w-0">
                   <Link href={`/blog/${blog.post_id}`}>
-                    <h4 className="text-sm font-medium text-gray-900 line-clamp-2 hover:text-pink-600 transition-colors mb-1">
+                    <h4 className="text-sm font-medium text-gray-900 line-clamp-2 hover:text-primary-500 transition-colors mb-1">
                       {blog.title}
                     </h4>
                   </Link>
