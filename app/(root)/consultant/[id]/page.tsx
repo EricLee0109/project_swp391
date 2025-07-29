@@ -31,21 +31,12 @@ import QuestionSection from "@/components/question/QuestionsSection";
 import Breadcrumb from "@/components/share/Breadcrumb";
 import ConsultantPageHeader from "../ConsultantPageHeader";
 import Link from "next/link";
+import { categories } from "@/types/categories";
+import DirectMessageButton from "@/app/(root)/consultant/[id]/DirectMessageButton";
 
 interface DetailPageProps {
   params: Promise<{ id: string }>;
 }
-
-const categories = [
-  { value: "STI", label: "Bệnh lây truyền qua đường tình dục" },
-  { value: "Fertility", label: "Sinh sản và hiếm muộn" },
-  { value: "General", label: "Tư vấn chung" },
-  { value: "Mental", label: "Sức khỏe tinh thần" },
-  { value: "Nutrition", label: "Dinh dưỡng" },
-  { value: "Pregnancy", label: "Thai kỳ và sinh nở" },
-  { value: "General Medicine", label: "Khám tổng quát" },
-  { value: "Gynecology", label: "Phụ Khoa" },
-];
 
 export default async function DetailPage({ params }: DetailPageProps) {
   const { id: consultantId } = await params;
@@ -97,7 +88,14 @@ export default async function DetailPage({ params }: DetailPageProps) {
                           className="bg-white/20 text-white border-white/30"
                         >
                           <Briefcase className="w-4 h-4 mr-1" />
-                          {consultant.consultant.specialization}
+                          {categories
+                            .filter(
+                              (cat) =>
+                                cat.value ===
+                                consultant.consultant.specialization
+                            )
+                            .map((cate) => cate.label) ||
+                            consultant.consultant.specialization}
                         </Badge>
                         {consultant.consultant.is_verified && (
                           <Badge
@@ -279,13 +277,7 @@ export default async function DetailPage({ params }: DetailPageProps) {
                         </div>
                       </Link>
                     </Button>
-                    <Button
-                      variant="outline"
-                      className="w-full border-2 border-blue-200 text-blue-600 hover:bg-blue-50 py-3 rounded-lg transition-all duration-200"
-                    >
-                      <MessageSquare className="w-4 h-4 mr-2" />
-                      Nhắn tin trực tiếp
-                    </Button>
+                    <DirectMessageButton />
                   </CardContent>
                 </Card>
 
@@ -338,7 +330,7 @@ export default async function DetailPage({ params }: DetailPageProps) {
                         ))}
                       </div>
                       <p className="text-sm text-gray-600">
-                        Dựa trên 150+ đánh giá(demo)
+                        Dựa trên tổng đánh giá
                       </p>
                     </div>
                   </CardContent>

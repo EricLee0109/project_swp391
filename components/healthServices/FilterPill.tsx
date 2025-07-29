@@ -1,3 +1,5 @@
+import { categories } from "@/types/categories";
+
 interface FilterPillProps {
   label: string;
   active: boolean;
@@ -17,6 +19,8 @@ export const FilterPill: React.FC<FilterPillProps> = ({
         : "bg-white text-gray-700 hover:bg-gray-100"
     }`}
   >
-    {label}
+    {categories
+      .filter((cat) => cat.value === label)
+      .map((cate) => cate.label) || label}
   </button>
 );

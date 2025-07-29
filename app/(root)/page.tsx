@@ -6,7 +6,6 @@ import Features from "@/components/home/Features";
 import Hero from "@/components/home/Hero";
 
 import MaxWidthWrapper from "@/components/profile/MaxWidthWrapper";
-import SearchForm from "@/components/SearchForm";
 import { GETBlog } from "@/types/blog/blog";
 
 import { redirect } from "next/navigation";
@@ -25,12 +24,8 @@ import { redirect } from "next/navigation";
 //   title: string;
 // };
 
-export default async function Home({
-  searchParams,
-}: {
-  searchParams: Promise<{ query?: string }>;
-}) {
-  const query = (await searchParams).query;
+export default async function Home() {
+  // const query = (await searchParams).query;
   const session = await auth();
   const role = session?.user?.role; // Safely get the role
 
@@ -83,7 +78,7 @@ export default async function Home({
           nữa.
         </p>
 
-        <SearchForm query={query} />
+        {/* <SearchForm query={query} /> */}
         <div className="flex justify-center my-6">
           <ScrollToCheckResultButton />
         </div>
@@ -106,10 +101,10 @@ export default async function Home({
         {/* <TrustSignals /> */}
 
         <Hero />
-        <BlogHome blogs={blogs} />
         <div id="check-result" className="scroll-mt-36">
           <CheckResults />
         </div>
+        {blogs.length > 0 && <BlogHome blogs={blogs} />}
         <Features />
       </MaxWidthWrapper>
     </div>

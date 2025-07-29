@@ -6,6 +6,7 @@ import { ConsultantGetAll } from "@/types/user/CustomServiceType";
 import { Star } from "lucide-react";
 import { useRouter } from "next/navigation"; // ✅ Sửa từ 'next/router'
 import Image from "next/image";
+import { categories } from "@/types/categories";
 
 interface Props {
   // consultant: ConsultantProfile;
@@ -39,8 +40,13 @@ export default function ConsultantCard({ consultant }: Props) {
           <h3 className="font-semibold text-lg">
             {consultant.full_name || "Khoa"}
           </h3>
-          <Badge variant="outline">
-            {consultant.consultant.specialization}
+          <Badge className="bg-blue-200 text-blue-500 hover:bg-blue-300 hover:text-blue-600 transition-colors duration-300">
+            {categories
+              .filter(
+                (cat) => cat.value === consultant.consultant.specialization
+              )
+              .map((cate) => cate.label) ||
+              consultant.consultant.specialization}
           </Badge>
         </div>
         <p className="text-sm text-muted-foreground">
