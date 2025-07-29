@@ -28,17 +28,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  MessageSquare,
-  Send,
-  Upload,
-  X,
-  HelpCircle,
-  Star,
-  User,
-} from "lucide-react";
+import { MessageSquare, Send, Upload, X, HelpCircle } from "lucide-react";
 import { notify } from "@/lib/toastNotify";
 import { QuestionFormData } from "@/types/question/QuestionTypes";
+import { categories } from "@/types/categories";
 
 interface QuestionSectionProps {
   consultantId: string;
@@ -46,36 +39,25 @@ interface QuestionSectionProps {
   specialization: string;
 }
 
-const categories = [
-  { value: "STI", label: "Bệnh lây truyền qua đường tình dục" },
-  { value: "Fertility", label: "Sinh sản và hiếm muộn" },
-  { value: "General", label: "Tư vấn chung" },
-  { value: "Mental", label: "Sức khỏe tinh thần" },
-  { value: "Nutrition", label: "Dinh dưỡng" },
-  { value: "Pregnancy", label: "Thai kỳ và sinh nở" },
-  { value: "General Medicine", label: "Khám tổng quát" },
-  { value: "Gynecology", label: "Phụ Khoa" },
-];
-
 // Mock previous questions for demonstration
-const mockQuestions = [
-  {
-    id: 1,
-    title: "Tôi có nên lo lắng về triệu chứng này không?",
-    content: "Gần đây tôi có một số triệu chứng khó chịu...",
-    category: "General",
-    createdAt: "2 ngày trước",
-    status: "answered",
-  },
-  {
-    id: 2,
-    title: "Chế độ ăn uống như thế nào là tốt nhất?",
-    content: "Tôi muốn cải thiện chế độ dinh dưỡng...",
-    category: "Nutrition",
-    createdAt: "1 tuần trước",
-    status: "pending",
-  },
-];
+// const mockQuestions = [
+//   {
+//     id: 1,
+//     title: "Tôi có nên lo lắng về triệu chứng này không?",
+//     content: "Gần đây tôi có một số triệu chứng khó chịu...",
+//     category: "General",
+//     createdAt: "2 ngày trước",
+//     status: "answered",
+//   },
+//   {
+//     id: 2,
+//     title: "Chế độ ăn uống như thế nào là tốt nhất?",
+//     content: "Tôi muốn cải thiện chế độ dinh dưỡng...",
+//     category: "Nutrition",
+//     createdAt: "1 tuần trước",
+//     status: "pending",
+//   },
+// ];
 
 export default function QuestionSection({
   consultantId,
@@ -251,7 +233,11 @@ export default function QuestionSection({
                 ) : (
                   <div className="space-y-2 space-x-2">
                     <Label htmlFor="category">Danh mục câu hỏi *</Label>
-                    <Badge variant={"secondary"}>{specialization}</Badge>
+                    <Badge className="bg-blue-200 text-blue-500 hover:bg-blue-300 hover:text-blue-600 transition-colors duration-300">
+                      {categories
+                        .filter((cat) => cat.value === specialization)
+                        .map((cate) => cate.label) || specialization}
+                    </Badge>
                   </div>
                 )}
 
@@ -341,7 +327,7 @@ export default function QuestionSection({
           </Dialog>
 
           {/* Previous Questions */}
-          <div className="space-y-4">
+          {/* <div className="space-y-4">
             <h3 className="text-lg font-semibold text-gray-800">
               Câu hỏi gần đây
             </h3>
@@ -387,7 +373,7 @@ export default function QuestionSection({
                 </div>
               </div>
             ))}
-          </div>
+          </div> */}
         </div>
       </CardContent>
     </Card>

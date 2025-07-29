@@ -7,6 +7,7 @@ import {
   NavigationMenuTrigger,
 } from "../ui/navigation-menu";
 import { cn } from "@/lib/utils";
+import { categories } from "@/types/categories";
 import React, { useEffect, useState } from "react";
 
 interface CategoryItem {
@@ -15,7 +16,7 @@ interface CategoryItem {
 }
 
 export const Categories = () => {
-  const [categories, setCategories] = useState<CategoryItem[]>([]);
+  const [categoryItems, setCategoryItems] = useState<CategoryItem[]>([]);
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -28,7 +29,7 @@ export const Categories = () => {
         );
 
         const mapped = unique.map((c, i) => ({ id: i + 1, title: c }));
-        setCategories(mapped);
+        setCategoryItems(mapped);
       } catch (err) {
         console.error("Failed to fetch categories:", err);
       }
@@ -44,7 +45,7 @@ export const Categories = () => {
       </NavigationMenuTrigger>
       <NavigationMenuContent className="bg-white text-black">
         <ul className="grid gap-3 p-4 md:w-[400px] lg:w-[500px] lg:grid-cols-2">
-          {categories.map((item) => (
+          {categoryItems.map((item) => (
             <ListItem
               key={item.id}
               title={item.title}
@@ -74,7 +75,11 @@ const ListItem = React.forwardRef<
           )}
           {...props}
         >
-          <div className="text-sm font-medium leading-none">{title}</div>
+          <div className="text-sm font-medium leading-none">
+            {categories
+              .filter((cat) => cat.value === title)
+              .map((cate) => cate.label)}
+          </div>
           {children && (
             <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
               {children}

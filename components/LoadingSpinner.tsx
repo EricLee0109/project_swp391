@@ -7,7 +7,7 @@ export default function LoadingSpinner() {
     <div className="flex justify-center items-center h-screen bg-white">
       <div className="flex flex-col items-center gap-4">
         <Loader2 className="animate-spin w-12 h-12 text-primary" />
-        <p className="text-lg font-medium text-gray-600">Loading, please wait...</p>
+        <p className="text-lg font-medium text-gray-600">Đợi một xíu...</p>
       </div>
     </div>
   );

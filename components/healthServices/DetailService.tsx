@@ -11,13 +11,20 @@ import {
 import LoadingSkeleton from "@/app/(dashboard)/admin/dashboard/healthServices/loading";
 import { getTypeBadgeVariant } from "@/components/dashboard/components/appointment/helpers";
 import { Badge } from "@/components/ui/badge";
+import { categories } from "@/types/categories";
 
 interface TestingHours {
   morning?: { start: string; end: string };
   afternoon?: { start: string; end: string };
 }
 
-export default function DetailService({ serviceId }: { serviceId: string }) {
+export default function DetailService({
+  serviceId,
+  accessToken,
+}: {
+  serviceId: string;
+  accessToken?: string | null;
+}) {
   const [service, setService] = useState<CustomService | null>(null);
   const [consultants, setConsultants] = useState<Consultant[]>([]);
   const [loading, setLoading] = useState(true);
@@ -105,7 +112,9 @@ export default function DetailService({ serviceId }: { serviceId: string }) {
           </h1>
           <div className="flex items-center gap-4 mb-6">
             <span className="bg-primary-100 text-primary-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded-full">
-              {service.category}
+              {categories
+                .filter((cat) => cat.value === service.category)
+                .map((cate) => cate.label) || service.category}
             </span>
             <span>
               <Badge
@@ -181,6 +190,7 @@ export default function DetailService({ serviceId }: { serviceId: string }) {
               </div>
             </div>
             <BookingTrigger
+              accessToken={accessToken}
               service={service}
               consultants={consultants}
               schedules={consultants.flatMap((c) => c.schedules || [])}
