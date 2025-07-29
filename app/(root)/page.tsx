@@ -1,3 +1,4 @@
+import ScrollToCheckResultButton from "@/app/(root)/ScrollToCheckResultButton";
 import { auth } from "@/auth";
 import BlogHome from "@/components/home/Blogs";
 import CheckResults from "@/components/home/CheckResults";
@@ -71,17 +72,21 @@ export default async function Home({
     <div>
       <section className="pink_container">
         <h1 className="heading">
-          Menstrual Cycle, <br />
-          Sexual Health Care
+          Theo dõi chu kỳ kinh nguyệt, <br />
+          Dịch vụ chăm sóc sức khỏe giới tính
         </h1>
 
         <p className="sub-heading !max-w-3xl">
-          Easy to follow menstrual cycle with automatic system, update sexual
-          health knowledge by blogs, meet professional consultant, personal
-          information confidential, fast payment, and more.
+          Dễ dàng theo dõi chu kỳ kinh nguyệt với hệ thống tự động, cập nhật
+          kiến thức sức khỏe sinh sản qua các bài viết, gặp gỡ chuyên gia tư
+          vấn, thông tin cá nhân bảo mật, thanh toán nhanh chóng và nhiều hơn
+          nữa.
         </p>
 
         <SearchForm query={query} />
+        <div className="flex justify-center my-6">
+          <ScrollToCheckResultButton />
+        </div>
       </section>
       <MaxWidthWrapper>
         {/* <section className="section_container">
@@ -102,7 +107,9 @@ export default async function Home({
 
         <Hero />
         <BlogHome blogs={blogs} />
-        <CheckResults />
+        <div id="check-result" className="scroll-mt-36">
+          <CheckResults />
+        </div>
         <Features />
       </MaxWidthWrapper>
     </div>
