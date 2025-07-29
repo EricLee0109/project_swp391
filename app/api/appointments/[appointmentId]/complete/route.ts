@@ -25,13 +25,29 @@ export async function POST(
       );
     }
 
-    console.log("API /appointments/[appointmentId]/start called with appointmentId:", appointmentId); // Debug log
+    // Get request body
+    const body = await req.json();
+    console.log("API /appointments/[appointmentId]/complete called with:", {
+      appointmentId,
+      body
+    });
+
+    // Validate consultation_notes
+    if (!body.consultation_notes || body.consultation_notes.trim() === "") {
+      return NextResponse.json(
+        { message: "Consultation notes are required" },
+        { status: 400 }
+      );
+    }
 
     const beRes = await fetch(
       `${process.env.BE_BASE_URL}/appointments/${appointmentId}/complete`,
       {
         method: "POST",
         headers,
+        body: JSON.stringify({
+          consultation_notes: body.consultation_notes.trim()
+        }),
       }
     );
 
