@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -11,26 +14,54 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { MoreHorizontal } from "lucide-react";
-
-import { toast } from "sonner";
-import { ConsultantGetAll } from "@/types/user/CustomServiceType"; // ✅ đúng type
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { useState } from "react";
+import { MoreHorizontal } from "lucide-react";
+import { toast } from "sonner";
+import { ConsultantGetAll } from "@/types/user/CustomServiceType";
 import Image from "next/image";
+import { ViewCreatedCalendar } from "@/types/ViewCreatedCalendar/ViewCreatedCalendar";
+import { getAvailableSchedulesByConsultant } from "@/app/api/dashboard/ViewCreatedCalendar/action";
+import { DataTable } from "../../ViewCreatedCalendar/consultant-listing/data-table";
+import { columns } from "../../ViewCreatedCalendar/consultant-listing/columns";
 
 interface ActionUserProps {
-  user: ConsultantGetAll; // ✅ chuẩn
-  onRoleChanged?: () => void;
+  user: ConsultantGetAll;
+  onRoleChanged: () => void;
 }
 
-export function ActionConsultant({ user,  }: ActionUserProps) {
+export function ActionConsultant({ user }: ActionUserProps) {
   const [showDetail, setShowDetail] = useState(false);
+  const [showSchedules, setShowSchedules] = useState(false);
+  const [schedules, setSchedules] = useState<ViewCreatedCalendar[]>([]);
+  const [loading, setLoading] = useState(false);
+  const itemsPerPage = 10;
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const paginatedSchedules = schedules.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  const handleViewSchedules = async () => {
+    setShowSchedules(true);
+    setLoading(true);
+    try {
+      const data = await getAvailableSchedulesByConsultant(
+        user.consultant.consultant_id
+      );
+      if (data) setSchedules(data);
+      else toast.error("Không thể lấy danh sách lịch.");
+    } catch {
+      toast.error("Lỗi khi tải lịch.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <>
@@ -47,7 +78,7 @@ export function ActionConsultant({ user,  }: ActionUserProps) {
 
           <DropdownMenuItem
             onClick={() => {
-              navigator.clipboard.writeText(user.user_id);
+              navigator.clipboard.writeText(user.consultant.consultant_id);
               toast.success("Đã sao chép ID tài khoản.");
             }}
           >
@@ -58,6 +89,10 @@ export function ActionConsultant({ user,  }: ActionUserProps) {
 
           <DropdownMenuItem onClick={() => setShowDetail(true)}>
             Xem chi tiết tài khoản
+          </DropdownMenuItem>
+
+          <DropdownMenuItem onClick={handleViewSchedules}>
+            Xem danh sách lịch hẹn
           </DropdownMenuItem>
 
           <DropdownMenuSub>
@@ -88,15 +123,13 @@ export function ActionConsultant({ user,  }: ActionUserProps) {
         </DropdownMenuContent>
       </DropdownMenu>
 
-      {/* 👇 Modal chi tiết tài khoản */}
+      {/* Modal chi tiết tài khoản */}
       <Dialog open={showDetail} onOpenChange={setShowDetail}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle>Chi tiết tài khoản</DialogTitle>
           </DialogHeader>
-
           <div className="flex items-start gap-6">
-            {/* Avatar */};
             <div className="flex-shrink-0">
               {user.image ? (
                 <Image
@@ -112,12 +145,8 @@ export function ActionConsultant({ user,  }: ActionUserProps) {
                 </div>
               )}
             </div>
-            {/* Thông tin tài khoản */}
             <div className="flex-1 space-y-4 text-sm">
               <div className="grid grid-cols-2 gap-2">
-                <p>
-                  <span className="font-medium">ID:</span> {user.user_id}
-                </p>
                 <p>
                   <span className="font-medium">Email:</span> {user.email}
                 </p>
@@ -183,6 +212,31 @@ export function ActionConsultant({ user,  }: ActionUserProps) {
               </div>
             </div>
           </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Modal xem lịch hẹn */}
+      <Dialog open={showSchedules} onOpenChange={setShowSchedules}>
+        <DialogContent className="max-w-4xl">
+          <DialogHeader>
+            <DialogTitle>Lịch hẹn của {user.full_name}</DialogTitle>
+          </DialogHeader>
+          {loading ? (
+            <div className="text-center text-sm py-6">Đang tải dữ liệu...</div>
+          ) : schedules.length === 0 ? (
+            <div className="text-center text-sm py-6">
+              Không có lịch hẹn nào.
+            </div>
+          ) : (
+            <DataTable
+              columns={columns()}
+              data={paginatedSchedules} // ✅ chỉ hiển thị theo trang
+              pageIndex={currentPage - 1} // ✅ vì DataTable dùng index 0-based
+              pageSize={itemsPerPage}
+              total={schedules.length}
+              onPageChange={(page) => setCurrentPage(page)} // ✅ cập nhật trang
+            />
+          )}
         </DialogContent>
       </Dialog>
     </>

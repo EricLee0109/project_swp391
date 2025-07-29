@@ -141,6 +141,7 @@ export function AppSidebarClient({ user, ...props }: AppSidebarClientProps) {
               },
             ],
           },
+            
         ];
 
       case "Consultant":

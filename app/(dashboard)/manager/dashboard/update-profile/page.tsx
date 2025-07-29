@@ -3,8 +3,6 @@
 import UpdateProfileDashboard from "@/components/dashboard/components/profile-dashboard/UpdateProfileDashboard";
 
 
-
-
 export default function UpdateProfilePage() {
   return (
     <div className="py-5 px-3">
