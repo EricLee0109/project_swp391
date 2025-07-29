@@ -1,4 +1,3 @@
-
 import {
   AvailableModeEnums,
   RoleTypeEnum,
@@ -26,6 +25,11 @@ export interface Service {
   created_at: string;
   updated_at: string;
   deleted_at: string | null;
+  consultants: {
+    consultant_id: string;
+    full_name: string;
+    email: string;
+  }[];
 }
 
 export interface StiService {

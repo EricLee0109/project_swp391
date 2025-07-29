@@ -24,6 +24,9 @@ export function ServiceBrowser() {
   const [activeFilter, setActiveFilter] = useState<string>(initialCategory);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const consultantQueryId = searchParams.get("query") || "";
+  console.log(consultantQueryId, "query");
+
   useEffect(() => {
     const fetchServices = async () => {
       try {
@@ -31,15 +34,34 @@ export function ServiceBrowser() {
         if (!res.ok) throw new Error("Failed to fetch services");
         const data: RawService[] = await res.json();
         console.log("Fetched services:", data);
-        const activeServices: Service[] = data
-          .filter((service) => service.is_active)
-          .map((service) => ({
-            ...service,
-            price: service.price,
-            type: service.type as ServiceTypeEnums,
-            available_modes: service.available_modes as AvailableModeEnums[],
-            daily_capacity: service.daily_capacity ?? 0, // Gán 0 nếu null
-          }));
+        let activeServices: Service[] = [];
+        if (!consultantQueryId) {
+          activeServices = data
+            .filter((service) => service.is_active)
+            .map((service) => ({
+              ...service,
+              price: service.price,
+              type: service.type as ServiceTypeEnums,
+              available_modes: service.available_modes as AvailableModeEnums[],
+              daily_capacity: service.daily_capacity ?? 0, // Gán 0 nếu null
+            }));
+        } else {
+          activeServices = data
+            .filter(
+              (service) =>
+                service.is_active &&
+                service.consultants?.some(
+                  (c) => c.consultant_id === consultantQueryId
+                )
+            )
+            .map((service) => ({
+              ...service,
+              price: service.price,
+              type: service.type as ServiceTypeEnums,
+              available_modes: service.available_modes as AvailableModeEnums[],
+              daily_capacity: service.daily_capacity ?? 0, // Gán 0 nếu null
+            }));
+        }
         setServices(activeServices);
         setError(null);
       } catch (error) {
@@ -50,7 +72,7 @@ export function ServiceBrowser() {
       }
     };
     fetchServices();
-  }, []);
+  }, [consultantQueryId]);
 
   const categories: string[] = [
     "All",
@@ -113,6 +135,7 @@ export function ServiceBrowser() {
                 available_modes: service.available_modes.map((mode) =>
                   mode === AvailableModeEnums.AT_HOME ? "AT_HOME" : "AT_CLINIC"
                 ),
+                consultants: service.consultants ?? [], // Ensure consultants is provided
               }}
             />
           ))

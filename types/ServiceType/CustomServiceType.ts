@@ -7,12 +7,20 @@ export interface CustomService {
   is_active: boolean;
   type: string;
   available_modes: ("AT_HOME" | "AT_CLINIC")[];
-  testing_hours: { morning?: { start: string; end: string }; afternoon?: { start: string; end: string } } | null;
+  testing_hours: {
+    morning?: { start: string; end: string };
+    afternoon?: { start: string; end: string };
+  } | null;
   daily_capacity: number | null; // Đổi thành number | null
   return_address: string | null;
   return_phone: string | null;
   created_at: string;
   updated_at: string;
+  consultants: {
+    consultant_id: string;
+    full_name: string;
+    email: string;
+  }[];
 }
 
 export interface Consultant {
