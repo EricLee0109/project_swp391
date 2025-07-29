@@ -70,12 +70,13 @@ const HealthServiceListingPage = () => {
 
   return (
     <div className="flex flex-col h-full">
-      <div className="p-5 flex-1 overflow-auto ">
-        <ToolsPanel
-          onSearch={(q) => setSearchQuery(q)}
-          onTypeChange={(cat) => setSelectedCategory(cat)}
-        />
-        <div className="flex justify-end mb-4">
+      <div className="p-5 flex-1 overflow-auto">
+        <div className="flex justify-between items-center mb-4 gap-4">
+          <ToolsPanel
+            onSearch={(q) => setSearchQuery(q)}
+            onTypeChange={(cat) => setSelectedCategory(cat)}
+          />
+
           <HealthServicesForm
             isOpen={isCreateDialogOpen}
             onClose={() => {
@@ -88,6 +89,7 @@ const HealthServiceListingPage = () => {
             serviceToEdit={serviceToEdit}
           />
         </div>
+
         <DataTable
           columns={columns}
           data={currentData}
@@ -98,6 +100,7 @@ const HealthServiceListingPage = () => {
           setServiceToEdit={setServiceToEdit}
         />
       </div>
+
       <div>
         <PaginationDashboard
           page={currentPage}
