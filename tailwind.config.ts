@@ -16,17 +16,17 @@ const config: Config = {
         xs: "475px",
       },
       colors: {
-        primary: {
-          "100": "#E8FFF0",
-          "300": "#B3E6C3",
-          "500": "#6DF3A2",
-          DEFAULT: "#2BEE69",
-        },
         // primary: {
-        //   "100": "#FFE8F0",
-        //   "500": "#F36DA2",
-        //   DEFAULT: "#EE2B69",
+        //   "100": "#E8FFF0",
+        //   "300": "#B3E6C3",
+        //   "500": "#6DF3A2",
+        //   DEFAULT: "#2BEE69",
         // },
+        primary: {
+          "100": "#FFE8F0",
+          "500": "#F36DA2",
+          DEFAULT: "#EE2B69",
+        },
         secondary: "#FBE843",
         black: {
           "100": "#333333",
