@@ -378,43 +378,9 @@ export default function MenstrualCycleTracker() {
           />
         )}
 
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 items-start">
-          {/* Trái: vòng chu kỳ */}
-          <div className="lg:col-span-3 flex items-center justify-center p-6">
-            <div className="relative w-64 h-64 sm:w-80 sm:h-80">
-              <div
-                className="w-full h-full rounded-full"
-                style={{ background: conicGradient }}
-              />
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[70%] h-[70%] bg-gray-50 dark:bg-gray-900 rounded-full" />
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center justify-center text-center">
-                <span className="text-sm text-gray-500 dark:text-gray-400">
-                  Ngày
-                </span>
-                <span className="text-6xl font-bold text-gray-800 dark:text-gray-200">
-                  {currentDay}
-                </span>
-                <Badge
-                  variant="secondary"
-                  className={`mt-2 ${currentPhaseInfo.textColor} bg-slate-100`}
-                >
-                  {currentPhaseInfo.name}
-                </Badge>
-              </div>
-              <div
-                className="absolute top-0 left-2 -translate-x-1/2 w-full h-full transition-transform duration-500"
-                style={{
-                  transform: `rotate(${
-                    ((currentDay - 1) / cycleLength) * 360 - 90
-                  }deg)`,
-                }}
-              >
-                <div className="absolute top-[-8px] left-1/2 -translate-x-1/2 w-4 h-4 bg-white dark:bg-gray-800 rounded-full border-4 border-blue-500 shadow-lg" />
-              </div>
-            </div>
-          </div>
-          {/* Phải: Info & Calendar */}
-          <div className="lg:col-span-2 space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-start">
+          {/* Info */}
+          <div className="space-y-6">
             <Card className="shadow-lg dark:bg-gray-800/50">
               <CardHeader>
                 <div className="flex justify-between items-start">
@@ -458,7 +424,43 @@ export default function MenstrualCycleTracker() {
                 </ul>
               </CardContent>
             </Card>
-
+          </div>
+          {/* Center: vòng chu kỳ */}
+          <div className="flex items-center justify-center p-1">
+            <div className="relative w-64 h-64 sm:w-80 sm:h-80">
+              <div
+                className="w-full h-full rounded-full"
+                style={{ background: conicGradient }}
+              />
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[70%] h-[70%] bg-gray-50 dark:bg-gray-900 rounded-full" />
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center justify-center text-center">
+                <span className="text-sm text-gray-500 dark:text-gray-400">
+                  Ngày
+                </span>
+                <span className="text-6xl font-bold text-gray-800 dark:text-gray-200">
+                  {currentDay}
+                </span>
+                <Badge
+                  variant="secondary"
+                  className={`mt-2 ${currentPhaseInfo.textColor} bg-slate-100`}
+                >
+                  {currentPhaseInfo.name}
+                </Badge>
+              </div>
+              <div
+                className="absolute top-0 left-2 -translate-x-1/2 w-full h-full transition-transform duration-500"
+                style={{
+                  transform: `rotate(${
+                    ((currentDay - 1) / cycleLength) * 360 - 90
+                  }deg)`,
+                }}
+              >
+                <div className="absolute top-[-8px] left-1/2 -translate-x-1/2 w-4 h-4 bg-white dark:bg-gray-800 rounded-full border-4 border-blue-500 shadow-lg" />
+              </div>
+            </div>
+          </div>
+          {/* Calendar */}
+          <div>
             <CycleCalendar
               key={cycleId || "no-cycle"}
               selectedDate={selectedDate}

@@ -43,7 +43,8 @@ const batchFormSchema = z.object({
   startTime: z.string().min(1, "Chọn giờ bắt đầu"),
   endDate: z.date({ required_error: "Chọn ngày kết thúc" }),
   endTime: z.string().min(1, "Chọn giờ kết thúc"),
-  durationMinutes: z.number()
+  durationMinutes: z
+    .number()
     .min(15, "Thời lượng tối thiểu 15 phút")
     .max(120, "Thời lượng tối đa 120 phút"),
   serviceId: z.string().min(1, "Chọn dịch vụ"),
@@ -63,7 +64,10 @@ interface CreateScheduleProps {
   onScheduleCreated?: () => void;
 }
 
-export default function CreateSchedule({ serverAccessToken, onScheduleCreated }: CreateScheduleProps) {
+export default function CreateSchedule({
+  serverAccessToken,
+  onScheduleCreated,
+}: CreateScheduleProps) {
   const [open, setOpen] = React.useState(false);
   const [activeTab, setActiveTab] = React.useState("single");
   const [openStart, setOpenStart] = React.useState(false);
@@ -116,7 +120,13 @@ export default function CreateSchedule({ serverAccessToken, onScheduleCreated }:
   // Calculate estimated slots for batch creation
   const calculateEstimatedSlots = () => {
     const values = batchForm.getValues();
-    if (!values.startDate || !values.endDate || !values.startTime || !values.endTime || !values.durationMinutes) {
+    if (
+      !values.startDate ||
+      !values.endDate ||
+      !values.startTime ||
+      !values.endTime ||
+      !values.durationMinutes
+    ) {
       return 0;
     }
 
@@ -241,8 +251,8 @@ export default function CreateSchedule({ serverAccessToken, onScheduleCreated }:
       <Label>{label}</Label>
       <div className="flex gap-4">
         <div className="flex flex-col gap-2">
-          <Popover 
-            open={isStart ? openStart : openEnd} 
+          <Popover
+            open={isStart ? openStart : openEnd}
             onOpenChange={isStart ? setOpenStart : setOpenEnd}
           >
             <PopoverTrigger asChild>
@@ -324,7 +334,7 @@ export default function CreateSchedule({ serverAccessToken, onScheduleCreated }:
     <div className="mb-6">
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>
-          <Button onClick={() => setOpen(true)}>Tạo lịch mớir</Button>
+          <Button onClick={() => setOpen(true)}>Tạo lịch mới</Button>
         </DialogTrigger>
         <DialogContent className="sm:max-w-2xl">
           <DialogHeader>
@@ -361,9 +371,24 @@ export default function CreateSchedule({ serverAccessToken, onScheduleCreated }:
 
           {/* Single Schedule Form */}
           {activeTab === "single" && (
-            <form onSubmit={singleForm.handleSubmit(onSubmitSingle)} className="grid gap-4 py-4">
-              {renderDateTimePicker(singleForm, "startDate", "startTime", "Ngày bắt đầu", true)}
-              {renderDateTimePicker(singleForm, "endDate", "endTime", "Ngày kết thúc", false)}
+            <form
+              onSubmit={singleForm.handleSubmit(onSubmitSingle)}
+              className="grid gap-4 py-4"
+            >
+              {renderDateTimePicker(
+                singleForm,
+                "startDate",
+                "startTime",
+                "Ngày bắt đầu",
+                true
+              )}
+              {renderDateTimePicker(
+                singleForm,
+                "endDate",
+                "endTime",
+                "Ngày kết thúc",
+                false
+              )}
               {renderServiceSelect(singleForm)}
 
               <DialogFooter>
@@ -376,19 +401,38 @@ export default function CreateSchedule({ serverAccessToken, onScheduleCreated }:
 
           {/* Batch Schedule Form */}
           {activeTab === "batch" && (
-            <form onSubmit={batchForm.handleSubmit(onSubmitBatch)} className="grid gap-4 py-4">
-              {renderDateTimePicker(batchForm, "startDate", "startTime", "Thời gian bắt đầu", true)}
-              {renderDateTimePicker(batchForm, "endDate", "endTime", "Thời gian kết thúc", false)}
-              
+            <form
+              onSubmit={batchForm.handleSubmit(onSubmitBatch)}
+              className="grid gap-4 py-4"
+            >
+              {renderDateTimePicker(
+                batchForm,
+                "startDate",
+                "startTime",
+                "Thời gian bắt đầu",
+                true
+              )}
+              {renderDateTimePicker(
+                batchForm,
+                "endDate",
+                "endTime",
+                "Thời gian kết thúc",
+                false
+              )}
+
               <div className="grid gap-2">
-                <Label htmlFor="durationMinutes">Thời lượng mỗi slot (phút)</Label>
+                <Label htmlFor="durationMinutes">
+                  Thời lượng mỗi slot (phút)
+                </Label>
                 <Input
                   id="durationMinutes"
                   type="number"
                   min="15"
                   max="120"
                   step="15"
-                  {...batchForm.register("durationMinutes", { valueAsNumber: true })}
+                  {...batchForm.register("durationMinutes", {
+                    valueAsNumber: true,
+                  })}
                   className="bg-background"
                 />
                 {batchForm.formState.errors.durationMinutes && (
@@ -404,7 +448,7 @@ export default function CreateSchedule({ serverAccessToken, onScheduleCreated }:
               {renderServiceSelect(batchForm)}
 
               {/* Estimated slots preview */}
-              <div className="p-3 bg-blue-50 rounded-lg border">
+              {/* <div className="p-3 bg-blue-50 rounded-lg border">
                 <div className="flex items-center gap-2 text-sm font-medium text-blue-700">
                   <Clock className="h-4 w-4" />
                   Dự kiến tạo: {calculateEstimatedSlots()} lịch trống
@@ -412,11 +456,13 @@ export default function CreateSchedule({ serverAccessToken, onScheduleCreated }:
                 <p className="text-xs text-blue-600 mt-1">
                   Hệ thống sẽ tự động chia thành các slot {batchForm.watch("durationMinutes")} phút
                 </p>
-              </div>
+              </div> */}
 
               <DialogFooter>
                 <Button type="submit" disabled={isSubmitting}>
-                  {isSubmitting ? "Đang tạo..." : `Tạo ${calculateEstimatedSlots()} lịch trống`}
+                  {isSubmitting
+                    ? "Đang tạo..."
+                    : `Tạo ${calculateEstimatedSlots()} lịch trống`}
                 </Button>
               </DialogFooter>
             </form>

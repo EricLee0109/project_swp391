@@ -1,7 +1,15 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Home, Hospital, CheckCircle2, Info, Users, Clock } from "lucide-react";
+import {
+  Home,
+  Hospital,
+  CheckCircle2,
+  Info,
+  Users,
+  Clock,
+  Globe,
+} from "lucide-react";
 import { BookingTrigger } from "@/components/healthServices/BookingTrigger";
 import { DetailItem } from "@/components/healthServices/DetailItem";
 import {
@@ -11,7 +19,6 @@ import {
 import LoadingSkeleton from "@/app/(dashboard)/admin/dashboard/healthServices/loading";
 import { getTypeBadgeVariant } from "@/components/dashboard/components/appointment/helpers";
 import { Badge } from "@/components/ui/badge";
-import { categories } from "@/types/categories";
 
 interface TestingHours {
   morning?: { start: string; end: string };
@@ -41,8 +48,8 @@ export default function DetailService({
           price: data.service.price,
           daily_capacity: data.service.daily_capacity ?? 0, // Gán 0 nếu null
           available_modes: data.service.available_modes.filter((mode: string) =>
-            ["AT_HOME", "AT_CLINIC"].includes(mode)
-          ) as ("AT_HOME" | "AT_CLINIC")[],
+            ["AT_HOME", "AT_CLINIC", "ONLINE"].includes(mode)
+          ) as ("AT_HOME" | "AT_CLINIC" | "ONLINE")[],
         });
         setConsultants(data.consultants || []);
       } catch {
@@ -112,9 +119,7 @@ export default function DetailService({
           </h1>
           <div className="flex items-center gap-4 mb-6">
             <span className="bg-primary-100 text-primary-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded-full">
-              {categories
-                .filter((cat) => cat.value === service.category)
-                .map((cate) => cate.label) || service.category}
+              {service.category}
             </span>
             <span>
               <Badge
@@ -185,6 +190,12 @@ export default function DetailService({
                   <div className="flex items-center gap-2 text-gray-600">
                     <Home size={20} className="text-teal-600" />
                     <span>Tại nhà</span>
+                  </div>
+                )}
+                {service.available_modes.includes("ONLINE") && (
+                  <div className="flex items-center gap-2 text-gray-600">
+                    <Globe size={20} className="text-teal-600" />
+                    <span>Trực tuyến</span>
                   </div>
                 )}
               </div>

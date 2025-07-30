@@ -234,9 +234,7 @@ export default function QuestionSection({
                   <div className="space-y-2 space-x-2">
                     <Label htmlFor="category">Danh mục câu hỏi *</Label>
                     <Badge className="bg-blue-200 text-blue-500 hover:bg-blue-300 hover:text-blue-600 transition-colors duration-300">
-                      {categories
-                        .filter((cat) => cat.value === specialization)
-                        .map((cate) => cate.label) || specialization}
+                      {specialization}
                     </Badge>
                   </div>
                 )}

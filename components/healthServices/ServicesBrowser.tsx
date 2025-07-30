@@ -133,7 +133,11 @@ export function ServiceBrowser() {
                 ...service,
                 type: service.type as string, // Chuyển type để khớp với CustomService
                 available_modes: service.available_modes.map((mode) =>
-                  mode === AvailableModeEnums.AT_HOME ? "AT_HOME" : "AT_CLINIC"
+                  mode === AvailableModeEnums.AT_HOME
+                    ? "AT_HOME"
+                    : mode === AvailableModeEnums.AT_CLINIC
+                    ? "AT_CLINIC"
+                    : "ONLINE"
                 ),
                 consultants: service.consultants ?? [], // Ensure consultants is provided
               }}

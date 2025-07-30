@@ -24,24 +24,23 @@ export default function MenstrualCyclePage() {
     checkCycles();
   }, [setupKey]);
 
-
   // Khi setup xong thì hiển thị tracker (không reload trang)
   const handleCloseSetup = (cycleCreated?: boolean) => {
     if (cycleCreated) {
-      setSetupKey(k => k + 1); // force lại useEffect => fetch lại data
+      setSetupKey((k) => k + 1); // force lại useEffect => fetch lại data
       setHasCycle(true);
     }
   };
 
   if (loading) return null; // hoặc spinner
 
-return (
-  <div className="h-screen ">
-    {hasCycle ? (
-      <MenstrualCycleTracker key={setupKey} />
-    ) : (
-      <MenstrualCycleSetup onClose={handleCloseSetup} />
-    )}
-  </div>
-);
+  return (
+    <div className="h-screen">
+      {hasCycle ? (
+        <MenstrualCycleTracker key={setupKey} />
+      ) : (
+        <MenstrualCycleSetup onClose={handleCloseSetup} />
+      )}
+    </div>
+  );
 }

@@ -6,7 +6,7 @@ export interface CustomService {
   description: string;
   is_active: boolean;
   type: string;
-  available_modes: ("AT_HOME" | "AT_CLINIC")[];
+  available_modes: ("AT_HOME" | "AT_CLINIC" | "ONLINE")[];
   testing_hours: {
     morning?: { start: string; end: string };
     afternoon?: { start: string; end: string };
@@ -61,7 +61,7 @@ export interface CreateStiAppointmentDto {
   session: "morning" | "afternoon";
   location: string;
   category: string;
-  selected_mode: "AT_HOME" | "AT_CLINIC";
+  selected_mode: "AT_HOME" | "AT_CLINIC" | "ONLINE";
   contact_name?: string;
   contact_phone?: string;
   shipping_address?: string;

@@ -2,7 +2,7 @@ import { z } from "zod";
 
 export const stiFormServiceSchema = z.object({
   serviceId: z.string().min(1, "Vui lòng nhập ID dịch vụ"),
-  selected_mode: z.enum(["AT_HOME", "AT_CLINIC"], {
+  selected_mode: z.enum(["AT_HOME", "AT_CLINIC", "ONLINE"], {
     errorMap: () => ({ message: "Vui lòng chọn hình thức dịch vụ" }),
   }),
   date: z
@@ -25,9 +25,10 @@ export const createShippingSchema = z.object({
   contact_phone: z.string().regex(/^(\+84|0[35789])[0-9]{8}$/, {
     message: "Invalid Vietnamese phone number.",
   }),
-shipping_address: z.string()
-  .min(1, "Địa chỉ không được để trống")
-  .max(255, "Địa chỉ quá dài"),
+  shipping_address: z
+    .string()
+    .min(1, "Địa chỉ không được để trống")
+    .max(255, "Địa chỉ quá dài"),
   province: z.string().min(2, { message: "Province is required." }),
   district: z.string().min(2, { message: "District is required." }),
   ward: z.string().min(2, { message: "Ward is required." }),

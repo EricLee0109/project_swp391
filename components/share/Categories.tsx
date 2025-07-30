@@ -7,7 +7,6 @@ import {
   NavigationMenuTrigger,
 } from "../ui/navigation-menu";
 import { cn } from "@/lib/utils";
-import { categories } from "@/types/categories";
 import React, { useEffect, useState } from "react";
 
 interface CategoryItem {
@@ -75,11 +74,7 @@ const ListItem = React.forwardRef<
           )}
           {...props}
         >
-          <div className="text-sm font-medium leading-none">
-            {categories
-              .filter((cat) => cat.value === title)
-              .map((cate) => cate.label)}
-          </div>
+          <div className="text-sm font-medium leading-none">{title}</div>
           {children && (
             <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
               {children}
