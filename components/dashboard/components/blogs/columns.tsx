@@ -19,6 +19,11 @@ export const columns = ({
     {
       header: "Nội dung",
       accessorKey: "content",
+      cell: ({ row }) => (
+        <div className="max-w-[300px] overflow-hidden text-ellipsis whitespace-nowrap line-clamp-4">
+          {row.original.content}
+        </div>
+      ),
     },
     {
       header: "Phân loại",
