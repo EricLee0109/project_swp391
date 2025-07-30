@@ -13,6 +13,7 @@ import {
   CreateAppointmentDto,
 } from "@/types/ServiceType/CustomServiceType";
 import { Button } from "@/components/ui/button";
+import EmptyComments from "@/components/EmptyCommentSection";
 
 export function BookingModal({
   service,
@@ -220,25 +221,35 @@ export function BookingModal({
               </span>
             </div>
             <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-2">
-              {consultants.map((c) => (
-                <div
-                  key={c.consultant_id}
-                  onClick={() => handleConsultantSelect(c)}
-                  className="flex items-center p-4 border rounded-lg cursor-pointer hover:bg-gray-100"
-                >
-                  <Image
-                    src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTHfd3PPulVSp4ZbuBFNkePoUR_fLJQe474Ag&s"
-                    alt={c.full_name || ""}
-                    width={48}
-                    height={48}
-                    className="rounded-full mr-4"
-                  />
-                  <div className="flex-grow">
-                    <p className="font-bold">{c.full_name}</p>
-                    <p className="text-sm text-gray-500">{c.specialization}</p>
+              {consultants && consultants.length > 0 ? (
+                consultants.map((c) => (
+                  <div
+                    key={c.consultant_id}
+                    onClick={() => handleConsultantSelect(c)}
+                    className="flex items-center p-4 border rounded-lg cursor-pointer hover:bg-gray-100"
+                  >
+                    <Image
+                      src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTHfd3PPulVSp4ZbuBFNkePoUR_fLJQe474Ag&s"
+                      alt={c.full_name || ""}
+                      width={48}
+                      height={48}
+                      className="rounded-full mr-4"
+                    />
+                    <div className="flex-grow">
+                      <p className="font-bold">{c.full_name}</p>
+                      <p className="text-sm text-gray-500">
+                        {c.specialization}
+                      </p>
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))
+              ) : (
+                <EmptyComments
+                  title="Không có tư vấn viên nào!"
+                  description="Vui lòng thử lại sau."
+                  showActionButton={false}
+                />
+              )}
             </div>
           </div>
         )}
