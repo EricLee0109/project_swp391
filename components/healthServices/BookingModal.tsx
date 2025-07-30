@@ -3,7 +3,7 @@
 import { StiTestBookingForm } from "@/components/healthServices/appoinmentBookingType/StiServiceForm";
 import { notify } from "@/lib/toastNotify";
 import { formatDate } from "@/lib/utils";
-import { ArrowLeft, Users, Video } from "lucide-react";
+import { ArrowLeft, Loader2, Users, Video } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
 import {
@@ -12,6 +12,7 @@ import {
   Schedule,
   CreateAppointmentDto,
 } from "@/types/ServiceType/CustomServiceType";
+import { Button } from "@/components/ui/button";
 
 export function BookingModal({
   service,
@@ -25,16 +26,19 @@ export function BookingModal({
   onClose: () => void;
 }) {
   const [step, setStep] = useState(1);
-  const [appointment, setAppointment] = useState<Partial<CreateAppointmentDto>>({
-    service_id: service.service_id,
-    type: service.type,
-    test_code: null,
-    location: "Tại phòng khám",
-    mode: undefined, // Thêm field mode
-  });
+  const [appointment, setAppointment] = useState<Partial<CreateAppointmentDto>>(
+    {
+      service_id: service.service_id,
+      type: service.type,
+      test_code: null,
+      location: "Tại phòng khám",
+      mode: undefined, // Thêm field mode
+    }
+  );
   const [selectedTime, setSelectedTime] = useState("");
   const [selectedDate, setSelectedDate] = useState("");
   const [stiAppointmentId, setStiAppointmentId] = useState<string>("");
+  const [loading, setLoading] = useState(false);
 
   const handleModeSelect = (mode: "AT_CLINIC" | "ONLINE") => {
     setAppointment((prev) => ({
@@ -61,6 +65,7 @@ export function BookingModal({
   };
 
   const createAppointment = async () => {
+    setLoading(true);
     if (
       !appointment.consultant_id ||
       !appointment.schedule_id ||
@@ -111,6 +116,8 @@ export function BookingModal({
     } catch (error) {
       console.error("Lỗi khi tạo lịch hẹn:", error);
       notify("error", "Không thể tạo lịch hẹn. Vui lòng thử lại.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -172,7 +179,7 @@ export function BookingModal({
                   </p>
                 </div>
               </div>
-              
+
               <div
                 onClick={() => handleModeSelect("ONLINE")}
                 className="flex items-center p-6 border-2 rounded-lg cursor-pointer hover:bg-gray-50 hover:border-blue-500 transition-all duration-200 group"
@@ -361,12 +368,22 @@ export function BookingModal({
                 />
               </div>
             </div>
-            <button
-              onClick={createAppointment}
-              className="w-full mt-6 bg-primary text-white font-bold py-3 px-4 rounded-lg hover:bg-primary-600"
-            >
-              Xác nhận đặt lịch
-            </button>
+            <div className="flex justify-end mt-3">
+              <Button
+                onClick={createAppointment}
+                disabled={loading}
+                type="submit"
+                className="w-1/2 bg-primary mr-0 text-white font-bold py-3 px-4 rounded-lg hover:bg-red-600 hover:text-red-100 transition-colors duration-300 shadow-lg"
+              >
+                {!loading ? (
+                  <div>Đặt lịch</div>
+                ) : (
+                  <div>
+                    <Loader2 size={15} className="animate-spin" />
+                  </div>
+                )}
+              </Button>
+            </div>
           </div>
         )}
       </div>
