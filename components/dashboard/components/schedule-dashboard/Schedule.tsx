@@ -62,7 +62,10 @@ export default function Schedule({
   const fetchSchedules = async () => {
     try {
       if (!serverAccessToken) throw new Error("No access token found");
-      console.log("Fetching schedules with token:", serverAccessToken.substring(0, 10) + "...");
+      console.log(
+        "Fetching schedules with token:",
+        serverAccessToken.substring(0, 10) + "..."
+      );
 
       const res = await fetch("/api/schedules", {
         headers: {
@@ -226,8 +229,8 @@ export default function Schedule({
               {error
                 ? error
                 : schedules
-                  ? `${filteredSchedules.length} lịch`
-                  : "Đang tải..."}
+                ? `${filteredSchedules.length} lịch`
+                : "Đang tải..."}
             </span>
           </CardTitle>
         </CardHeader>
@@ -256,7 +259,9 @@ export default function Schedule({
                   </p>
                   <div className="text-sm text-muted-foreground">
                     Dịch vụ:{" "}
-                    <Badge>{schedule.service?.name || "Unknown Service"}</Badge>
+                    <Badge className="text-white">
+                      {schedule.service?.name || "Unknown Service"}
+                    </Badge>
                   </div>
                 </div>
                 <div className="flex flex-col items-end gap-2">
@@ -270,11 +275,21 @@ export default function Schedule({
                   </div>
                   {schedule.appointmentStatus ? (
                     <div className="text-sm text-gray-600">
-                      <p><strong>Trạng thái:</strong> {getVietnameseStatus(schedule.appointmentStatus.status)}</p>
-                      <p><strong>Trạng thái thanh toán:</strong> {getVietnamesePaymentStatus(schedule.appointmentStatus.payment_status)}</p>
+                      <p>
+                        <strong>Trạng thái:</strong>{" "}
+                        {getVietnameseStatus(schedule.appointmentStatus.status)}
+                      </p>
+                      <p>
+                        <strong>Trạng thái thanh toán:</strong>{" "}
+                        {getVietnamesePaymentStatus(
+                          schedule.appointmentStatus.payment_status
+                        )}
+                      </p>
                     </div>
                   ) : (
-                    <p className="text-sm text-gray-500">Chưa có thông tin lịch hẹn</p>
+                    <p className="text-sm text-gray-500">
+                      Chưa có thông tin lịch hẹn
+                    </p>
                   )}
                   <PaymentActionsDropdown
                     scheduleId={schedule.schedule_id}
