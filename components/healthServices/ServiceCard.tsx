@@ -4,7 +4,7 @@ import { getTypeBadgeVariant } from "@/components/dashboard/components/appointme
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { CustomService } from "@/types/ServiceType/CustomServiceType";
-import { Globe, Home, Hospital } from "lucide-react";
+import { ArrowRight, Globe, Home, Hospital } from "lucide-react";
 import Link from "next/link";
 
 interface ServiceCardProps {
@@ -20,8 +20,8 @@ export const ServiceCard: React.FC<ServiceCardProps> = ({ service }) => {
   }).format(parseInt(service.price, 10));
 
   return (
-    <div className="bg-white rounded-2xl shadow-lg border-red-200 overflow-hidden transition-transform duration-300 ease-in-out hover:scale-[1.02] hover:shadow-2xl">
-      <div className="p-5">
+    <div className="bg-white rounded-2xl shadow-lg border-red-200 overflow-hidden transition-transform duration-300 ease-in-out hover:scale-[1.02] hover:shadow-2xl flex flex-col">
+      <div className="p-5 flex-1">
         <div className="flex justify-between items-start">
           <h3 className="text-xl font-bold text-gray-800 mb-2 line-clamp-1">
             {service.name}
@@ -48,7 +48,7 @@ export const ServiceCard: React.FC<ServiceCardProps> = ({ service }) => {
 
         <div className="flex items-center text-sm text-gray-500 mb-4">
           <span className="font-semibold mr-2">Hình thức:</span>
-          <div className="flex gap-2">
+          <div className="flex gap-2 flex-wrap">
             {service.available_modes.includes("AT_HOME") && (
               <div className="flex items-center gap-1 bg-teal-50 text-teal-700 px-2 py-1 rounded-full text-xs">
                 <Home size={14} />
@@ -71,15 +71,19 @@ export const ServiceCard: React.FC<ServiceCardProps> = ({ service }) => {
         </div>
       </div>
 
-      <div className="max-h-24 overflow-hidden bg-gray-50">
+      {/* Fixed button section */}
+      <div className="p-4">
         <Button
-          className="w-full bg-primary text-white font-bold rounded-sm hover:bg-primary-100 hover:text-primary-500 transition-colors duration-300"
+          className="w-full bg-gradient-to-r from-primary to-pink-500 text-white font-bold rounded-xl shadow-md hover:from-pink-500 hover:to-primary hover:scale-105 hover:shadow-lg transition-all duration-300"
+          size="lg"
           asChild
         >
           <Link
             href={`/sexualHealthServices/detail?service_id=${service.service_id}`}
+            className="flex items-center justify-center gap-2"
           >
-            Chi tiết
+            <span>Chi tiết</span>
+            <ArrowRight />
           </Link>
         </Button>
       </div>
