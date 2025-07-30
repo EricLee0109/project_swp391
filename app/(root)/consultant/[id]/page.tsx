@@ -31,7 +31,6 @@ import QuestionSection from "@/components/question/QuestionsSection";
 import Breadcrumb from "@/components/share/Breadcrumb";
 import ConsultantPageHeader from "../ConsultantPageHeader";
 import Link from "next/link";
-import { categories } from "@/types/categories";
 import DirectMessageButton from "@/app/(root)/consultant/[id]/DirectMessageButton";
 
 interface DetailPageProps {
@@ -88,14 +87,7 @@ export default async function DetailPage({ params }: DetailPageProps) {
                           className="bg-white/20 text-white border-white/30"
                         >
                           <Briefcase className="w-4 h-4 mr-1" />
-                          {categories
-                            .filter(
-                              (cat) =>
-                                cat.value ===
-                                consultant.consultant.specialization
-                            )
-                            .map((cate) => cate.label) ||
-                            consultant.consultant.specialization}
+                          {consultant.consultant.specialization}
                         </Badge>
                         {consultant.consultant.is_verified && (
                           <Badge
@@ -162,12 +154,7 @@ export default async function DetailPage({ params }: DetailPageProps) {
                       Tư vấn viên này là một chuyên gia tư vấn với nhiều năm
                       kinh nghiệm trong lĩnh vực{" "}
                       <span className="font-semibold text-black-200">
-                        {categories
-                          .filter(
-                            (cat) =>
-                              cat.value === consultant.consultant.specialization
-                          )
-                          .map((consult) => consult.label)}
+                        {consultant.consultant.specialization}
                       </span>
                       .
                     </p>
@@ -207,21 +194,13 @@ export default async function DetailPage({ params }: DetailPageProps) {
                         Chuyên môn
                       </h4>
                       <div className="flex flex-wrap gap-2">
-                        {categories
-                          .filter(
-                            (category) =>
-                              category.value ===
-                              consultant.consultant.specialization
-                          )
-                          .map((category) => (
-                            <Badge
-                              key={category.value}
-                              variant="outline"
-                              className="bg-blue-50 text-blue-700 border-blue-200"
-                            >
-                              {category.label}
-                            </Badge>
-                          ))}
+                        <Badge
+                          variant="outline"
+                          className="bg-blue-50 text-blue-700 border-blue-200"
+                        >
+                          {consultant.consultant.specialization}
+                        </Badge>
+
                         {/* <Badge
                           variant="outline"
                           className="bg-green-50 text-green-700 border-green-200"

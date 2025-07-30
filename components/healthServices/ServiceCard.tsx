@@ -4,7 +4,7 @@ import { getTypeBadgeVariant } from "@/components/dashboard/components/appointme
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { CustomService } from "@/types/ServiceType/CustomServiceType";
-import { Home, Hospital } from "lucide-react";
+import { Globe, Home, Hospital } from "lucide-react";
 import Link from "next/link";
 
 interface ServiceCardProps {
@@ -33,8 +33,8 @@ export const ServiceCard: React.FC<ServiceCardProps> = ({ service }) => {
         <p className="text-gray-600 mb-4 h-12">{service.description}</p>
 
         <div className="flex items-center text-sm text-gray-500 mb-4 gap-2">
-          <span className="font-semibold mr-2">Loại dịch vụ:</span>
-          <span>{service.category}</span>
+          <span className="font-semibold mr-2">Loại:</span>
+          <span className="line-clamp-1">{service.category}</span>
           <span>
             <Badge
               className={getTypeBadgeVariant(
@@ -47,7 +47,7 @@ export const ServiceCard: React.FC<ServiceCardProps> = ({ service }) => {
         </div>
 
         <div className="flex items-center text-sm text-gray-500 mb-4">
-          <span className="font-semibold mr-2">Hình thức khám:</span>
+          <span className="font-semibold mr-2">Hình thức:</span>
           <div className="flex gap-2">
             {service.available_modes.includes("AT_HOME") && (
               <div className="flex items-center gap-1 bg-teal-50 text-teal-700 px-2 py-1 rounded-full text-xs">
@@ -59,6 +59,12 @@ export const ServiceCard: React.FC<ServiceCardProps> = ({ service }) => {
               <div className="flex items-center gap-1 bg-indigo-50 text-indigo-700 px-2 py-1 rounded-full text-xs">
                 <Hospital size={14} />
                 <span>Tại phòng khám</span>
+              </div>
+            )}
+            {service.available_modes.includes("ONLINE") && (
+              <div className="flex items-center gap-1 bg-teal-50 text-teal-700 px-2 py-1 rounded-full text-xs">
+                <Globe size={14} />
+                <span>Trực tuyến</span>
               </div>
             )}
           </div>
@@ -73,7 +79,7 @@ export const ServiceCard: React.FC<ServiceCardProps> = ({ service }) => {
           <Link
             href={`/sexualHealthServices/detail?service_id=${service.service_id}`}
           >
-            Đặt lịch
+            Chi tiết
           </Link>
         </Button>
       </div>
